@@ -1,0 +1,152 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+
+class AdminUserController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = User::query();
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', "%{$request->search}%")
+                    ->orWhere('email', 'like', "%{$request->search}%");
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->latest()->paginate(15)->withQueryString();
+        $roleCounts = [
+            'admin' => User::where('role', 'admin')->count(),
+            'kasir' => User::where('role', 'kasir')->count(),
+            'pelanggan' => User::where('role', 'pelanggan')->count(),
+        ];
+
+        return view('admin.role-user', compact('users', 'roleCounts'));
+    }
+
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'role' => ['required', Rule::in(['admin', 'kasir', 'pelanggan'])],
+        ]);
+
+        if ($validator->fails()) {
+            return $request->expectsJson()
+                ? response()->json(['message' => 'Data tidak valid.', 'errors' => $validator->errors()], 422)
+                : back()->withErrors($validator)->withInput();
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'email_verified_at' => now(),
+        ]);
+
+        // Audit log
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'create_user',
+            'model_type' => User::class,
+            'model_id' => $user->id,
+            'description' => "Membuat user {$user->name} ({$user->email}) dengan role {$user->role}",
+            'old_values' => null,
+            'new_values' => ['name' => $user->name, 'email' => $user->email, 'role' => $user->role],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return $request->expectsJson()
+            ? response()->json(['message' => 'Data berhasil ditambahkan'])
+            : redirect()->route('admin.user-role.index')->with('swal_success', 'Data berhasil ditambahkan');
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
+            'role' => ['required', Rule::in(['admin', 'kasir', 'pelanggan'])],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if ($validator->fails()) {
+            return $request->expectsJson()
+                ? response()->json(['message' => 'Data tidak valid.', 'errors' => $validator->errors()], 422)
+                : back()->withErrors($validator)->withInput();
+        }
+
+        $oldValues = ['name' => $user->name, 'email' => $user->email, 'role' => $user->role];
+
+        $user->fill([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+        ]);
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+            $oldValues['password'] = '*****';
+        }
+
+        $user->save();
+
+        // Audit log
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'update_user',
+            'model_type' => User::class,
+            'model_id' => $user->id,
+            'description' => "Memperbarui user {$user->name}",
+            'old_values' => $oldValues,
+            'new_values' => ['name' => $user->name, 'email' => $user->email, 'role' => $user->role],
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        return $request->expectsJson()
+            ? response()->json(['message' => 'Data berhasil diperbarui'])
+            : redirect()->route('admin.user-role.index')->with('swal_success', 'Data berhasil diperbarui');
+    }
+
+    public function destroy(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('swal_error', 'Tidak bisa menghapus akun sendiri.');
+        }
+
+        $userName = $user->name;
+        $user->delete();
+
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'delete_user',
+            'model_type' => User::class,
+            'model_id' => $user->id,
+            'description' => "Menghapus user {$userName}",
+            'old_values' => ['name' => $userName],
+            'new_values' => null,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        return redirect()->route('admin.user-role.index')->with('swal_success', 'Data berhasil dihapus');
+    }
+}

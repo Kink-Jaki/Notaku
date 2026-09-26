@@ -1,0 +1,1470 @@
+/* ============================================================
+   POS & Order — Reusable component styles
+   All classes are flat BEM-ish namespaced and token-driven.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Form controls polish (built on Bootstrap .form-control/.form-select)
+   ------------------------------------------------------------ */
+
+.form-control,
+.form-select {
+    border-color: var(--color-border);
+    border-radius: var(--pos-radius);
+    color: var(--color-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: rgba(var(--color-primary-rgb), 0.5);
+    box-shadow: 0 0 0 0.25rem rgba(var(--color-primary-rgb), 0.15);
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+/* Search input with leading icon */
+.search-box {
+    position: relative;
+}
+
+.search-box .form-control {
+    padding-left: 2.5rem;
+}
+
+.search-box__icon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    pointer-events: none;
+    font-size: 1rem;
+}
+
+/* ------------------------------------------------------------
+   Qty stepper (read-only input between +/- buttons, cart & product detail)
+   ------------------------------------------------------------ */
+
+.input-qty {
+    flex: 0 0 auto;
+    width: 3.5rem;
+    text-align: center;
+}
+
+/* ------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------ */
+
+.btn-brand {
+    --bs-btn-color: #ffffff;
+    --bs-btn-bg: var(--color-primary);
+    --bs-btn-border-color: var(--color-primary);
+    --bs-btn-hover-color: #ffffff;
+    --bs-btn-hover-bg: #4338ca;
+    --bs-btn-hover-border-color: #4338ca;
+    --bs-btn-active-color: #ffffff;
+    --bs-btn-active-bg: #3730a3;
+    --bs-btn-active-border-color: #3730a3;
+    --bs-btn-disabled-bg: var(--color-primary);
+    --bs-btn-disabled-border-color: var(--color-primary);
+    border-radius: var(--pos-radius);
+    font-weight: 500;
+}
+
+/* ------------------------------------------------------------
+   Stat card (dashboard metric)
+   ------------------------------------------------------------ */
+
+.stat-card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.125rem 1.25rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--pos-radius);
+    box-shadow: var(--pos-shadow-sm);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.stat-card:hover {
+    box-shadow: var(--pos-shadow-md);
+    transform: translateY(-2px);
+}
+
+.stat-card__value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.stat-card .badge-soft--count {
+    font-size: 0.75rem;
+    padding-inline: 0.375rem 0.5rem;
+    line-height: 1;
+}
+
+.stat-card .badge-soft__dot {
+    display: inline-block;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    margin-right: 0.25rem;
+    background-color: currentColor;
+}
+
+/* Chart container */
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+/* Empty state variations */
+.empty-state--small {
+    padding: 1.5rem 1rem;
+}
+
+.empty-state--small .empty-state__icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state--small .empty-state__title {
+    font-size: 0.9rem;
+}
+
+.empty-state--small .empty-state__text {
+    font-size: 0.8rem;
+}
+
+.stat-card > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-card__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--pos-radius);
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-size: 1.25rem;
+}
+
+.stat-card__label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    margin-bottom: 0.125rem;
+}
+
+.stat-card__delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-top: 0.375rem;
+}
+
+.stat-card__delta--up {
+    color: var(--color-success);
+}
+
+.stat-card__delta--down {
+    color: var(--color-danger);
+}
+
+.stat-card--success .stat-card__icon {
+    background-color: rgba(var(--color-success-rgb), 0.12);
+    color: var(--color-success);
+}
+
+.stat-card--warning .stat-card__icon {
+    background-color: rgba(var(--color-warning-rgb), 0.12);
+    color: var(--color-warning);
+}
+
+.stat-card--danger .stat-card__icon {
+    background-color: rgba(var(--color-danger-rgb), 0.12);
+    color: var(--color-danger);
+}
+
+.stat-card--primary .stat-card__icon {
+    background-color: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary);
+}
+
+.stat-card--info .stat-card__icon {
+    background-color: rgba(var(--color-info-rgb), 0.12);
+    color: var(--color-info);
+}
+
+.stat-card--neutral .stat-card__icon {
+    background-color: #eef0f4;
+    color: var(--color-text-muted);
+}
+
+/* ------------------------------------------------------------
+   Product card (catalog / POS grid)
+   ------------------------------------------------------------ */
+
+.product-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--pos-radius);
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: var(--pos-shadow-sm);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--pos-shadow-md);
+    border-color: rgba(var(--color-primary-rgb), 0.4);
+}
+
+.product-card__image {
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #eef2ff, #f5f6fa);
+    color: #c7d2fe;
+    font-size: 2.25rem;
+}
+
+.product-card__body {
+    padding: 0.75rem 1rem;
+}
+
+.product-card__name {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-card__meta {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.product-card__price {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+/* ------------------------------------------------------------
+   POS tile (compact clickable item)
+   ------------------------------------------------------------ */
+
+.pos-tile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--pos-radius);
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pos-tile:hover {
+    border-color: rgba(var(--color-primary-rgb), 0.4);
+    box-shadow: var(--pos-shadow-sm);
+}
+
+.pos-tile__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-size: 1rem;
+}
+
+.pos-tile__name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    line-height: 1.25;
+}
+
+.pos-tile__meta {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+/* ------------------------------------------------------------
+   Table wrapper (card-style, sticky header)
+   ------------------------------------------------------------ */
+
+.table-wrap {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--pos-radius);
+    box-shadow: var(--pos-shadow-sm);
+    overflow: hidden;
+}
+
+.table-wrap .table {
+    margin-bottom: 0;
+    --bs-table-bg: transparent;
+}
+
+.table-wrap .table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+
+.table-wrap .table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.table-wrap .table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ------------------------------------------------------------
+   Soft badge (status labels)
+   ------------------------------------------------------------ */
+
+.badge-soft {
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.badge-soft--success {
+    background-color: rgba(var(--color-success-rgb), 0.12);
+    color: var(--color-success);
+}
+
+.badge-soft--warning {
+    background-color: rgba(var(--color-warning-rgb), 0.12);
+    color: var(--color-warning);
+}
+
+.badge-soft--danger {
+    background-color: rgba(var(--color-danger-rgb), 0.12);
+    color: var(--color-danger);
+}
+
+.badge-soft--info {
+    background-color: rgba(var(--color-info-rgb), 0.12);
+    color: var(--color-info);
+}
+
+.badge-soft--neutral {
+    background-color: #eef0f4;
+    color: var(--color-text-muted);
+}
+
+.badge-soft--count {
+    padding-inline: 0.375rem 0.5rem;
+    font-size: 0.6875rem;
+}
+
+.badge-soft__dot {
+    display: inline-block;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    margin-right: 0.25rem;
+    background-color: currentColor;
+}
+
+/* ------------------------------------------------------------
+   Avatar
+   ------------------------------------------------------------ */
+
+.avatar {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.avatar--sm {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.6875rem;
+}
+
+.avatar--lg {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 0.875rem;
+}
+
+.avatar--dark {
+    background-color: var(--color-sidebar-bg);
+    color: #ffffff;
+}
+
+/* ------------------------------------------------------------
+   Order card (order queue)
+   ------------------------------------------------------------ */
+
+.order-card {
+    display: block;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--pos-radius);
+    box-shadow: var(--pos-shadow-sm);
+    transition: box-shadow 0.15s ease;
+}
+
+.order-card:hover {
+    box-shadow: var(--pos-shadow-md);
+}
+
+.order-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.order-card__id {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0;
+}
+
+.order-card__time {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+}
+
+.order-card__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+}
+
+.order-card__meta > .text-truncate {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.order-card__total {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.order-card__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+/* ------------------------------------------------------------
+   Receipt (80mm-style print strip)
+   ------------------------------------------------------------ */
+
+.receipt {
+    width: 302px;
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 1.125rem 1.25rem;
+    background-color: #ffffff;
+    border: 1px dashed var(--color-border);
+    border-radius: 0.375rem;
+    font-family: var(--bs-font-monospace);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--color-text);
+}
+
+.receipt__title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    margin-bottom: 0.125rem;
+}
+
+.receipt__store {
+    text-align: center;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.receipt-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.125rem 0;
+}
+
+.receipt-line--total {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed #cbd5e1;
+    font-weight: 700;
+}
+
+.receipt-line--label {
+    color: var(--color-text-muted);
+}
+
+.receipt-line--grand {
+    font-size: 0.9375rem;
+}
+
+/* Dotted separator inside a thermal receipt */
+.receipt-divider {
+    margin: 0.5rem 0;
+    border: 0;
+    border-top: 1px dashed #cbd5e1;
+}
+
+/* ------------------------------------------------------------
+   Empty state
+   ------------------------------------------------------------ */
+
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--color-text-muted);
+}
+
+.empty-state__icon {
+    display: inline-block;
+    font-size: 2.5rem;
+    color: #cbd5e1;
+    margin-bottom: 0.875rem;
+}
+
+.empty-state__title {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+}
+
+.empty-state__text {
+    font-size: 0.875rem;
+    max-width: 26rem;
+    margin-inline: auto;
+}
+
+/* ------------------------------------------------------------
+   Pane (borderless panel / POS column)
+   ------------------------------------------------------------ */
+
+.pane {
+    background-color: var(--color-surface);
+    border-radius: var(--pos-radius);
+    box-shadow: var(--pos-shadow-sm);
+    padding: 1rem 1.25rem;
+}
+
+.pane--flush {
+    padding: 0;
+    overflow: hidden;
+}
+
+.pane__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.875rem;
+}
+
+.pane__title {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0;
+}
+
+/* Compact centered pane (e.g. receipt column) */
+.pane--tight {
+    width: 100%;
+    max-width: 24rem;
+    margin-inline: auto;
+}
+
+/* ------------------------------------------------------------
+   Scroll area (thin scrollbar for lists / cart)
+   ------------------------------------------------------------ */
+
+.scroll-area {
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scroll-area::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 3px;
+}
+
+.scroll-area::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+/* ------------------------------------------------------------
+   Pane accent (highlighted section, e.g. pending review queue)
+   ------------------------------------------------------------ */
+
+.pane--accent {
+    border-left: 4px solid var(--color-warning);
+}
+
+/* ------------------------------------------------------------
+   Note box (hint / context inside modals)
+   ------------------------------------------------------------ */
+
+.note-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--pos-radius);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--color-text);
+}
+
+.note-box--info {
+    background-color: rgba(var(--color-info-rgb), 0.08);
+}
+
+.note-box--warning {
+    background-color: rgba(var(--color-warning-rgb), 0.1);
+}
+
+.note-box__icon {
+    flex: none;
+    color: var(--color-info);
+}
+
+.note-box--warning .note-box__icon {
+    color: var(--color-warning);
+}
+
+/* ------------------------------------------------------------
+   Order detail (inside modal): customer info key/value rows
+   ------------------------------------------------------------ */
+
+.order-detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.order-detail-list__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+}
+
+.order-detail-list__label {
+    color: var(--color-text-muted);
+}
+
+.order-detail-list__value {
+    font-weight: 600;
+    text-align: right;
+    color: var(--color-text);
+}
+
+/* ------------------------------------------------------------
+   Order summary / recap rows (inside detail modal)
+   ------------------------------------------------------------ */
+
+.order-summary {
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.75rem;
+}
+
+.order-summary__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.25rem 0;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.order-summary__row--total {
+    border-top: 1px dashed #cbd5e1;
+    margin-top: 0.375rem;
+    padding-top: 0.625rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
+.order-summary__disc {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------
+   Decision note (reject reason snippet in history table)
+   ------------------------------------------------------------ */
+
+.decision-note {
+    max-width: 220px;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+/* ------------------------------------------------------------
+   POS screen (two-pane point-of-sale layout, Kasir / POS)
+   ------------------------------------------------------------ */
+
+.pos-screen {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 38%);
+    gap: 1.25rem;
+    height: calc(100vh - var(--pos-topbar-height) - 3rem);
+    min-height: 560px;
+}
+
+.pos-screen__pane {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    padding: 1rem 1.25rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--pos-radius);
+    box-shadow: var(--pos-shadow-sm);
+}
+
+.pos-screen__pane > .scroll-area {
+    flex: 1;
+    min-height: 0;
+    margin: 0 -0.125rem;
+    padding: 0.125rem 0.375rem;
+}
+
+.pos-product-list {
+    align-content: flex-start;
+}
+
+.pos-screen__footer-note {
+    flex: none;
+    margin-top: 0.75rem;
+}
+
+@media (max-width: 991.98px) {
+    .pos-screen {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 0;
+    }
+
+    .pos-screen__pane > .scroll-area {
+        flex: none;
+        max-height: 60vh;
+    }
+}
+
+/* ------------------------------------------------------------
+   POS product tile (grid variant of .pos-tile)
+   ------------------------------------------------------------ */
+
+.pos-tile--grid {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    height: 100%;
+    padding: 0.5rem;
+    font: inherit;
+    color: var(--color-text);
+    text-align: left;
+}
+
+.pos-tile--grid .pos-tile__image {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    border-radius: 0.375rem;
+    background: linear-gradient(135deg, #eef2ff, #f5f6fa);
+    color: #c7d2fe;
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.pos-tile--grid .pos-tile__name {
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pos-tile--grid .pos-tile__price {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+}
+
+.pos-tile--grid .pos-tile__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.pos-tile--grid.pos-tile--out {
+    opacity: 0.55;
+    filter: grayscale(0.4);
+    cursor: not-allowed;
+}
+
+.pos-tile--grid.pos-tile--out:hover {
+    border-color: var(--color-border);
+    box-shadow: none;
+}
+
+/* ------------------------------------------------------------
+   Cart line item (POS keranjang)
+   ------------------------------------------------------------ */
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.25rem;
+    border-bottom: 1px dashed var(--color-border);
+}
+
+.cart-item:last-child {
+    border-bottom: 0;
+}
+
+.cart-item__info {
+    min-width: 0;
+    flex: 1;
+}
+
+.cart-item__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cart-item__meta {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.cart-item__subtotal {
+    flex: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------------------
+   Note box success (applied promo state)
+   ------------------------------------------------------------ */
+
+.note-box--success {
+    background-color: rgba(var(--color-success-rgb), 0.1);
+}
+
+.note-box--success .note-box__icon {
+    color: var(--color-success);
+}
+
+/* ------------------------------------------------------------
+   Payment success icon (POS modal)
+   ------------------------------------------------------------ */
+
+.pay-success-icon {
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    margin-inline: auto;
+    border-radius: 50%;
+    background-color: rgba(var(--color-success-rgb), 0.12);
+    color: var(--color-success);
+    font-size: 2.25rem;
+}
+
+/* ------------------------------------------------------------
+   Product card — out of stock (storefront catalog / detail)
+   ------------------------------------------------------------ */
+
+.product-card--out {
+    opacity: 0.55;
+    filter: grayscale(0.4);
+}
+
+.product-card--out:hover {
+    transform: none;
+    border-color: var(--color-border);
+    box-shadow: var(--pos-shadow-sm);
+}
+
+/* ------------------------------------------------------------
+   Product detail — large square image (storefront)
+   ------------------------------------------------------------ */
+
+.product-image--square {
+    aspect-ratio: 1 / 1;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    background: linear-gradient(135deg, #eef2ff, #f5f6fa);
+    color: #c7d2fe;
+    font-size: 4.5rem;
+    line-height: 1;
+    border-radius: var(--pos-radius);
+}
+
+/* ------------------------------------------------------------
+   Small square thumbnail (cart / order item rows)
+   ------------------------------------------------------------ */
+
+.thumb-sm {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, #eef2ff, #f5f6fa);
+    color: #c7d2fe;
+    font-size: 1.125rem;
+    line-height: 1;
+}
+
+/* ------------------------------------------------------------
+   Checkout stepper (Keranjang / Checkout / Menunggu Kasir)
+   ------------------------------------------------------------ */
+
+.checkout-stepper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.checkout-step {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+    text-align: center;
+    color: var(--color-text-muted);
+}
+
+.checkout-step__dot {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 50%;
+    background-color: var(--color-surface);
+    border: 2px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.checkout-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 1.0625rem;
+    left: calc(50% + 1.0625rem);
+    width: calc(100% - 2.125rem);
+    height: 2px;
+    border-radius: 1px;
+    background-color: var(--color-border);
+}
+
+.checkout-step.is-active .checkout-step__dot {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+.checkout-step.is-active .checkout-step__label {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.checkout-step.is-done .checkout-step__dot {
+    border-color: var(--color-success);
+    background-color: var(--color-success);
+    color: #ffffff;
+}
+
+.checkout-step.is-done:not(:last-child)::after {
+    background-color: var(--color-success);
+}
+
+.checkout-step__label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+/* ------------------------------------------------------------
+   Truncation / flex helpers (min-width reset so text-truncate
+   can collapse inside flex rows)
+   ------------------------------------------------------------ */
+
+.min-w-0 {
+    min-width: 0;
+}
+
+.truncate-xs {
+    max-width: 14rem;
+}
+
+@media (max-width: 767.98px) {
+    .truncate-xs {
+        max-width: 9rem;
+    }
+}
+
+/* ------------------------------------------------------------
+   Progress bar width modifiers (fixed percentages, admin report)
+   ------------------------------------------------------------ */
+
+.progress-bar--21 {
+    width: 21%;
+}
+
+.progress-bar--62 {
+    width: 62%;
+}
+
+.progress-bar--68 {
+    width: 68%;
+}
+
+.progress-bar--76 {
+    width: 76%;
+}
+
+.progress-bar--82 {
+    width: 82%;
+}
+
+.progress-bar--86 {
+    width: 86%;
+}
+
+.progress-bar--100 {
+    width: 100%;
+}
+
+/* ------------------------------------------------------------
+   Image upload preview (product add/edit modal)
+   ------------------------------------------------------------ */
+
+.upload-preview {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    border: 2px dashed var(--color-border);
+    border-radius: var(--pos-radius);
+    background-color: var(--color-bg);
+    color: var(--color-text-muted);
+}
+
+/* ------------------------------------------------------------
+    Pagination arrow sizing & centering
+    ------------------------------------------------------------ */
+
+.pagination-arrow .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.pagination-arrow .page-link svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.pagination-arrow svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+/* ------------------------------------------------------------
+   Footer links hover
+   ------------------------------------------------------------ */
+
+.hover-text-brand:hover {
+    color: var(--color-primary) !important;
+    text-decoration: none;
+}
+
+/* ------------------------------------------------------------
+   Helper floating button (Pusat Bantuan)
+   ------------------------------------------------------------ */
+
+.helper-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    line-height: 1;
+    box-shadow: var(--pos-shadow-md);
+    z-index: 1000;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.helper-fab:hover,
+.helper-fab:focus-visible {
+    transform: scale(1.08);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    color: #ffffff;
+}
+
+.helper-fab:focus-visible {
+    outline: 2px solid var(--color-primary-dark);
+    outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------
+   Help center (Pusat Bantuan) accordion
+   ------------------------------------------------------------ */
+
+.accordion-item[id] {
+    scroll-margin-top: calc(var(--pos-topbar-height) + 1rem);
+}
+
+/* ------------------------------------------------------------
+   Skeleton loading placeholder (katalog produk / filter)
+   ------------------------------------------------------------ */
+
+.skeleton-card {
+    height: 220px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, var(--color-border) 25%, #f1f5f9 50%, var(--color-border) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.2s ease-in-out infinite;
+}
+
+.skeleton-card--stat {
+    height: 90px;
+}
+
+.skeleton-card--chart {
+    height: 100%;
+}
+
+.skeleton-row td {
+    height: 20px;
+    background: linear-gradient(90deg, var(--color-border) 25%, #f1f5f9 50%, var(--color-border) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.2s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ------------------------------------------------------------
+   Page load progress bar (NProgress) — themed with primary color
+   ------------------------------------------------------------ */
+
+#nprogress .bar {
+    background: var(--color-primary) !important;
+    z-index: 1100 !important;
+}
+
+#nprogress .peg {
+    box-shadow: 0 0 10px var(--color-primary), 0 0 5px var(--color-primary) !important;
+}
+
+#nprogress {
+    z-index: 1100 !important;
+}
+
+/* ------------------------------------------------------------
+   Skeleton loading (async dashboard shells)
+   ------------------------------------------------------------ */
+
+.skeleton {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background-color: #E2E8F0;
+    background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.75) 50%, rgba(255, 255, 255, 0) 100%);
+    background-repeat: no-repeat;
+    background-size: 200% 100%;
+    border-radius: calc(var(--pos-radius) / 2);
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton--text {
+    height: 0.75rem;
+}
+
+.skeleton--value {
+    height: 1.5rem;
+}
+
+.skeleton--badge {
+    display: inline-block;
+    width: 4.5rem;
+    height: 1.25rem;
+    border-radius: 999px;
+}
+
+.skeleton--icon {
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--pos-radius);
+}
+
+.skeleton--avatar {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+}
+
+.skeleton--btn {
+    width: 7rem;
+    height: 2.25rem;
+    border-radius: var(--pos-radius);
+}
+
+.skeleton--w-40 {
+    width: 40%;
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton {
+        animation: none;
+    }
+}
+
+/* ------------------------------------------------------------
+   Full Footer (Marketplace / Public Pages)
+   ------------------------------------------------------------ */
+
+.app-footer--full {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: 48px 24px 0;
+    margin-top: 64px;
+}
+
+.footer-main {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 32px;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.footer-logo {
+    height: 28px;
+    width: auto;
+}
+
+.footer-brand i {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+}
+
+.footer-tagline {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.footer-social {
+    display: flex;
+    gap: 12px;
+}
+
+.footer-social a {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.footer-social a:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+.footer-col__title {
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.footer-links a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.15s ease;
+}
+
+.footer-links a:hover {
+    color: var(--color-primary);
+}
+
+.footer-links--contact li {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.footer-bottom {
+    border-top: 1px solid var(--color-border);
+    padding: 16px 0;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .footer-main {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ------------------------------------------------------------
+   Minimal Footer (Admin / Kasir Dashboard)
+   ------------------------------------------------------------ */
+
+.app-footer--minimal {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: 12px 24px;
+}
+
+.app-footer--minimal > div {
+    max-width: 1200px;
+    margin: 0 auto;
+}

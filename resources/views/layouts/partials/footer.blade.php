@@ -1,0 +1,79 @@
+@php $settings = \App\Support\SettingsHelper::get(); @endphp
+
+<footer class="app-footer app-footer--full">
+    <div class="footer-main">
+        <div class="footer-col footer-col--brand">
+            <div class="footer-brand">
+                @if($settings->logo_path)
+                    <img src="{{ asset('storage/'.$settings->logo_path) }}" alt="{{ $settings->brand_name }}" class="footer-logo">
+                @else
+                    <i class="bi bi-bag" style="font-size: 1.5rem;"></i>
+                @endif
+                <span>{{ $settings->brand_name }}</span>
+            </div>
+            @if($settings->footer_tagline)
+                <p class="footer-tagline">{{ $settings->footer_tagline }}</p>
+            @endif
+            <div class="footer-social">
+                @if($settings->social_instagram)
+                    <a href="{{ $settings->social_instagram }}" target="_blank" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                @endif
+                @if($settings->social_facebook)
+                    <a href="{{ $settings->social_facebook }}" target="_blank" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                @endif
+                @if($settings->social_tiktok)
+                    <a href="{{ $settings->social_tiktok }}" target="_blank" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+                @endif
+                @if($settings->social_whatsapp)
+                    <a href="https://wa.me/{{ $settings->social_whatsapp }}" target="_blank" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                @endif
+            </div>
+        </div>
+
+        <div class="footer-col">
+            <h6 class="footer-col__title">Menu</h6>
+            <ul class="footer-links">
+                <li><a href="{{ route('marketplace') }}">Katalog Produk</a></li>
+                @auth
+                    @if(auth()->user()->role === 'pelanggan')
+                        <li><a href="{{ route('pelanggan.cart') }}">Keranjang</a></li>
+                        <li><a href="{{ route('pelanggan.pesanan-saya') }}">Pesanan Saya</a></li>
+                    @endif
+                @else
+                    <li><a href="{{ route('login') }}">Masuk</a></li>
+                    <li><a href="{{ route('register') }}">Daftar</a></li>
+                @endauth
+                <li><a href="{{ route('pusat-bantuan') }}">Pusat Bantuan</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h6 class="footer-col__title">Bantuan</h6>
+            <ul class="footer-links">
+                <li><a href="{{ route('pusat-bantuan') }}#cara-memesan">Cara Memesan</a></li>
+                <li><a href="{{ route('pusat-bantuan') }}#barang-tidak-sesuai">Barang Tidak Sesuai</a></li>
+                <li><a href="{{ route('pusat-bantuan') }}#lupa-password">Lupa Password</a></li>
+                <li><a href="{{ route('pusat-bantuan') }}#hubungi-admin">Hubungi Admin</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h6 class="footer-col__title">Kontak</h6>
+            <ul class="footer-links footer-links--contact">
+                @if($settings->contact_address)
+                    <li><i class="bi bi-geo-alt"></i> {{ $settings->contact_address }}</li>
+                @endif
+                @if($settings->contact_phone)
+                    <li><i class="bi bi-telephone"></i> {{ $settings->contact_phone }}</li>
+                @endif
+                @if($settings->contact_email)
+                    <li><i class="bi bi-envelope"></i> {{ $settings->contact_email }}</li>
+                @endif
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <span>&copy; {{ date('Y') }} {{ $settings->brand_name }}. Semua hak cipta dilindungi.</span>
+    </div>
+</footer>
