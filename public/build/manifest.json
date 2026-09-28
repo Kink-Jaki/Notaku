@@ -1,0 +1,85 @@
+{
+  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
+    "file": "assets/bootstrap-icons-BeopsB42.woff",
+    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
+  },
+  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2": {
+    "file": "assets/bootstrap-icons-mSm7cUeB.woff2",
+    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-DmLlmxfQ.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "assets": [
+      "assets/bootstrap-icons-mSm7cUeB.woff2",
+      "assets/bootstrap-icons-BeopsB42.woff"
+    ]
+  },
+  "resources/css/bootstrap.css": {
+    "file": "assets/bootstrap-BY8NMNlz.css",
+    "name": "bootstrap",
+    "names": [
+      "bootstrap.css"
+    ],
+    "src": "resources/css/bootstrap.css",
+    "isEntry": true,
+    "assets": [
+      "assets/bootstrap-icons-mSm7cUeB.woff2",
+      "assets/bootstrap-icons-BeopsB42.woff"
+    ]
+  },
+  "resources/js/admin-dashboard-loader.js": {
+    "file": "assets/admin-dashboard-loader-CCKlVvK5.js",
+    "name": "admin-dashboard-loader",
+    "src": "resources/js/admin-dashboard-loader.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/dashboard-chart.js",
+      "resources/js/dashboard-chart.js"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-CIl4MRk-.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "css": [
+      "assets/app-1oWo33m3.css"
+    ]
+  },
+  "resources/js/dashboard-chart.js": {
+    "file": "assets/dashboard-chart-CpZ534_Z.js",
+    "name": "dashboard-chart",
+    "src": "resources/js/dashboard-chart.js",
+    "isEntry": true
+  },
+  "resources/js/kasir-antrian-loader.js": {
+    "file": "assets/kasir-antrian-loader-CAMbRXxr.js",
+    "name": "kasir-antrian-loader",
+    "src": "resources/js/kasir-antrian-loader.js",
+    "isEntry": true
+  },
+  "resources/js/kasir-dashboard-loader.js": {
+    "file": "assets/kasir-dashboard-loader-CzMDwEQ5.js",
+    "name": "kasir-dashboard-loader",
+    "src": "resources/js/kasir-dashboard-loader.js",
+    "isEntry": true
+  },
+  "resources/js/kasir-riwayat-loader.js": {
+    "file": "assets/kasir-riwayat-loader-DaTXrNup.js",
+    "name": "kasir-riwayat-loader",
+    "src": "resources/js/kasir-riwayat-loader.js",
+    "isEntry": true
+  },
+  "resources/js/laporan-harian-loader.js": {
+    "file": "assets/laporan-harian-loader-Bqm6k20l.js",
+    "name": "laporan-harian-loader",
+    "src": "resources/js/laporan-harian-loader.js",
+    "isEntry": true
+  }
+}

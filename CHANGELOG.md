@@ -5,6 +5,11 @@ entri baru di berkas ini melalui git hook `post-commit` (lihat `php artisan chan
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.4.2] - 2026-09-28
+
+### Changed
+- build production assets
+
 ## [1.4.1] - 2026-09-28
 
 ### Changed
