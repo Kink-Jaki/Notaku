@@ -311,7 +311,6 @@
         </nav>
         @endif
         @endif
-        @endif
 
         <div class="app-main @if((isset($hideSidebar) && $hideSidebar) || Auth::guest() || $sidebarMode === 'drawer') app-main--no-sidebar @endif">
             <main class="app-page">
@@ -329,6 +328,7 @@
             </footer>
 @endif
         </div>
+        @endif
 
         {{-- ================= TOMBOL HELPER (PUAT BANTUAN) ================= --}}
         <button
