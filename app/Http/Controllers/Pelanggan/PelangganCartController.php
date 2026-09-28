@@ -58,6 +58,39 @@ class PelangganCartController extends Controller
         return view('pelanggan.cart', compact('items', 'subtotal', 'diskon', 'total', 'jumlahItem', 'promoSession'));
     }
 
+    public function indexMobile(Request $request)
+    {
+        if (! auth()->check()) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Silakan login untuk memesan'], 401);
+            }
+
+            return redirect()->route('login')->with('info', 'Silakan login untuk memesan');
+        }
+
+        $cart = $this->cart();
+
+        $subtotal = 0;
+        $items = [];
+
+        foreach ($cart as $productId => $item) {
+            $product = Product::find($productId);
+            if ($product && $product->is_active && $product->stock > 0) {
+                $item['product'] = $product;
+                $item['line_total'] = $item['price'] * $item['qty'];
+                $subtotal += $item['line_total'];
+                $items[$productId] = $item;
+            }
+        }
+
+        $promoSession = session($this->promoKey());
+        $diskon = $promoSession['discount'] ?? 0;
+        $total = $subtotal - $diskon;
+        $jumlahItem = collect($items)->sum('qty');
+
+        return view('pelanggan.cart-mobile', compact('items', 'subtotal', 'diskon', 'total', 'jumlahItem', 'promoSession'));
+    }
+
     public function add(Request $request)
     {
         if (! auth()->check()) {

@@ -12,6 +12,8 @@ class Setting extends Model
         'favicon_path',
         'color_primary',
         'color_primary_dark',
+        'color_secondary',
+        'color_secondary_dark',
         'color_success',
         'color_warning',
         'color_danger',

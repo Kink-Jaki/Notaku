@@ -4,7 +4,7 @@ test.describe('Marketplace Product Views', () => {
     test('should render the marketplace', async ({ page }) => {
         await page.goto('/');
         await expect(page).toHaveURL('/');
-        await expect(page.locator('h1')).toContainText('Marketplace');
+        await expect(page.locator('h1').first()).toContainText('Marketplace');
     });
 
     test('should filter products by category', async ({ page }) => {
@@ -16,7 +16,7 @@ test.describe('Marketplace Product Views', () => {
     test('should search for products', async ({ page }) => {
         await page.goto('/');
         await page.fill('input[name="search"]', 'Nasi');
-        await page.getByRole('button', { name: 'Cari' }).click();
+        await page.getByRole('button', { name: 'Cari' }).first().click();
         await expect(page).toHaveURL(/search=Nasi/);
     });
 });

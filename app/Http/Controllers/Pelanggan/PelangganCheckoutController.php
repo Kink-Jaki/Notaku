@@ -53,6 +53,28 @@ class PelangganCheckoutController extends Controller
         return view('pelanggan.checkout', compact('cart', 'subtotal', 'diskon', 'total', 'jumlahItem', 'promoSession'));
     }
 
+    public function indexMobile(Request $request)
+    {
+        if (! auth()->check()) {
+            return redirect()->route('login')->with('info', 'Silakan login untuk memesan');
+        }
+
+        $cart = $this->cart();
+
+        if (empty($cart)) {
+            return redirect()->route('marketplace')->with('swal_warning', 'Keranjang masih kosong');
+        }
+
+        $subtotal = collect($cart)->sum(fn ($item) => $item['price'] * $item['qty']);
+        $jumlahItem = collect($cart)->sum('qty');
+
+        $promoSession = session($this->promoKey());
+        $diskon = $promoSession['discount'] ?? 0;
+        $total = $subtotal - $diskon;
+
+        return view('pelanggan.checkout-mobile', compact('cart', 'subtotal', 'diskon', 'total', 'jumlahItem', 'promoSession'));
+    }
+
     public function store(Request $request)
     {
         if (! auth()->check()) {

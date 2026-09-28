@@ -17,6 +17,21 @@ class PelangganKatalogController extends Controller
         return view('pelanggan.marketplace');
     }
 
+    public function indexMobile()
+    {
+        $produk = Product::with('category')
+            ->where('is_active', true)
+            ->when(request('category_id'), fn ($q) => $q->where('category_id', request('category_id')))
+            ->when(request('search'), fn ($q) => $q->where('name', 'like', '%' . request('search') . '%'))
+            ->latest()
+            ->paginate(20);
+
+        $kategori = Category::orderBy('name')->get();
+        $kategoriCounts = $kategori->pluck('id')->mapWithKeys(fn ($id) => [$id => Product::where('category_id', $id)->where('is_active', true)->count()])->toArray();
+
+        return view('pelanggan.katalog-mobile', compact('produk', 'kategori', 'kategoriCounts'));
+    }
+
     public function show(Product $produk)
     {
         $kategori = Category::orderBy('name')->get();

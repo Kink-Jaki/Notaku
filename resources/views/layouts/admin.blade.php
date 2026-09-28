@@ -47,8 +47,8 @@
     <div class="app-sidebar__section-title">Pengaturan</div>
 
     <a class="nav-link {{ $current === 'admin.developer' ? 'active' : '' }}" href="{{ route('admin.developer') }}">
-        <i class="bi bi-code-slash"></i>
-        <span class="flex-grow-1">Developer</span>
+        <i class="bi bi-palette"></i>
+        <span class="flex-grow-1">Personalization</span>
     </a>
 
     <div class="app-sidebar__section-title">Lainnya</div>

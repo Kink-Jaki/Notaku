@@ -20,6 +20,9 @@
     $swalValidationText = count($swalValidationErrors) > 1
         ? implode(' ', array_map(fn ($message) => '- '.$message, $swalValidationErrors))
         : ($swalValidationErrors[0] ?? '');
+
+    // Get settings for theme colors
+    $settings = \App\Support\SettingsHelper::get();
 @endphp
 
 @push('scripts')
@@ -30,8 +33,29 @@
                 return;
             }
 
+            // Theme colors from settings
+            const themeColors = {
+                primary: @json($settings->color_primary),
+                primaryDark: @json($settings->color_primary_dark),
+                secondary: @json($settings->color_secondary),
+                success: @json($settings->color_success),
+                warning: @json($settings->color_warning),
+                danger: @json($settings->color_danger),
+            };
+
+            // Common Swal options with theme colors
+            const swalOptions = {
+                background: themeColors.primaryDark,
+                color: '#FFFFFF',
+                confirmButtonColor: themeColors.primary,
+                cancelButtonColor: themeColors.secondary,
+                denyButtonColor: themeColors.danger,
+                buttonsStyling: true,
+            };
+
             @if ($swalLoginSuccess)
                 Swal.fire({
+                    ...swalOptions,
                     icon: 'success',
                     title: 'Berhasil Login',
                     text: @json($swalLoginSuccess),
@@ -40,6 +64,7 @@
                 });
             @elseif ($swalLogoutSuccess)
                 Swal.fire({
+                    ...swalOptions,
                     icon: 'success',
                     title: 'Berhasil Keluar',
                     text: @json($swalLogoutSuccess),
@@ -48,6 +73,7 @@
                 });
             @elseif ($swalSuccess)
                 Swal.fire({
+                    ...swalOptions,
                     icon: 'success',
                     title: 'Berhasil',
                     text: @json($swalSuccess),
@@ -56,6 +82,7 @@
                 });
             @elseif ($swalWarning)
                 Swal.fire({
+                    ...swalOptions,
                     icon: 'warning',
                     title: 'Perhatian',
                     text: @json($swalWarning),
@@ -63,12 +90,14 @@
                 });
             @elseif ($swalError)
                 Swal.fire({
+                    ...swalOptions,
                     icon: 'error',
                     title: 'Gagal',
                     text: @json($swalError),
                 });
             @elseif ($swalCartSuccess)
                 Swal.fire({
+                    ...swalOptions,
                     toast: true,
                     position: 'top-end',
                     icon: 'success',
@@ -79,6 +108,7 @@
                 });
             @elseif ($swalFallbackSuccess)
                 Swal.fire({
+                    ...swalOptions,
                     icon: 'success',
                     title: 'Berhasil',
                     text: @json($swalFallbackSuccess),
@@ -87,12 +117,14 @@
                 });
             @elseif ($swalFallbackError)
                 Swal.fire({
+                    ...swalOptions,
                     icon: 'error',
                     title: 'Gagal',
                     text: @json($swalFallbackError),
                 });
             @elseif ($swalStatusText)
                 Swal.fire({
+                    ...swalOptions,
                     icon: 'success',
                     title: 'Berhasil',
                     text: @json($swalStatusText),
@@ -101,6 +133,7 @@
                 });
             @elseif ($swalValidationText !== '')
                 Swal.fire({
+                    ...swalOptions,
                     icon: 'error',
                     title: 'Validasi Gagal',
                     text: @json($swalValidationText),

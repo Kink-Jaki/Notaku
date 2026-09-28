@@ -56,6 +56,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth', 'verified', 'role:pelanggan'])->name('pelanggan.')->group(function () {
     Route::get('/cart', [PelangganCartController::class, 'index'])->name('cart');
+    Route::get('/cart/mobile', [PelangganCartController::class, 'indexMobile'])->name('cart.mobile');
     Route::post('/cart/add', [PelangganCartController::class, 'add'])->name('cart.add');
     Route::post('/cart/update', [PelangganCartController::class, 'update'])->name('cart.update');
     Route::post('/cart/remove', [PelangganCartController::class, 'remove'])->name('cart.remove');
@@ -63,9 +64,11 @@ Route::middleware(['auth', 'verified', 'role:pelanggan'])->name('pelanggan.')->g
     Route::post('/cart/promo', [PelangganCartController::class, 'applyPromo'])->name('cart.promo');
     Route::post('/cart/promo/remove', [PelangganCartController::class, 'removePromo'])->name('cart.promoRemove');
     Route::get('/checkout', [PelangganCheckoutController::class, 'index'])->name('checkout');
+    Route::get('/checkout/mobile', [PelangganCheckoutController::class, 'indexMobile'])->name('checkout.mobile');
     Route::post('/checkout', [PelangganCheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/pesanan-saya', [PelangganRiwayatController::class, 'index'])->name('pesanan-saya');
     Route::put('/pesanan-saya/{order}/cancel', [PelangganRiwayatController::class, 'cancel'])->name('order.cancel');
+    Route::get('/katalog/mobile', [PelangganKatalogController::class, 'indexMobile'])->name('katalog.mobile');
 });
 
 Route::get('/api/kasir/dashboard', [KasirDashboardApiController::class, 'index'])

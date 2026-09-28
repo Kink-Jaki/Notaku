@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const KASIR_EMAIL = 'kasir@posapp.test';
+const KASIR_EMAIL = 'kasir@kasir';
 const KASIR_PASSWORD = 'password';
 
 async function login(page) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Support\SettingsHelper;
+use App\Support\ThemePresets;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
@@ -14,22 +15,27 @@ class DeveloperController extends Controller
     public function index(): View
     {
         $settings = SettingsHelper::get();
+        $presetOptions = ThemePresets::getVariantOptions();
 
-        return view('admin.developer.index', compact('settings'));
+        return view('admin.developer.index', compact('settings', 'presetOptions'));
     }
 
     public function update(Request $request)
     {
+        $presetKeys = array_keys(ThemePresets::all());
+
         $validated = $request->validate([
             'brand_name' => 'required|string|max:50',
             'logo' => 'nullable|image|mimes:png,jpg,jpeg,svg|max:2048',
             'favicon' => 'nullable|image|mimes:png,ico|max:512',
             'color_primary' => 'required|string|max:7',
             'color_primary_dark' => 'required|string|max:7',
+            'color_secondary' => 'required|string|max:7',
+            'color_secondary_dark' => 'required|string|max:7',
             'color_success' => 'required|string|max:7',
             'color_warning' => 'required|string|max:7',
             'color_danger' => 'required|string|max:7',
-            'theme_variant' => 'required|in:default,minimal,corporate,creative',
+            'theme_variant' => 'required|in:' . implode(',', $presetKeys),
             'dev_mode' => 'boolean',
             'footer_tagline' => 'nullable|string|max:200',
             'social_instagram' => 'nullable|url|max:255',
@@ -43,13 +49,26 @@ class DeveloperController extends Controller
 
         $setting = Setting::first() ?? new Setting;
         $setting->brand_name = $validated['brand_name'];
-        $setting->color_primary = $validated['color_primary'];
-        $setting->color_primary_dark = $validated['color_primary_dark'];
-        $setting->color_success = $validated['color_success'];
-        $setting->color_warning = $validated['color_warning'];
-        $setting->color_danger = $validated['color_danger'];
-        $setting->theme_variant = $validated['theme_variant'];
-        $setting->dev_mode = $request->boolean('dev_mode');
+        
+        // Apply preset colors if theme_variant changed (unless in dev_mode where user customizes manually)
+        $newVariant = $validated['theme_variant'];
+        $isDevMode = $request->boolean('dev_mode');
+        
+        if (!$isDevMode || $setting->theme_variant !== $newVariant) {
+            ThemePresets::applyToSettings($newVariant, $setting);
+        } else {
+            // In dev_mode and same variant - use manually entered colors
+            $setting->color_primary = $validated['color_primary'];
+            $setting->color_primary_dark = $validated['color_primary_dark'];
+            $setting->color_secondary = $validated['color_secondary'];
+            $setting->color_secondary_dark = $validated['color_secondary_dark'];
+            $setting->color_success = $validated['color_success'];
+            $setting->color_warning = $validated['color_warning'];
+            $setting->color_danger = $validated['color_danger'];
+        }
+        
+        $setting->theme_variant = $newVariant;
+        $setting->dev_mode = $isDevMode;
         $setting->footer_tagline = $validated['footer_tagline'] ?? null;
         $setting->social_instagram = $validated['social_instagram'] ?? null;
         $setting->social_facebook = $validated['social_facebook'] ?? null;

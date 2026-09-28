@@ -54,42 +54,58 @@
 
                     <hr class="my-4">
 
-                    {{-- Warna Tema --}}
-                    <h3 class="h6 fw-semibold mb-3">Warna Tema</h3>
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6">
-                            <label for="color_primary" class="form-label fw-semibold">Primary</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="color" class="form-control form-control-color" id="color_primary" name="color_primary" value="{{ $settings->color_primary }}" data-preview="primary">
-                                <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_primary }}" readonly id="color_primary_hex">
+                    {{-- Warna Tema (hanya tampil saat Mode Developer aktif) --}}
+                    <div id="color-pickers-section" data-color-row style="display: {{ $settings->dev_mode ? 'block' : 'none' }};">
+                        <h3 class="h6 fw-semibold mb-3">Warna Tema <span class="text-muted small">(Mode Developer aktif)</span></h3>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label for="color_primary" class="form-label fw-semibold">Primary</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="color" class="form-control form-control-color" id="color_primary" name="color_primary" value="{{ $settings->color_primary }}" data-preview="primary">
+                                    <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_primary }}" readonly id="color_primary_hex">
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label for="color_primary_dark" class="form-label fw-semibold">Primary Dark</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="color" class="form-control form-control-color" id="color_primary_dark" name="color_primary_dark" value="{{ $settings->color_primary_dark }}" data-preview="primary-dark">
-                                <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_primary_dark }}" readonly id="color_primary_dark_hex">
+                            <div class="col-12 col-md-6">
+                                <label for="color_primary_dark" class="form-label fw-semibold">Primary Dark</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="color" class="form-control form-control-color" id="color_primary_dark" name="color_primary_dark" value="{{ $settings->color_primary_dark }}" data-preview="primary-dark">
+                                    <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_primary_dark }}" readonly id="color_primary_dark_hex">
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label for="color_success" class="form-label fw-semibold">Success</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="color" class="form-control form-control-color" id="color_success" name="color_success" value="{{ $settings->color_success }}" data-preview="success">
-                                <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_success }}" readonly id="color_success_hex">
+                            <div class="col-12 col-md-6">
+                                <label for="color_secondary" class="form-label fw-semibold">Secondary</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="color" class="form-control form-control-color" id="color_secondary" name="color_secondary" value="{{ $settings->color_secondary }}" data-preview="secondary">
+                                    <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_secondary }}" readonly id="color_secondary_hex">
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label for="color_warning" class="form-label fw-semibold">Warning</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="color" class="form-control form-control-color" id="color_warning" name="color_warning" value="{{ $settings->color_warning }}" data-preview="warning">
-                                <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_warning }}" readonly id="color_warning_hex">
+                            <div class="col-12 col-md-6">
+                                <label for="color_secondary_dark" class="form-label fw-semibold">Secondary Dark</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="color" class="form-control form-control-color" id="color_secondary_dark" name="color_secondary_dark" value="{{ $settings->color_secondary_dark }}" data-preview="secondary-dark">
+                                    <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_secondary_dark }}" readonly id="color_secondary_dark_hex">
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label for="color_danger" class="form-label fw-semibold">Danger</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="color" class="form-control form-control-color" id="color_danger" name="color_danger" value="{{ $settings->color_danger }}" data-preview="danger">
-                                <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_danger }}" readonly id="color_danger_hex">
+                            <div class="col-12 col-md-6">
+                                <label for="color_success" class="form-label fw-semibold">Success</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="color" class="form-control form-control-color" id="color_success" name="color_success" value="{{ $settings->color_success }}" data-preview="success">
+                                    <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_success }}" readonly id="color_success_hex">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="color_warning" class="form-label fw-semibold">Warning</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="color" class="form-control form-control-color" id="color_warning" name="color_warning" value="{{ $settings->color_warning }}" data-preview="warning">
+                                    <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_warning }}" readonly id="color_warning_hex">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="color_danger" class="form-label fw-semibold">Danger</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="color" class="form-control form-control-color" id="color_danger" name="color_danger" value="{{ $settings->color_danger }}" data-preview="danger">
+                                    <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_danger }}" readonly id="color_danger_hex">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -100,21 +116,20 @@
                     <h3 class="h6 fw-semibold mb-3">Template Varian & Mode Developer</h3>
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
-                            <label for="theme_variant" class="form-label fw-semibold">Template Varian</label>
+                            <label for="theme_variant" class="form-label fw-semibold">Template Varian (Preset Warna)</label>
                             <select class="form-select" id="theme_variant" name="theme_variant">
-                                <option value="default" {{ $settings->theme_variant === 'default' ? 'selected' : '' }}>Default (Saat ini)</option>
-                                <option value="minimal" {{ $settings->theme_variant === 'minimal' ? 'selected' : '' }}>Minimal</option>
-                                <option value="corporate" {{ $settings->theme_variant === 'corporate' ? 'selected' : '' }}>Corporate</option>
-                                <option value="creative" {{ $settings->theme_variant === 'creative' ? 'selected' : '' }}>Creative</option>
+                                @foreach ($presetOptions as $key => $name)
+                                    <option value="{{ $key }}" {{ $settings->theme_variant === $key ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
                             </select>
-                            <div class="form-text">Pilih varian tampilan tema. Setiap varian memiliki gaya visual yang berbeda.</div>
+                            <div class="form-text">Pilih preset warna siap pakai. Warna akan otomatis terisi sesuai preset yang dipilih.</div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="form-check form-switch mt-4">
                                 <input class="form-check-input" type="checkbox" id="dev_mode" name="dev_mode" {{ $settings->dev_mode ? 'checked' : '' }}>
                                 <label class="form-check-label fw-semibold" for="dev_mode">Mode Developer (Advance)</label>
                             </div>
-                            <div class="form-text">Aktifkan untuk menampilkan pengaturan lanjutan dan detail (seperti tampilan saat ini).</div>
+                            <div class="form-text">Aktifkan untuk menyesuaikan warna secara manual (override preset).</div>
                         </div>
                     </div>
 
@@ -190,8 +205,7 @@
                     </div>
                 </form>
             </div>
-        </x-card>
-    </div>
+</div>
 
     {{-- Live Preview Panel --}}
     <div class="col-12 col-xl-4">
@@ -221,6 +235,8 @@
                     <div class="d-flex flex-wrap gap-2" id="preview-buttons">
                         <button type="button" class="btn btn-sm" id="preview-btn-primary">Primary</button>
                         <button type="button" class="btn btn-sm" id="preview-btn-primary-dark" style="background-color: var(--color-primary-dark); border-color: var(--color-primary-dark);">Primary Dark</button>
+                        <button type="button" class="btn btn-sm" id="preview-btn-secondary">Secondary</button>
+                        <button type="button" class="btn btn-sm" id="preview-btn-secondary-dark" style="background-color: var(--color-secondary-dark); border-color: var(--color-secondary-dark);">Secondary Dark</button>
                         <button type="button" class="btn btn-success btn-sm" id="preview-btn-success">Success</button>
                         <button type="button" class="btn btn-warning btn-sm" id="preview-btn-warning">Warning</button>
                         <button type="button" class="btn btn-danger btn-sm" id="preview-btn-danger">Danger</button>
@@ -231,20 +247,31 @@
                     <h4 class="small text-muted text-uppercase mb-2">Badges</h4>
                     <div class="d-flex flex-wrap gap-2" id="preview-badges">
                         <span class="badge" id="preview-badge-primary">Primary</span>
+                        <span class="badge" id="preview-badge-secondary">Secondary</span>
                         <span class="badge" id="preview-badge-success">Success</span>
                         <span class="badge" id="preview-badge-warning">Warning</span>
                         <span class="badge" id="preview-badge-danger">Danger</span>
                     </div>
                 </div>
 
-                <div class="preview-section">
+                <div class="preview-section mb-3">
                     <h4 class="small text-muted text-uppercase mb-2">Alerts</h4>
                     <div class="d-flex flex-column gap-2" id="preview-alerts">
                         <div class="alert alert-primary py-2 px-3 mb-0" id="preview-alert-primary">Primary alert example</div>
+                        <div class="alert alert-secondary py-2 px-3 mb-0" id="preview-alert-secondary">Secondary alert example</div>
                         <div class="alert alert-success py-2 px-3 mb-0" id="preview-alert-success">Success alert example</div>
                         <div class="alert alert-warning py-2 px-3 mb-0" id="preview-alert-warning">Warning alert example</div>
                         <div class="alert alert-danger py-2 px-3 mb-0" id="preview-alert-danger">Danger alert example</div>
                     </div>
+                </div>
+
+                {{-- Creator Note --}}
+                <div class="text-center pt-2 border-top">
+                    <small class="text-muted">
+                        Butuh update web ini sesuai request kamu? Hubungi creator
+                        <a href="https://github.com/kink-jaki" target="_blank" class="text-primary text-decoration-none ms-1"><i class="bi bi-github"></i> kink-jaki</a>
+                        <span class="text-danger ms-1"><i class="bi bi-instagram"></i> fzaky.13</span>
+                    </small>
                 </div>
             </div>
         </x-card>
@@ -257,10 +284,15 @@
     (function () {
         'use strict';
 
+        // Preset color definitions (from PHP ThemePresets)
+        const presets = @json(\App\Support\ThemePresets::all());
+
         const defaultValues = {
             brand_name: 'Notaku',
             color_primary: '#4F46E5',
             color_primary_dark: '#4338CA',
+            color_secondary: '#64748B',
+            color_secondary_dark: '#475569',
             color_success: '#10B981',
             color_warning: '#F59E0B',
             color_danger: '#EF4444',
@@ -270,10 +302,39 @@
         const hexInputs = {
             'primary': document.getElementById('color_primary_hex'),
             'primary-dark': document.getElementById('color_primary_dark_hex'),
+            'secondary': document.getElementById('color_secondary_hex'),
+            'secondary-dark': document.getElementById('color_secondary_dark_hex'),
             'success': document.getElementById('color_success_hex'),
             'warning': document.getElementById('color_warning_hex'),
             'danger': document.getElementById('color_danger_hex'),
         };
+
+        const themeVariantSelect = document.getElementById('theme_variant');
+        const devModeCheckbox = document.getElementById('dev_mode');
+        const colorPickerRows = document.querySelectorAll('[data-color-row]');
+
+        // Apply preset colors to pickers
+        function applyPreset(presetKey) {
+            const preset = presets[presetKey];
+            if (!preset) return;
+
+            document.getElementById('color_primary').value = preset.color_primary;
+            document.getElementById('color_primary_dark').value = preset.color_primary_dark;
+            document.getElementById('color_secondary').value = preset.color_secondary;
+            document.getElementById('color_secondary_dark').value = preset.color_secondary_dark;
+            document.getElementById('color_success').value = preset.color_success;
+            document.getElementById('color_warning').value = preset.color_warning;
+            document.getElementById('color_danger').value = preset.color_danger;
+
+            updatePreview();
+        }
+
+        // Toggle color picker visibility based on dev_mode
+        function toggleColorPickers(show) {
+            colorPickerRows.forEach(row => {
+                row.style.display = show ? '' : 'none';
+            });
+        }
 
         // Update preview elements
         function updatePreview() {
@@ -296,6 +357,8 @@
             const root = document.documentElement;
             root.style.setProperty('--preview-primary', document.getElementById('color_primary').value);
             root.style.setProperty('--preview-primary-dark', document.getElementById('color_primary_dark').value);
+            root.style.setProperty('--preview-secondary', document.getElementById('color_secondary').value);
+            root.style.setProperty('--preview-secondary-dark', document.getElementById('color_secondary_dark').value);
             root.style.setProperty('--preview-success', document.getElementById('color_success').value);
             root.style.setProperty('--preview-warning', document.getElementById('color_warning').value);
             root.style.setProperty('--preview-danger', document.getElementById('color_danger').value);
@@ -304,86 +367,25 @@
             applyPreviewStyles();
         }
 
-        function applyPreviewStyles() {
-            const primary = document.getElementById('color_primary').value;
-            const primaryDark = document.getElementById('color_primary_dark').value;
-            const success = document.getElementById('color_success').value;
-            const warning = document.getElementById('color_warning').value;
-            const danger = document.getElementById('color_danger').value;
+        // Event: preset change
+        if (themeVariantSelect) {
+            themeVariantSelect.addEventListener('change', function () {
+                // Only auto-apply preset if NOT in dev_mode
+                if (!devModeCheckbox?.checked) {
+                    applyPreset(this.value);
+                }
+            });
+        }
 
-            // Buttons
-            const btnPrimary = document.getElementById('preview-btn-primary');
-            const btnPrimaryDark = document.getElementById('preview-btn-primary-dark');
-            const btnSuccess = document.getElementById('preview-btn-success');
-            const btnWarning = document.getElementById('preview-btn-warning');
-            const btnDanger = document.getElementById('preview-btn-danger');
-
-            if (btnPrimary) {
-                btnPrimary.style.backgroundColor = primary;
-                btnPrimary.style.borderColor = primary;
-            }
-            if (btnPrimaryDark) {
-                btnPrimaryDark.style.backgroundColor = primaryDark;
-                btnPrimaryDark.style.borderColor = primaryDark;
-            }
-            if (btnSuccess) {
-                btnSuccess.style.backgroundColor = success;
-                btnSuccess.style.borderColor = success;
-            }
-            if (btnWarning) {
-                btnWarning.style.backgroundColor = warning;
-                btnWarning.style.borderColor = warning;
-            }
-            if (btnDanger) {
-                btnDanger.style.backgroundColor = danger;
-                btnDanger.style.borderColor = danger;
-            }
-
-            // Badges
-            const badgePrimary = document.getElementById('preview-badge-primary');
-            const badgeSuccess = document.getElementById('preview-badge-success');
-            const badgeWarning = document.getElementById('preview-badge-warning');
-            const badgeDanger = document.getElementById('preview-badge-danger');
-
-            if (badgePrimary) {
-                badgePrimary.style.backgroundColor = primary;
-            }
-            if (badgeSuccess) {
-                badgeSuccess.style.backgroundColor = success;
-            }
-            if (badgeWarning) {
-                badgeWarning.style.backgroundColor = warning;
-            }
-            if (badgeDanger) {
-                badgeDanger.style.backgroundColor = danger;
-            }
-
-            // Alerts
-            const alertPrimary = document.getElementById('preview-alert-primary');
-            const alertSuccess = document.getElementById('preview-alert-success');
-            const alertWarning = document.getElementById('preview-alert-warning');
-            const alertDanger = document.getElementById('preview-alert-danger');
-
-            if (alertPrimary) {
-                alertPrimary.style.backgroundColor = primary + '15'; // 8% opacity
-                alertPrimary.style.borderColor = primary + '40'; // 25% opacity
-                alertPrimary.style.color = primary;
-            }
-            if (alertSuccess) {
-                alertSuccess.style.backgroundColor = success + '15';
-                alertSuccess.style.borderColor = success + '40';
-                alertSuccess.style.color = success;
-            }
-            if (alertWarning) {
-                alertWarning.style.backgroundColor = warning + '15';
-                alertWarning.style.borderColor = warning + '40';
-                alertWarning.style.color = warning;
-            }
-            if (alertDanger) {
-                alertDanger.style.backgroundColor = danger + '15';
-                alertDanger.style.borderColor = danger + '40';
-                alertDanger.style.color = danger;
-            }
+        // Event: dev_mode toggle
+        if (devModeCheckbox) {
+            devModeCheckbox.addEventListener('change', function () {
+                toggleColorPickers(this.checked);
+                if (!this.checked) {
+                    // When turning OFF dev_mode, re-apply current preset
+                    applyPreset(themeVariantSelect?.value);
+                }
+            });
         }
 
         // Event listeners for color pickers
@@ -454,9 +456,13 @@
             document.getElementById('brand_name').value = defaultValues.brand_name;
             document.getElementById('color_primary').value = defaultValues.color_primary;
             document.getElementById('color_primary_dark').value = defaultValues.color_primary_dark;
+            document.getElementById('color_secondary').value = defaultValues.color_secondary;
+            document.getElementById('color_secondary_dark').value = defaultValues.color_secondary_dark;
             document.getElementById('color_success').value = defaultValues.color_success;
             document.getElementById('color_warning').value = defaultValues.color_warning;
             document.getElementById('color_danger').value = defaultValues.color_danger;
+            document.getElementById('theme_variant').value = 'default';
+            document.getElementById('dev_mode').checked = false;
 
             // Clear file inputs
             document.getElementById('logo').value = '';
@@ -507,11 +513,14 @@
                 @endif
             }
 
+            toggleColorPickers(false);
             updatePreview();
         });
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function () {
+            // Set initial color picker visibility
+            toggleColorPickers(devModeCheckbox?.checked ?? false);
             updatePreview();
         });
     })();
