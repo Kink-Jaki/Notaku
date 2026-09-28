@@ -27,6 +27,75 @@
 
     <div class="pane p-3 p-md-4">
         <div class="accordion" id="pusatBantuanAccordion">
+            {{-- ================= CHANGELOG & UPDATE PATCH ================= --}}
+            <div class="accordion-item" id="changelog">
+                <h2 class="accordion-header">
+                    <button
+                        class="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseChangelog"
+                        aria-expanded="true"
+                        aria-controls="collapseChangelog"
+                    >
+                        <i class="bi bi-journal-text me-2"></i> Changelog &amp; Update Patch
+                    </button>
+                </h2>
+                <div id="collapseChangelog" class="accordion-collapse collapse show" data-bs-parent="#pusatBantuanAccordion">
+                    <div class="accordion-body">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="d-flex align-items-start gap-3 mb-4">
+                                    <span class="badge badge-soft badge-soft--success flex-shrink-0">v1.4.0</span>
+                                    <div>
+                                        <div class="fw-semibold">Personalization &amp; Mobile UI</div>
+                                        <div class="small text-muted-pos mb-2">28 Sep 2026</div>
+                                        <ul class="small mb-0 ps-3">
+                                            <li>Menu admin <strong>Developer</strong> diganti menjadi <strong>Personalization</strong>.</li>
+                                            <li>Sistem tema dengan 8 varian warna (Default, Ocean, Forest, Sunset, Midnight, Rose, Violet, Amber).</li>
+                                            <li>Tambah warna secondary pada pengaturan tema.</li>
+                                            <li>Tampilan mobile baru untuk Katalog, Keranjang, dan Checkout.</li>
+                                            <li>Komponen <em>product-card</em> mobile.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item">
+                                <div class="d-flex align-items-start gap-3 mb-4">
+                                    <span class="badge badge-soft badge-soft--warning flex-shrink-0">v1.3.1</span>
+                                    <div>
+                                        <div class="fw-semibold">Bug Fix Patch</div>
+                                        <div class="small text-muted-pos mb-2">28 Sep 2026</div>
+                                        <ul class="small mb-0 ps-3">
+                                            <li>Perbaikan konten &amp; footer Marketplace yang ter-render ganda.</li>
+                                            <li>Perbaikan error sintaks (<em>missing @@endif</em>) pada layout utama.</li>
+                                            <li>Perbaikan tes Playwright (selector, kredensial, modal).</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item">
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="badge badge-soft badge-soft--info flex-shrink-0">v1.3.0</span>
+                                    <div>
+                                        <div class="fw-semibold">Laporan &amp; Antrian</div>
+                                        <div class="small text-muted-pos mb-2">26 Sep 2026</div>
+                                        <ul class="small mb-0 ps-3">
+                                            <li>Halaman Laporan Harian dengan filter tanggal &amp; refetch AJAX.</li>
+                                            <li>Antrian Pesanan kasir: approve / tolak dengan konfirmasi SweetAlert.</li>
+                                            <li>Riwayat Transaksi dengan statistik &amp; filter.</li>
+                                            <li>Skeleton loading pada halaman kasir.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- ================= CARA MEMESAN ================= --}}
             <div class="accordion-item" id="cara-memesan">
                 <h2 class="accordion-header">
