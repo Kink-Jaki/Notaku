@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\PromoCode;
 use App\Support\NumberGenerator;
 use Illuminate\Http\Request;
@@ -31,6 +32,24 @@ class PelangganCheckoutController extends Controller
         return session($this->cartKey(), []);
     }
 
+    /**
+     * Sertakan gambar produk pada item keranjang agar thumbnail checkout
+     * bisa menampilkan gambar asli, bukan selalu placeholder.
+     *
+     * @param  array<int|string, array>  $cart
+     * @return array<int|string, array>
+     */
+    private function attachProductImages(array $cart): array
+    {
+        $images = Product::query()->whereIn('id', array_keys($cart))->pluck('image', 'id');
+
+        foreach ($cart as $id => $item) {
+            $cart[$id]['image'] = $images->get($id);
+        }
+
+        return $cart;
+    }
+
     public function index(Request $request)
     {
         if (! auth()->check()) {
@@ -43,6 +62,7 @@ class PelangganCheckoutController extends Controller
             return redirect()->route('marketplace')->with('swal_warning', 'Keranjang masih kosong');
         }
 
+        $cart = $this->attachProductImages($cart);
         $subtotal = collect($cart)->sum(fn ($item) => $item['price'] * $item['qty']);
         $jumlahItem = collect($cart)->sum('qty');
 
@@ -65,6 +85,7 @@ class PelangganCheckoutController extends Controller
             return redirect()->route('marketplace')->with('swal_warning', 'Keranjang masih kosong');
         }
 
+        $cart = $this->attachProductImages($cart);
         $subtotal = collect($cart)->sum(fn ($item) => $item['price'] * $item['qty']);
         $jumlahItem = collect($cart)->sum('qty');
 

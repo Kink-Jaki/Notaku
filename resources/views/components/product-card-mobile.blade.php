@@ -15,7 +15,7 @@
             @if ($product->image)
                 <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="product-card-mobile__img" loading="lazy" width="200" height="160">
             @else
-                <div class="product-card-mobile__placeholder"><i class="bi bi-box-seam"></i></div>
+                <div class="product-card-mobile__placeholder"><x-product-placeholder size="lg" /></div>
             @endif
             @if ($isOut)
                 <span class="product-card-mobile__out-badge">Habis</span>

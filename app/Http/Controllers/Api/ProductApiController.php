@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\SettingsHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -32,6 +33,8 @@ class ProductApiController extends Controller
 
         $kategori = Category::orderBy('name')->get();
 
+        $settings = SettingsHelper::get();
+
         $jumlahPerKategori = Product::query()
             ->where('is_active', true)
             ->whereIn('category_id', $kategori->pluck('id'))
@@ -50,6 +53,10 @@ class ProductApiController extends Controller
             'kategori_counts' => $kategoriCounts,
             'is_logged_in' => auth()->check(),
             'csrf' => csrf_token(),
+            'brand' => [
+                'name' => $settings->brand_name ?: config('app.name'),
+                'logo' => $settings->logo_path ? asset('storage/'.$settings->logo_path) : null,
+            ],
             'urls' => [
                 'produk' => url('/produk'),
                 'storage' => asset('storage'),

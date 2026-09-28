@@ -134,7 +134,11 @@
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center gap-3">
-                                                    <span class="thumb-sm"><i class="bi bi-box-seam"></i></span>
+                                                    @if ($item['image'] ?? null)
+                                                        <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" class="thumb-sm" style="max-width:40px;object-fit:cover;">
+                                                    @else
+                                                        <span class="thumb-sm"><x-product-placeholder size="sm" /></span>
+                                                    @endif
                                                     <div>
                                                         <div class="fw-semibold">{{ $item['name'] }}</div>
                                                     </div>

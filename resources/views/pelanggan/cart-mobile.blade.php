@@ -344,7 +344,7 @@
                         @if ($productThumb)
                             <img src="{{ asset('storage/' . $productThumb) }}" alt="{{ $productName }}" loading="lazy" width="60" height="60">
                         @else
-                            <i class="bi bi-box-seam"></i>
+                            <x-product-placeholder size="sm" />
                         @endif
                     </div>
 

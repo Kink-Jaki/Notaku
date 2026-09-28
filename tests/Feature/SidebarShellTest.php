@@ -20,7 +20,7 @@ class SidebarShellTest extends TestCase
             ->assertSee('store-topbar', false)
             ->assertSee('storeSidebarOffcanvas', false)
             ->assertSee('store-main', false)
-            ->assertSee('store-footer', false)
+            ->assertSee('app-footer', false)
             ->assertSee($user->name)
             ->assertSee('<span class="flex-grow-1">Keranjang</span>', false)
             ->assertSee('<span class="flex-grow-1">Pusat Informasi</span>', false)

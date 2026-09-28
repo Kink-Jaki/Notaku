@@ -44,53 +44,35 @@
                 <div id="collapseChangelog" class="accordion-collapse collapse show" data-bs-parent="#pusatBantuanAccordion">
                     <div class="accordion-body">
                         <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="d-flex align-items-start gap-3 mb-4">
-                                    <span class="badge badge-soft badge-soft--success flex-shrink-0">v1.4.0</span>
-                                    <div>
-                                        <div class="fw-semibold">Personalization &amp; Mobile UI</div>
-                                        <div class="small text-muted-pos mb-2">28 Sep 2026</div>
-                                        <ul class="small mb-0 ps-3">
-                                            <li>Menu admin <strong>Developer</strong> diganti menjadi <strong>Personalization</strong>.</li>
-                                            <li>Sistem tema dengan 8 varian warna (Default, Ocean, Forest, Sunset, Midnight, Rose, Violet, Amber).</li>
-                                            <li>Tambah warna secondary pada pengaturan tema.</li>
-                                            <li>Tampilan mobile baru untuk Katalog, Keranjang, dan Checkout.</li>
-                                            <li>Komponen <em>product-card</em> mobile.</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+                            @php $changelogEntries = \App\Support\Changelog::entries(); @endphp
 
-                            <div class="timeline-item">
-                                <div class="d-flex align-items-start gap-3 mb-4">
-                                    <span class="badge badge-soft badge-soft--warning flex-shrink-0">v1.3.1</span>
-                                    <div>
-                                        <div class="fw-semibold">Bug Fix Patch</div>
-                                        <div class="small text-muted-pos mb-2">28 Sep 2026</div>
-                                        <ul class="small mb-0 ps-3">
-                                            <li>Perbaikan konten &amp; footer Marketplace yang ter-render ganda.</li>
-                                            <li>Perbaikan error sintaks (<em>missing @@endif</em>) pada layout utama.</li>
-                                            <li>Perbaikan tes Playwright (selector, kredensial, modal).</li>
-                                        </ul>
+                            @forelse ($changelogEntries as $entry)
+                                <div class="timeline-item">
+                                    <div class="d-flex align-items-start gap-3 {{ $loop->last ? '' : 'mb-4' }}">
+                                        <span class="badge badge-soft badge-soft--{{ $entry['badge'] }} flex-shrink-0">{{ 'v' . ltrim($entry['version'], 'v') }}</span>
+                                        <div class="flex-grow-1">
+                                            @if ($entry['title'] !== null)
+                                                <div class="fw-semibold">{!! \App\Support\Changelog::inline($entry['title']) !!}</div>
+                                            @endif
+                                            @if ($entry['date'] !== '')
+                                                <div class="small text-muted-pos mb-2">{{ \App\Support\Changelog::formatDate($entry['date']) }}</div>
+                                            @endif
+                                            @foreach ($entry['sections'] as $section)
+                                                <div class="mb-2">
+                                                    <span class="badge badge-soft badge-soft--{{ \App\Support\Changelog::sectionBadge($section['type']) }}">{{ $section['type'] }}</span>
+                                                    <ul class="small mb-0 ps-3 mt-1">
+                                                        @foreach ($section['items'] as $item)
+                                                            <li>{!! \App\Support\Changelog::inline($item) !!}</li>
+                                                    @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="timeline-item">
-                                <div class="d-flex align-items-start gap-3">
-                                    <span class="badge badge-soft badge-soft--info flex-shrink-0">v1.3.0</span>
-                                    <div>
-                                        <div class="fw-semibold">Laporan &amp; Antrian</div>
-                                        <div class="small text-muted-pos mb-2">26 Sep 2026</div>
-                                        <ul class="small mb-0 ps-3">
-                                            <li>Halaman Laporan Harian dengan filter tanggal &amp; refetch AJAX.</li>
-                                            <li>Antrian Pesanan kasir: approve / tolak dengan konfirmasi SweetAlert.</li>
-                                            <li>Riwayat Transaksi dengan statistik &amp; filter.</li>
-                                            <li>Skeleton loading pada halaman kasir.</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+                            @empty
+                                <p class="small text-muted-pos mb-0">Belum ada perubahan yang dicatat.</p>
+                            @endforelse
                         </div>
                     </div>
                 </div>

@@ -89,18 +89,7 @@
         e.preventDefault();
 
         if (! isLoggedIn) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Perlu Login',
-                text: 'Silakan login untuk menambahkan item ke keranjang.',
-                showCancelButton: true,
-                confirmButtonText: 'Login',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '{{ route("login") }}';
-                }
-            });
+            requireLogin();
             return;
         }
 

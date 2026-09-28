@@ -40,9 +40,18 @@ if (grid) {
         const status = stokStatus(produk.stock);
         const nama = escapeHtml(produk.name);
         const kategori = produk.category ? escapeHtml(produk.category.name) : '-';
+        const brand = data.brand || {};
+        const brandName = escapeHtml(brand.name || '');
+        const brandLogo = brand.logo ? escapeHtml(brand.logo) : null;
+        const gambarKosong = `<div class="product-placeholder product-placeholder--lg" title="${brandName}" role="img" aria-label="Gambar produk ${brandName}">
+            ${brandLogo
+                ? `<img src="${brandLogo}" alt="${brandName}" class="product-placeholder__logo" loading="lazy">`
+                : '<i class="bi bi-box-seam product-placeholder__icon" aria-hidden="true"></i>'}
+            <span class="product-placeholder__brand">${brandName}</span>
+        </div>`;
         const gambar = produk.image
             ? `<img src="${escapeHtml(data.urls.storage + '/' + produk.image)}" alt="${nama}" class="product-card__img" style="width:100%;height:160px;object-fit:cover;">`
-            : '<i class="bi bi-box-seam"></i>';
+            : gambarKosong;
 
         let aksi;
         if (status === 'habis') {

@@ -24,7 +24,7 @@
                     @if ($produk->image)
                         <img src="{{ asset('storage/' . $produk->image) }}" alt="{{ $produk->name }}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
                     @else
-                        <i class="bi bi-box-seam"></i>
+                        <x-product-placeholder size="lg" />
                     @endif
                 </div>
             </div>
@@ -110,21 +110,10 @@
             input.value = val;
             display.value = val;
         }
-        document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+        document.getElementById('addToCartForm')?.addEventListener('submit', function(e) {
             if (! isLoggedIn) {
                 e.preventDefault();
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Perlu Login',
-                    text: 'Silakan login untuk menambahkan item ke keranjang.',
-                    showCancelButton: true,
-                    confirmButtonText: 'Login',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '{{ route("login") }}';
-                    }
-                });
+                requireLogin();
                 return;
             }
             const form = this;

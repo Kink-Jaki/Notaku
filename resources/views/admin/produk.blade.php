@@ -93,7 +93,7 @@
                                             @if ($product->image)
                                                 <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="thumb-sm" style="max-width:40px;object-fit:cover;">
                                             @else
-                                                <span class="thumb-sm"><i class="bi bi-box-seam"></i></span>
+                                                <span class="thumb-sm"><x-product-placeholder size="sm" /></span>
                                             @endif
                                             <div class="min-w-0">
                                                 <div class="fw-semibold text-truncate">{{ $product->name }}</div>

@@ -62,7 +62,7 @@
                         @if ($p->image)
                             <img src="{{ asset('storage/' . $p->image) }}" alt="{{ $p->name }}" class="product-card__img" style="width:100%;height:160px;object-fit:cover;">
                         @else
-                            <i class="bi bi-box-seam"></i>
+                            <x-product-placeholder size="lg" />
                         @endif
                         @if ($stokSt === 'habis')
                             <span class="product-card__out-badge">Habis</span>
@@ -150,18 +150,7 @@
             form.addEventListener('submit', function(e) {
                 if (! isLoggedIn) {
                     e.preventDefault();
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Perlu Login',
-                        text: 'Silakan login untuk menambahkan item ke keranjang.',
-                        showCancelButton: true,
-                        confirmButtonText: 'Login',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '{{ route("login") }}';
-                        }
-                    });
+                    requireLogin();
                     return;
                 }
                 e.preventDefault();

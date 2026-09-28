@@ -268,19 +268,8 @@
 
 @push('scripts')
 <script>
-    function requireLogin(action) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Perlu Login',
-            text: 'Silakan login untuk ' + action + '.',
-            showCancelButton: true,
-            confirmButtonText: 'Login',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '{{ route("login") }}';
-            }
-        });
+    function requireLogin() {
+        window.location.href = '{{ route("login") }}';
     }
 </script>
 @endpush
