@@ -20,21 +20,21 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(SettingsSeeder::class);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Andi Pratama',
             'email' => 'admin@posapp.test',
             'password' => 'password',
             'role' => User::ROLE_ADMIN,
         ]);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Siti Rahmawati',
             'email' => 'kasir@posapp.test',
             'password' => 'password',
             'role' => User::ROLE_KASIR,
         ]);
 
-        User::factory()->create([
+        User::create([
             'name' => 'Budi Santoso',
             'email' => 'pelanggan@posapp.test',
             'password' => 'password',

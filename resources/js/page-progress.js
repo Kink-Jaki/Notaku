@@ -7,6 +7,10 @@ window.__PAGE_PROGRESS_INIT = true;
 document.addEventListener('click', function (e) {
     const link = e.target.closest('a');
 
+    if (e.defaultPrevented || link?.hasAttribute('data-no-rt')) {
+        return;
+    }
+
     if (link && link.href && link.target !== '_blank' && !link.href.startsWith('javascript:')) {
         NProgress.start();
     }

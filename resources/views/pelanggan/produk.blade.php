@@ -24,7 +24,7 @@
                     @if ($produk->image)
                         <img src="{{ asset('storage/' . $produk->image) }}" alt="{{ $produk->name }}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
                     @else
-                        <x-product-placeholder size="lg" />
+                        <x-product-placeholder size="lg" :category="$produk->category?->name" :name="$produk->name" />
                     @endif
                 </div>
             </div>
@@ -67,10 +67,11 @@
 
                 <div class="d-flex flex-wrap gap-2">
                     @auth
-                        <form method="POST" action="{{ route('pelanggan.cart.add') }}" style="display:inline;" id="addToCartForm">
+                        <form method="POST" action="{{ route('pelanggan.cart.add') }}" style="display:inline;" id="addToCartForm" class="cart-add-form">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $produk->id }}">
-                            <button type="submit" class="btn btn-brand btn-lg" id="addToCartBtn" {{ $produk->stock <= 0 ? 'disabled' : '' }}>
+                            <input type="hidden" name="qty" id="addToCartQty" value="1">
+                            <button type="submit" class="btn btn-brand btn-lg cart-add-btn" id="addToCartBtn" {{ $produk->stock <= 0 ? 'disabled' : '' }}>
                                 <i class="bi bi-cart-plus me-1"></i> Tambah ke Keranjang
                             </button>
                         </form>
@@ -79,7 +80,7 @@
                             <i class="bi bi-cart-plus me-1"></i> Tambah ke Keranjang
                         </button>
                     @endauth
-                    <a href="{{ route('pelanggan.checkout') }}" class="btn btn-outline-primary btn-lg" {{ $produk->stock <= 0 ? 'disabled' : '' }} onclick="if(!{{ Auth::check() ? 'true' : 'false' }}){event.preventDefault();requireLogin('checkout');}">
+                    <a href="{{ route('pelanggan.checkout', ['product_id' => $produk->id, 'qty' => 1]) }}" id="buyNowBtn" class="btn btn-outline-primary btn-lg" {{ $produk->stock <= 0 ? 'disabled' : '' }}>
                         <i class="bi bi-bag-check me-1"></i> Beli Sekarang
                     </a>
                 </div>
@@ -101,6 +102,21 @@
     @push('scripts')
     <script>
         const isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+        document.getElementById('buyNowBtn')?.addEventListener('click', function (e) {
+            if ({{ $produk->stock <= 0 ? 'true' : 'false' }}) {
+                e.preventDefault();
+                return;
+            }
+            if (! isLoggedIn) {
+                e.preventDefault();
+                requireLogin();
+                return;
+            }
+            e.preventDefault();
+            const url = new URL(this.href);
+            url.searchParams.set('qty', document.getElementById('qtyInput')?.value || 1);
+            window.location.href = url.toString();
+        });
         function changeQty(delta) {
             const input = document.getElementById('qtyInput');
             const display = document.getElementById('qtyDisplay');
@@ -109,35 +125,17 @@
             if (val > {{ $produk->stock }}) val = {{ $produk->stock }};
             input.value = val;
             display.value = val;
+            const addQty = document.getElementById('addToCartQty');
+            if (addQty) addQty.value = val;
         }
-        document.getElementById('addToCartForm')?.addEventListener('submit', function(e) {
-            if (! isLoggedIn) {
-                e.preventDefault();
-                requireLogin();
-                return;
-            }
-            const form = this;
-            const btn = document.getElementById('addToCartBtn');
-            btn.disabled = true;
-            fetch(form.action, {
-                method: 'POST',
-                headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json'},
-                body: new FormData(form)
-            }).then(r => r.json()).then(data => {
-                if (data.success) {
-                    Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Berhasil ditambahkan ke keranjang!', showConfirmButton: false, timer: 2000, timerProgressBar: true});
-                    form.reset();
-                    document.getElementById('qtyInput').value = 1;
-                    document.getElementById('qtyDisplay').value = 1;
-                    btn.disabled = false;
-                } else {
-                    Swal.fire({icon: 'error', title: 'Gagal', text: data.error || 'Terjadi kesalahan'});
-                    btn.disabled = false;
-                }
-            }).catch(() => {
-                Swal.fire({icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan jaringan'});
-                btn.disabled = false;
-            });
+        document.addEventListener('cart:updated', function() {
+            const input = document.getElementById('qtyInput');
+            const display = document.getElementById('qtyDisplay');
+            const addQty = document.getElementById('addToCartQty');
+
+            if (input) input.value = 1;
+            if (display) display.value = 1;
+            if (addQty) addQty.value = 1;
         });
     </script>
     @endpush

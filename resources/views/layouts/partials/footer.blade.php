@@ -58,7 +58,7 @@
         </div>
 
         <div class="footer-col">
-            <h6 class="footer-col__title" style="color: var(--color-footertext);">Kontak</h6>
+            <h6 class="footer-col__title" style="color: var(--color-footer-text);">Kontak</h6>
             <ul class="footer-links footer-links--contact">
                 @if($settings->contact_address)
                     <li style="color: rgba(255,255,255,0.8);"><i class="bi bi-geo-alt"></i> {{ $settings->contact_address }}</li>

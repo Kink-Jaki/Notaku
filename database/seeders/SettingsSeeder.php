@@ -21,6 +21,8 @@ class SettingsSeeder extends Seeder
             'favicon_path' => null,
             'color_primary' => '#4F46E5',
             'color_primary_dark' => '#4338CA',
+            'color_secondary' => '#F97316',
+            'color_secondary_dark' => '#EA580C',
             'color_success' => '#10B981',
             'color_warning' => '#F59E0B',
             'color_danger' => '#EF4444',

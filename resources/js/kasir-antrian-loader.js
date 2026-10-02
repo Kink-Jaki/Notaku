@@ -4,8 +4,38 @@ const STATUS_BADGE = {
     menunggu: 'warning',
     diproses: 'info',
     disetujui: 'success',
+    selesai: 'success',
     ditolak: 'danger',
 };
+
+const COMPLETE_MODAL_TEMPLATE = `
+<div id="antrian-complete-{{id}}" class="modal fade" tabindex="-1" aria-labelledby="antrian-complete-{{id}}-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" action="{{complete_url}}" class="complete-form">
+            <input type="hidden" name="_token" value="{{csrf}}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="antrian-complete-{{id}}-label">Tandai Selesai</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted-pos mb-3">
+                        Pesanan <strong>{{order_number}}</strong> dari <strong class="text-body">{{customer_name}}</strong>
+                        sudah diproses. Tandai sebagai selesai?
+                    </p>
+                    <div class="note-box note-box--info">
+                        <i class="bi bi-info-circle note-box__icon"></i>
+                        <span>Setelah ditandai selesai, pesanan tidak akan muncul di antrian lagi dan pelanggan akan menerima notifikasi.</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-1"></i> Tandai Selesai</button>
+                </div>
+            </div>
+        </form>
+</div>
+`;
 
 const EMPTY_PENDING = `
     <tr>
@@ -88,6 +118,10 @@ function renderPending(orders, csrf) {
     }
     if (countEl) countEl.textContent = orders.length;
 
+    if (! body) {
+        return;
+    }
+
     if (orders.length === 0) {
         body.innerHTML = EMPTY_PENDING;
     } else {
@@ -101,6 +135,7 @@ function renderPending(orders, csrf) {
                     <span class="avatar">${escapeHtml(String(order.customer_name ?? '-').charAt(0).toUpperCase())}</span>
                     <span class="text-truncate ms-2">${escapeHtml(order.customer_name)}</span>
                     <div class="small text-muted-pos">${escapeHtml(order.payment_method_label)}</div>
+                    <div class="small text-muted-pos">Pengiriman: ${escapeHtml(order.delivery_type_label ?? '—')}</div>
                 </td>
                 <td class="text-nowrap">Dipesan ${escapeHtml(order.waktu)}</td>
                 <td class="text-nowrap">${escapeHtml(order.item)} item</td>
@@ -133,10 +168,14 @@ function renderHandled(rows) {
 
     if (countEl) countEl.textContent = rows.length;
 
+    if (! body) {
+        return;
+    }
+
     if (rows.length === 0) {
         body.innerHTML = EMPTY_HANDLED;
     } else {
-        body.innerHTML = rows.map((row) => `
+body.innerHTML = rows.map((row) => `
             <tr>
                 <td>
                     ${row.trx ? `<a href="${escapeHtml(row.trx_url)}" class="fw-semibold">${escapeHtml(row.trx)}</a><div class="small text-muted-pos">${escapeHtml(row.no)}</div>` : `<span class="fw-semibold text-muted-pos">${escapeHtml(row.no)}</span>`}
@@ -149,8 +188,14 @@ function renderHandled(rows) {
                     ${row.keputusan === 'disetujui'
                         ? `<span class="badge badge-soft badge-soft--success"><span class="badge-soft__dot"></span>Disetujui</span>`
                         : `<span class="badge badge-soft badge-soft--danger"><span class="badge-soft__dot"></span>Ditolak</span>
-                           ${row.alasan ? `<div class="decision-note text-truncate mt-1" title="${escapeHtml(row.alasan)}">${escapeHtml(row.alasan)}</div>` : ''}`
-                    }
+                           ${row.alasan ? `<div class="decision-note text-truncate mt-1" title="${escapeHtml(row.alasan)}">${escapeHtml(row.alasan)}</div>` : ''}`}
+                </td>
+                <td class="text-end">
+                    ${row.complete_url ? `
+                        <button type="button" class="btn btn-success btn-sm btn-complete" data-order-id="${escapeHtml(row.no)}">
+                            <i class="bi bi-check-lg me-1"></i> Selesai
+                        </button>
+                    ` : ''}
                 </td>
             </tr>
         `).join('');
@@ -165,6 +210,7 @@ function renderModals(orders, csrf) {
         ${renderDetailModal(order)}
         ${renderApproveModal(order, csrf)}
         ${renderRejectModal(order, csrf)}
+        ${order.complete_url ? renderCompleteModal(order, csrf) : ''}
     `).join('');
 
     container.innerHTML = modalsHtml;
@@ -195,6 +241,9 @@ function renderDetailModal(order) {
                         </div>
                         <div class="order-detail-list mb-4">
                             <div class="order-detail-list__row"><span class="order-detail-list__label">Pelanggan</span><span class="order-detail-list__value">${escapeHtml(order.customer_name)}</span></div>
+                            <div class="order-detail-list__row"><span class="order-detail-list__label">No. WA</span><span class="order-detail-list__value">${escapeHtml(order.customer_phone ?? '—')}</span></div>
+                            <div class="order-detail-list__row"><span class="order-detail-list__label">Pengiriman</span><span class="order-detail-list__value">${escapeHtml(order.delivery_type_label ?? '—')}</span></div>
+                            ${order.address ? `<div class="order-detail-list__row"><span class="order-detail-list__label">Alamat</span><span class="order-detail-list__value">${escapeHtml(order.address)}</span></div>` : ''}
                             <div class="order-detail-list__row"><span class="order-detail-list__label">Metode Pembayaran</span><span class="order-detail-list__value">${escapeHtml(order.payment_method_label)}</span></div>
                             <div class="order-detail-list__row"><span class="order-detail-list__label">Catatan</span><span class="order-detail-list__value">${escapeHtml(order.note ?? '—')}</span></div>
                         </div>
@@ -314,13 +363,33 @@ function renderRejectModal(order, csrf) {
     `;
 }
 
+function renderCompleteModal(order, csrf) {
+    return COMPLETE_MODAL_TEMPLATE
+        .replace('{{id}}', order.id)
+        .replace('{{complete_url}}', order.complete_url)
+        .replace('{{csrf}}', csrf)
+        .replace('{{order_number}}', order.order_number)
+        .replace('{{customer_name}}', order.customer_name);
+}
+
+function applyStatusLayout(status) {
+    const pendingSection = document.getElementById('antrian-pending-section');
+    const handledSection = document.getElementById('antrian-handled-section');
+
+    if (pendingSection) {
+        pendingSection.classList.toggle('d-none', ! ['semua', 'menunggu'].includes(status));
+    }
+
+    if (handledSection) {
+        handledSection.classList.toggle('d-none', ! ['semua', 'diproses', 'ditolak'].includes(status));
+    }
+}
+
 function renderError() {
     const errorHtml = ERROR_STATE;
 
     const pendingBody = document.getElementById('antrian-pending-body');
-    const pendingSection = pendingBody?.closest('section');
-    const pendingTbody = pendingSection?.querySelector('tbody');
-    if (pendingTbody) pendingTbody.replaceWith(EMPTY_PENDING);
+    if (pendingBody) pendingBody.innerHTML = EMPTY_PENDING;
 
     const handledBody = document.getElementById('antrian-handled-body');
     if (handledBody) handledBody.innerHTML = EMPTY_HANDLED;
@@ -359,7 +428,25 @@ function showModal(id) {
     window.bootstrap.Modal.getOrCreateInstance(target).show();
 }
 
+let urutanMuat = 0;
+
+function setLoading(loading) {
+    ['antrian-tabs', 'antrian-pending-section', 'antrian-handled-section']
+        .forEach((id) => {
+            const el = document.getElementById(id);
+
+            if (el) {
+                el.style.opacity = loading ? '0.5' : '';
+                el.style.pointerEvents = loading ? 'none' : '';
+            }
+        });
+}
+
 async function loadAntrian() {
+    const id = ++urutanMuat;
+
+    setLoading(true);
+
     try {
         const url = ENDPOINT + window.location.search;
         const response = await fetch(url, {
@@ -372,15 +459,29 @@ async function loadAntrian() {
         }
 
         const payload = await response.json();
+
+        if (id !== urutanMuat) {
+            return;
+        }
+
         const data = payload.data ?? {};
         const csrf = document.getElementById('antrian-modals')?.dataset.csrf ?? '';
 
         renderTabs(data.tabs ?? []);
+        applyStatusLayout(data.status ?? 'semua');
         renderPending(data.pending ?? [], csrf);
         renderHandled(data.handled ?? []);
     } catch (error) {
+        if (id !== urutanMuat) {
+            return;
+        }
+
         console.error('Gagal memuat antrian pesanan:', error);
         renderError();
+    } finally {
+        if (id === urutanMuat) {
+            setLoading(false);
+        }
     }
 }
 
@@ -399,26 +500,73 @@ function bootKasirAntrian() {
 
         const rejectBtn = event.target.closest('.btn-reject');
         if (rejectBtn) { showModal(`antrian-reject-${rejectBtn.dataset.orderId}`); return; }
+
+        const completeBtn = event.target.closest('.btn-complete');
+        if (completeBtn) { showModal(`antrian-complete-${completeBtn.dataset.orderId}`); return; }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+            return;
+        }
+
+        const tautan = event.target.closest('#antrian-tabs a[href]');
+
+        if (! tautan) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const tujuan = new URL(tautan.href, window.location.origin);
+
+        window.history.pushState({ antrian: true }, '', tujuan.pathname + tujuan.search);
+        loadAntrian();
+    }, true);
+
+    window.addEventListener('popstate', () => {
+        loadAntrian();
     });
 
     document.addEventListener('submit', (event) => {
-        const form = event.target.closest('form.reject-form');
-        if (!form) return;
-        event.preventDefault();
-        if (typeof Swal === 'undefined') { form.submit(); return; }
-        Swal.fire({
-            title: 'Tolak pesanan ini?',
-            text: 'Pesanan akan ditandai ditolak dan pelanggan menerima pemberitahuan beserta alasannya.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, tolak!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit();
-            }
-        });
+        const rejectForm = event.target.closest('form.reject-form');
+        if (rejectForm) {
+            event.preventDefault();
+            if (typeof Swal === 'undefined') { form.submit(); return; }
+            Swal.fire({
+                title: 'Tolak pesanan ini?',
+                text: 'Pesanan akan ditandai ditolak dan pelanggan menerima pemberitahuan beserta alasannya.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, tolak!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+            return;
+        }
+
+        const completeForm = event.target.closest('form.complete-form');
+        if (completeForm) {
+            event.preventDefault();
+            if (typeof Swal === 'undefined') { completeForm.submit(); return; }
+            Swal.fire({
+                title: 'Tandai pesanan selesai?',
+                text: 'Pesanan akan ditandai selesai dan tidak muncul di antrian lagi.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, selesai!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    completeForm.submit();
+                }
+            });
+        }
     });
 
     loadAntrian();

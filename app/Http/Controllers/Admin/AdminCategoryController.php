@@ -13,15 +13,9 @@ class AdminCategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Category::query()->withCount('products');
+        $categories = Category::query()->withCount('products')->latest()->paginate(15)->withQueryString();
 
-        if ($request->filled('search')) {
-            $query->where('name', 'like', "%{$request->search}%");
-        }
-
-        $categories = $query->latest()->paginate(15)->withQueryString();
-
-        return view('admin.kategori', compact('categories'));
+        return $this->viewOrFragment($request, 'admin.kategori', 'admin.kategori-results', compact('categories'));
     }
 
     public function store(Request $request)

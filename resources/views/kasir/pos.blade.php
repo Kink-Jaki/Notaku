@@ -12,18 +12,18 @@
         <div class="pos-screen__pane">
             <div class="pane__header">
                 <h2 class="pane__title h5">Pilih Produk</h2>
-                <span class="badge badge-soft badge-soft--neutral rounded-pill">{{ $produk->count() }} produk</span>
+                <span class="badge badge-soft badge-soft--neutral rounded-pill" id="posProdukCount">{{ $produk->count() }} produk</span>
             </div>
 
             <div class="search-box mb-3">
                 <i class="bi bi-search search-box__icon"></i>
-                <input type="search" class="form-control" placeholder="Cari produk / kode barcode..." aria-label="Cari produk atau kode barcode">
+                <input type="search" id="posSearch" class="form-control" placeholder="Cari produk / kode barcode..." aria-label="Cari produk atau kode barcode" autocomplete="off">
             </div>
 
-            <ul class="nav nav-pills gap-1 mb-3 flex-nowrap overflow-x-auto pb-1">
+            <ul class="nav nav-pills gap-1 mb-3 flex-nowrap overflow-x-auto pb-1" id="posKategori">
                 @foreach ($kategoriList as $kat)
                     <li class="nav-item flex-shrink-0">
-                        <a href="#" class="nav-link {{ $kat['active'] ? 'active' : '' }}">
+                        <a href="#" class="nav-link {{ $kat['active'] ? 'active' : '' }}" data-kategori="{{ $kat['label'] }}">
                             {{ $kat['label'] }}
                             <span class="badge rounded-pill ms-1 {{ $kat['active'] ? 'bg-white text-primary' : 'bg-body-secondary text-body' }}">
                                 {{ $kat['count'] }}
@@ -36,7 +36,7 @@
             <div class="scroll-area pos-product-list">
                 <div class="row g-2" id="productGrid">
                     @foreach ($produk as $p)
-                        <div class="col-6 col-md-4 col-xl-3">
+                        <div class="col-6 col-md-4 col-xl-3" data-pos-item data-nama="{{ mb_strtolower($p['nama']) }}" data-kategori="{{ $p['kategori'] }}">
                             @if ($p['stok'] > 0)
                                 <button
                                     type="button"
@@ -66,6 +66,9 @@
                             @endif
                         </div>
                     @endforeach
+                </div>
+                <div id="posKosong" class="text-center py-4" hidden>
+                    <p class="text-muted-pos mb-0">Tidak ada produk yang cocok dengan pencarian.</p>
                 </div>
             </div>
 
@@ -477,6 +480,69 @@
                     showConfirmButton: false,
                 });
             }
+
+            /* pencarian & filter kategori (client-side) */
+            const posSearch = document.getElementById('posSearch');
+            const posKategoriNav = document.getElementById('posKategori');
+            const posProdukCount = document.getElementById('posProdukCount');
+            const posKosong = document.getElementById('posKosong');
+            const posItems = Array.from(document.querySelectorAll('[data-pos-item]'));
+            const kategoriSemua = posKategoriNav.querySelector('[data-kategori]')?.dataset.kategori || 'Semua';
+            let kategoriAktif = kategoriSemua;
+            let jedaCariPos = null;
+
+            function filterPos() {
+                const kata = (posSearch.value || '').trim().toLowerCase();
+                let tampil = 0;
+
+                posItems.forEach((item) => {
+                    const cocokKategori = kategoriAktif === kategoriSemua || item.dataset.kategori === kategoriAktif;
+                    const cocokKata = !kata || item.dataset.nama.includes(kata);
+                    const terlihat = cocokKategori && cocokKata;
+
+                    item.classList.toggle('d-none', !terlihat);
+
+                    if (terlihat) {
+                        tampil += 1;
+                    }
+                });
+
+                posProdukCount.textContent = tampil + ' produk';
+                posKosong.hidden = tampil > 0;
+            }
+
+            posSearch.addEventListener('input', function () {
+                window.clearTimeout(jedaCariPos);
+                jedaCariPos = window.setTimeout(filterPos, 300);
+            });
+
+            posKategoriNav.addEventListener('click', function (event) {
+                const tautan = event.target.closest('[data-kategori]');
+
+                if (!tautan) {
+                    return;
+                }
+
+                event.preventDefault();
+                window.clearTimeout(jedaCariPos);
+
+                kategoriAktif = tautan.dataset.kategori;
+
+                posKategoriNav.querySelectorAll('[data-kategori]').forEach((link) => {
+                    const aktif = link.dataset.kategori === kategoriAktif;
+                    link.classList.toggle('active', aktif);
+
+                    const badge = link.querySelector('.badge');
+                    if (badge) {
+                        badge.classList.toggle('bg-white', aktif);
+                        badge.classList.toggle('text-primary', aktif);
+                        badge.classList.toggle('bg-body-secondary', !aktif);
+                        badge.classList.toggle('text-body', !aktif);
+                    }
+                });
+
+                filterPos();
+            });
 
             render();
         });

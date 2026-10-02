@@ -394,7 +394,7 @@
     @php
         $rp = fn ($value) => 'Rp ' . number_format($value, 0, ',', '.');
         $steps = [
-            ['label' => 'Keranjang', 'icon' => 'bi-cart3'],
+            ['label' => request()->filled('product_id') ? 'Beli Sekarang' : 'Keranjang', 'icon' => 'bi-cart3'],
             ['label' => 'Checkout', 'icon' => 'bi-bag-check'],
             ['label' => 'Menunggu Kasir', 'icon' => 'bi-clock'],
         ];
@@ -418,8 +418,16 @@
         @endforeach
     </nav>
 
+    {{-- Form promo harus di luar form checkout: <form> tidak boleh di-nest. --}}
+    <form method="POST" action="{{ route('pelanggan.cart.promo') }}" id="promoForm" hidden></form>
+    <form method="POST" action="{{ route('pelanggan.cart.promoRemove') }}" id="promoRemoveForm" hidden></form>
+
     <form method="POST" action="{{ route('pelanggan.checkout.store') }}" id="checkoutForm" novalidate>
         @csrf
+        @if (request()->filled('product_id'))
+            <input type="hidden" name="product_id" value="{{ request('product_id') }}">
+            <input type="hidden" name="qty" value="{{ request('qty', 1) }}">
+        @endif
 
         {{-- ================= STEP 1: DETAIL PESANAN / PENERIMA ================= --}}
         <section class="checkout-pane-mobile" id="stepRecipient">
@@ -484,18 +492,33 @@
                 <div class="col-12">
                     <div class="checkout-form-group">
                         <label class="checkout-label d-block">Metode Pembayaran <span class="text-danger">*</span></label>
+                        @php
+                            $deliveryType = old('delivery_type', 'pickup');
+                            $canTunai = $deliveryType === 'pickup';
+                        @endphp
                         <div class="checkout-payment-options" role="radiogroup" aria-label="Metode pembayaran">
-                            @foreach (['tunai' => ['label' => 'Tunai', 'icon' => 'bi-cash'], 'qris' => ['label' => 'QRIS', 'icon' => 'bi-qr-code'], 'ewallet' => ['label' => 'E-Wallet', 'icon' => 'bi-wallet2'], 'transfer' => ['label' => 'Transfer', 'icon' => 'bi-building']] as $value => $method)
-                                <label class="checkout-payment-option">
-                                    <input type="radio" name="payment_method" value="{{ $value }}" {{ old('payment_method', 'tunai') === $value ? 'checked' : '' }} required>
-                                    <i class="checkout-payment-option__icon bi {{ $method['icon'] }}"></i>
-                                    <span class="checkout-payment-option__label">{{ $method['label'] }}</span>
-                                </label>
-                            @endforeach
+                            <label class="checkout-payment-option">
+                                <input type="radio" name="payment_method" value="online" {{ old('payment_method', 'online') === 'online' ? 'checked' : '' }} required>
+                                <i class="checkout-payment-option__icon bi bi-credit-card"></i>
+                                <span class="checkout-payment-option__label">Bayar Online (QRIS/VA/e-Wallet)</span>
+                            </label>
+                            <label class="checkout-payment-option {{ ! $canTunai ? 'd-none' : '' }}">
+                                <input type="radio" name="payment_method" value="tunai" {{ old('payment_method') === 'tunai' ? 'checked' : '' }} {{ ! $canTunai ? 'disabled' : '' }} required>
+                                <i class="checkout-payment-option__icon bi bi-cash"></i>
+                                <span class="checkout-payment-option__label">Tunai {{ ! $canTunai ? '(hanya pickup)' : '' }}</span>
+                            </label>
+                            <label class="checkout-payment-option">
+                                <input type="radio" name="payment_method" value="transfer" {{ old('payment_method') === 'transfer' ? 'checked' : '' }} required>
+                                <i class="checkout-payment-option__icon bi bi-building"></i>
+                                <span class="checkout-payment-option__label">Transfer Manual</span>
+                            </label>
                         </div>
                         @error('payment_method')
                             <span class="checkout-error">{{ $message }}</span>
                         @enderror
+                        <small class="form-text text-muted d-block mt-1">
+                            <span id="tunaiHint" class="{{ ! $canTunai ? 'text-danger' : 'text-muted' }}">{{ ! $canTunai ? 'Pembayaran tunai hanya tersedia untuk Ambil di Tempat (pickup).' : '' }}</span>
+                        </small>
                     </div>
                 </div>
             </div>
@@ -541,17 +564,13 @@
                 @if ($diskon > 0)
                     <div class="checkout-promo-mobile__applied">
                         <span>Promo <strong>{{ $promoSession['code'] }}</strong> aktif — Diskon {{ $rp($diskon) }}</span>
-                        <form method="POST" action="{{ route('pelanggan.cart.promoRemove') }}" style="display:inline;">
-                            @csrf
-                            <button type="submit" class="checkout-promo-mobile__remove"><i class="bi bi-x-lg me-1"></i> Hapus</button>
-                        </form>
+                        <button type="submit" class="checkout-promo-mobile__remove" form="promoRemoveForm"><i class="bi bi-x-lg me-1"></i> Hapus</button>
                     </div>
                 @else
-                    <form method="POST" action="{{ route('pelanggan.cart.promo') }}" class="checkout-promo-mobile__input-group" id="promoForm">
-                        @csrf
-                        <input type="text" name="code" class="checkout-input checkout-promo-mobile__input" placeholder="Kode promo" aria-label="Kode promo" autocomplete="off" style="padding: 0.75rem 1rem; font-size: 1rem;">
-                        <button type="submit" class="btn btn-outline-primary checkout-promo-mobile__btn" style="padding: 0.75rem 1rem; font-size: 0.875rem;">Terapkan</button>
-                    </form>
+                    <div class="checkout-promo-mobile__input-group">
+                        <input type="text" id="kodePromo" name="code" class="checkout-input checkout-promo-mobile__input" form="promoForm" placeholder="Kode promo" aria-label="Kode promo" autocomplete="off" style="padding: 0.75rem 1rem; font-size: 1rem;">
+                        <button type="submit" id="promoSubmitBtn" class="btn btn-outline-primary checkout-promo-mobile__btn" form="promoForm" style="padding: 0.75rem 1rem; font-size: 0.875rem;">Terapkan</button>
+                    </div>
                 @endif
             </div>
 
@@ -576,6 +595,8 @@
         const checkoutForm = document.getElementById('checkoutForm');
         const submitBtn = document.getElementById('submitBtn');
         const promoForm = document.getElementById('promoForm');
+        const promoInput = document.getElementById('kodePromo');
+        const promoSubmitBtn = document.getElementById('promoSubmitBtn');
 
         // Toggle address field based on delivery type
         function toggleAddressField() {
@@ -592,13 +613,17 @@
         toggleAddressField();
 
         // Promo form submit
-        if (promoForm) {
+        if (promoForm && promoInput && promoSubmitBtn) {
             promoForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const btn = promoForm.querySelector('button[type="submit"]');
-                const originalText = btn.textContent;
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+                const originalText = promoSubmitBtn.textContent;
+                promoSubmitBtn.disabled = true;
+                promoSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+
+                // Input promo berada di luar elemen form (asosiasi via atribut
+                // `form`), jadi FormData harus dirakit manual.
+                const body = new FormData();
+                body.append('code', promoInput.value);
 
                 fetch(promoForm.action, {
                     method: 'POST',
@@ -606,10 +631,10 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json'
                     },
-                    body: new FormData(promoForm)
+                    body: body
                 }).then(r => r.json()).then(data => {
-                    btn.disabled = false;
-                    btn.textContent = originalText;
+                    promoSubmitBtn.disabled = false;
+                    promoSubmitBtn.textContent = originalText;
                     if (data.success) {
                         showToast('Promo diterapkan!', 'success');
                         setTimeout(() => location.reload(), 500);
@@ -617,8 +642,8 @@
                         showToast(data.error || 'Kode promo tidak valid', 'error');
                     }
                 }).catch(() => {
-                    btn.disabled = false;
-                    btn.textContent = originalText;
+                    promoSubmitBtn.disabled = false;
+                    promoSubmitBtn.textContent = originalText;
                     showToast('Terjadi kesalahan jaringan', 'error');
                 });
             });
@@ -669,6 +694,36 @@
                 this.classList.remove('is-invalid');
             });
         });
+
+        // Tunai hanya untuk pickup
+        const deliveryType = document.getElementById('delivery_type');
+        const tunaiRadio = document.querySelector('input[name="payment_method"][value="tunai"]');
+        const tunaiLabel = tunaiRadio ? tunaiRadio.closest('.checkout-payment-option') : null;
+        const tunaiHint = document.getElementById('tunaiHint');
+
+        // If critical elements don't exist, bail out
+        if (!deliveryType || !tunaiRadio) {
+            // continue to toast helper
+        } else {
+            function updateTunai() {
+                const isPickup = deliveryType.value === 'pickup';
+                if (tunaiLabel) tunaiLabel.classList.toggle('d-none', !isPickup);
+                if (tunaiRadio) tunaiRadio.disabled = !isPickup;
+                if (tunaiHint) {
+                    tunaiHint.classList.toggle('text-danger', !isPickup);
+                    tunaiHint.classList.toggle('text-muted', isPickup);
+                    tunaiHint.textContent = isPickup ? '' : 'Pembayaran tunai hanya tersedia untuk Ambil di Tempat (pickup).';
+                }
+
+                if (!isPickup && tunaiRadio && tunaiRadio.checked) {
+                    const onlineRadio = document.querySelector('input[name="payment_method"][value="online"]');
+                    if (onlineRadio) onlineRadio.checked = true;
+                }
+            }
+
+            deliveryType.addEventListener('change', updateTunai);
+            updateTunai();
+        }
 
         // Toast helper
         function showToast(message, type = 'info') {

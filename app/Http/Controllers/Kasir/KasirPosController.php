@@ -30,7 +30,8 @@ class KasirPosController extends Controller
         $produk = Product::query()
             ->with('category')
             ->where('is_active', true)
-            ->orderBy('name')
+            ->orderByOutOfStockLast()
+            ->latest()
             ->get()
             ->map(fn (Product $product) => [
                 'id' => $product->id,

@@ -4,11 +4,8 @@
 @section('content')
     @include('partials.ajax-modal-form')
     @php
-        $rp = fn ($value) => 'Rp ' . number_format($value, 0, ',', '.');
-        $statusBadge = [1 => ['success', 'Aktif'], 0 => ['neutral', 'Nonaktif']];
-        $stokBadge = fn ($stok) => $stok <= 0 ? ['danger', 'Habis'] : ($stok <= 10 ? ['warning', 'Menipis ' . $stok] : ['success', $stok]);
         $kategoriFilter = ['Semua Kategori'] + $categories->pluck('name', 'id')->toArray();
-        $stokFilter = ['Semua', 'Stok Menipis', 'Habis'];
+        $stokFilter = ['' => 'Semua', 'menipis' => 'Stok Menipis', 'habis' => 'Habis'];
     @endphp
     <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
         <p class="text-muted-pos mb-0 small">Input, edit, kategori &amp; stok produk</p>
@@ -31,18 +28,18 @@
     <div class="tab-content" id="produkTabsContent">
         {{-- ================= TAB 1 — DAFTAR PRODUK ================= --}}
         <div class="tab-pane fade show active" id="tab-daftar-produk" role="tabpanel" aria-labelledby="tab-daftar-produk-tab">
-            <form class="pane mb-4" action="{{ route('admin.produk.index') }}" method="get">
+            <form class="pane mb-4" action="{{ route('admin.produk.index') }}" method="get" data-cf="produk">
                 <div class="row g-2 align-items-end">
                     <div class="col-12 col-md-4 col-lg-3">
                         <label class="form-label" for="cariProduk">Cari Produk</label>
                         <div class="search-box">
                             <i class="bi bi-search search-box__icon"></i>
-                            <input type="search" class="form-control" id="cariProduk" name="search" placeholder="Cari nama / kategori..." aria-label="Cari nama atau kategori" value="{{ request('search') }}">
+                            <input type="search" class="form-control" id="cariProduk" name="search" data-cf-search placeholder="Cari nama / kategori..." aria-label="Cari nama atau kategori" value="{{ request('search') }}">
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3">
                         <label class="form-label" for="filterKategoriProduk">Kategori</label>
-                        <select class="form-select" id="filterKategoriProduk" name="category_id">
+                        <select class="form-select" id="filterKategoriProduk" name="category_id" data-cf-field="category">
                             @foreach ($kategoriFilter as $id => $nama)
                                 <option value="{{ $id }}" {{ request('category_id') == $id ? 'selected' : '' }}>{{ $nama }}</option>
                             @endforeach
@@ -50,9 +47,9 @@
                     </div>
                     <div class="col-6 col-md-4 col-lg-3">
                         <label class="form-label" for="filterStokProduk">Stok</label>
-                        <select class="form-select" id="filterStokProduk" name="status">
-                            @foreach ($stokFilter as $stok)
-                                <option value="{{ $stok }}" {{ request('status') == $stok ? 'selected' : '' }}>{{ $stok }}</option>
+                        <select class="form-select" id="filterStokProduk" name="status" data-cf-field="status">
+                            @foreach ($stokFilter as $nilai => $nama)
+                                <option value="{{ $nilai }}" {{ request('status') == $nilai ? 'selected' : '' }}>{{ $nama }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -61,92 +58,15 @@
                             <button type="submit" class="btn btn-brand">
                                 <i class="bi bi-funnel me-1"></i> Filter
                             </button>
-                            <a href="{{ route('admin.produk.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('admin.produk.index') }}" class="btn btn-outline-secondary" data-rt-link>
                                 <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
                             </a>
                         </div>
                     </div>
                 </div>
             </form>
-            <div class="table-wrap">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Produk</th>
-                                <th>Kategori</th>
-                                <th>Harga</th>
-                                <th>Stok</th>
-                                <th>Status</th>
-                                <th class="text-end">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($products as $product)
-                                @php
-                                    [$stokClass, $stokLabel] = $stokBadge($product->stock);
-                                    [$statusClass, $statusLabel] = $statusBadge[$product->is_active];
-                                @endphp
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            @if ($product->image)
-                                                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="thumb-sm" style="max-width:40px;object-fit:cover;">
-                                            @else
-                                                <span class="thumb-sm"><x-product-placeholder size="sm" /></span>
-                                            @endif
-                                            <div class="min-w-0">
-                                                <div class="fw-semibold text-truncate">{{ $product->name }}</div>
-                                                <div class="small text-muted-pos font-monospace">SKU-{{ str_pad($product->id, 3, '0', STR_PAD_LEFT) }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge badge-soft badge-soft--neutral">{{ $product->category?->name ?? '-' }}</span></td>
-                                    <td class="fw-semibold text-nowrap">{{ $rp($product->price) }}</td>
-                                    <td class="text-nowrap">
-                                        <span class="badge badge-soft badge-soft--{{ $stokClass }}">{{ $stokLabel }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-soft badge-soft--{{ $statusClass }}">
-                                            <span class="badge-soft__dot"></span>{{ $statusLabel }}
-                                        </span>
-                                    </td>
-                                    <td class="text-end text-nowrap">
-                                        <button type="button" class="btn btn-sm link-secondary py-0" title="Edit produk" data-bs-toggle="modal" data-bs-target="#modalProduk" data-mode="edit" data-url="{{ route('admin.produk.update', ['produk' => $product]) }}" data-payload="{{ json_encode([
-                                            'name' => $product->name,
-                                            'description' => $product->description,
-                                            'price' => $product->price,
-                                            'stock' => $product->stock,
-                                            'category_id' => $product->category_id,
-                                            'is_active' => $product->is_active,
-                                            'image_url' => $product->image ? asset('storage/' . $product->image) : null,
-                                        ]) }}">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <form method="POST" action="{{ route('admin.produk.destroy', ['produk' => $product]) }}" style="display:inline;" data-confirm="Hapus produk ini?">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-sm link-danger py-0" title="Hapus produk">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="6" class="text-center text-muted-pos py-4">Tidak ada produk ditemukan.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="note-box note-box--info mt-3">
-                <i class="bi bi-info-circle note-box__icon"></i>
-                <span>Stok produk akan otomatis berkurang saat transaksi disetujui.</span>
-            </div>
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
-                <small class="text-muted-pos">Menampilkan {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} dari {{ $products->total() }} produk</small>
-                <nav aria-label="Navigasi halaman daftar produk">
-                    {{ $products->links() }}
-                </nav>
+            <div data-rt-results data-cf="produk">
+                @include('admin.produk-results')
             </div>
         </div>
         {{-- ================= TAB 2 — KATEGORI ================= --}}<div class="tab-pane fade" id="tab-kategori" role="tabpanel" aria-labelledby="tab-kategori-tab">
@@ -257,25 +177,6 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('form[data-confirm]').forEach(function (form) {
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Konfirmasi',
-                text: this.getAttribute('data-confirm'),
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    this.submit();
-                }
-            });
-        });
-    });
-
     var produkForm = document.getElementById('formProduk');
     var produkModal = document.getElementById('modalProduk');
 

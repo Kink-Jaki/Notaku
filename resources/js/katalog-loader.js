@@ -1,17 +1,17 @@
-const grid = document.getElementById('product-grid');
+import NProgress from 'nprogress';
+import { getCart } from './cart';
 
-if (grid) {
-    const api = grid.dataset.api;
-    const marketplace = grid.dataset.marketplace;
-    const filterNav = document.getElementById('katalog-filter');
-    const meta = document.getElementById('katalog-meta');
-    const pagination = document.getElementById('katalog-pagination');
-    const searchForm = document.getElementById('katalog-search-form');
-    const searchInput = searchForm ? searchForm.querySelector('input[name="search"]') : null;
+    const grid = document.getElementById('product-grid');
+
+    if (grid) {
+        const api = grid.dataset.api;
+        const marketplace = grid.dataset.marketplace;
+        const filterNav = document.getElementById('katalog-filter');
+        const meta = document.getElementById('katalog-meta');
+        const pagination = document.getElementById('katalog-pagination');
 
     const numberFormat = new Intl.NumberFormat('id-ID');
     const stokLabel = { tersedia: 'Tersedia', menipis: 'Stok menipis', habis: 'Habis' };
-    const stokBadge = { tersedia: 'badge-soft--success', menipis: 'badge-soft--warning', habis: 'badge-soft--danger' };
 
     let konteks = null;
     let permintaan = 0;
@@ -32,61 +32,110 @@ if (grid) {
         return jumlah <= 0 ? 'habis' : (jumlah <= 10 ? 'menipis' : 'tersedia');
     };
 
+    /* Placeholder per kategori: ikon + gradient supaya tiap kartu terasa beda. */
+    const PETAPAN_KATEGORI = [
+        { kunci: 'makanan', kelas: 'ph-makanan', ikon: 'bi-egg-fried', warna: '#F97316' },
+        { kunci: 'minuman', kelas: 'ph-minuman', ikon: 'bi-cup-straw', warna: '#0EA5E9' },
+        { kunci: 'sembako', kelas: 'ph-sembako', ikon: 'bi-basket2', warna: '#84CC16' },
+        { kunci: 'snack', kelas: 'ph-snack', ikon: 'bi-cookie', warna: '#EC4899' },
+        { kunci: 'bumbu', kelas: 'ph-sembako', ikon: 'bi-mortarboard', warna: '#84CC16' },
+    ];
+
+    const metaKategori = (nama) => {
+        const judul = String(nama ?? '').toLowerCase();
+
+        return PETAPAN_KATEGORI.find((item) => judul.includes(item.kunci))
+            ?? { kelas: '', ikon: 'bi-box-seam', warna: '#64748B' };
+    };
+
+    const placeholder = (kategori) => {
+        const meta = metaKategori(kategori);
+
+        return `<span class="product-placeholder product-placeholder--lg ${meta.kelas}" style="--ph-gradient: linear-gradient(135deg, ${meta.warna} 0%, ${meta.warna}cc 100%);" role="img" aria-label="Gambar belum tersedia untuk ${escapeHtml(kategori || 'produk')}">
+            <i class="bi ${meta.ikon} product-placeholder__icon" aria-hidden="true"></i>
+            <span class="product-placeholder__brand">${escapeHtml(kategori || 'Produk')}</span>
+        </span>`;
+    };
+
     const paramsHalaman = () => new URLSearchParams(window.location.search);
 
+    const updateUrl = () => grid.dataset.cartUpdate || '';
+
+    /* Baca CartStore (bukan seed mentah) agar sinkron dengan mutasi terbaru. */
+    const cartAwal = () => {
+        const cart = getCart();
+
+        return (cart && typeof cart === 'object') ? cart : {};
+    };
+
     const skeleton = (jumlah = 8) => Array.from({ length: jumlah }, () => '<div class="col"><div class="skeleton-card"></div></div>').join('');
+
+    /**
+     * Stepper memakai `cart-update-form` supaya qty yang dikirim bersifat absolut
+     * (endpoint update mengeset qty), bukan menambah seperti endpoint add.
+     */
+    const stepperMarkup = (produk, nama, url) => `<form method="POST" action="${escapeHtml(url)}" class="cart-update-form card-stepper" data-product-id="${produk.id}" hidden>
+        <input type="hidden" name="_token" value="${produk.csrf}">
+        <input type="hidden" name="product_id" value="${produk.id}">
+        <input type="hidden" name="qty" value="1" data-cart-qty-input>
+        <button type="button" class="card-stepper__btn" data-cart-step="-1" aria-label="Kurangi jumlah ${escapeHtml(nama)}">
+            <i class="bi bi-dash-lg" aria-hidden="true"></i>
+        </button>
+        <span class="card-stepper__value" data-stepper-value aria-live="polite">1</span>
+        <button type="button" class="card-stepper__btn card-stepper__btn--accent" data-cart-step="1" aria-label="Tambah jumlah ${escapeHtml(nama)}">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+        </button>
+    </form>`;
 
     const kartu = (produk, data) => {
         const status = stokStatus(produk.stock);
         const nama = escapeHtml(produk.name);
-        const kategori = produk.category ? escapeHtml(produk.category.name) : '-';
-        const brand = data.brand || {};
-        const brandName = escapeHtml(brand.name || '');
-        const brandLogo = brand.logo ? escapeHtml(brand.logo) : null;
-        const gambarKosong = `<div class="product-placeholder product-placeholder--lg" title="${brandName}" role="img" aria-label="Gambar produk ${brandName}">
-            ${brandLogo
-                ? `<img src="${brandLogo}" alt="${brandName}" class="product-placeholder__logo" loading="lazy">`
-                : '<i class="bi bi-box-seam product-placeholder__icon" aria-hidden="true"></i>'}
-            <span class="product-placeholder__brand">${brandName}</span>
-        </div>`;
+        const kategori = produk.category ? escapeHtml(produk.category.name) : '';
+        const habis = status === 'habis';
         const gambar = produk.image
-            ? `<img src="${escapeHtml(data.urls.storage + '/' + produk.image)}" alt="${nama}" class="product-card__img" style="width:100%;height:160px;object-fit:cover;">`
-            : gambarKosong;
+            ? `<img src="${escapeHtml(data.urls.storage + '/' + produk.image)}" alt="${nama}" class="product-card__img" loading="lazy" width="320" height="240">`
+            : placeholder(produk.category ? produk.category.name : '');
+
+        const eyebrow = `<div class="product-card__eyebrow">
+            ${kategori ? `<span class="badge badge-soft badge-soft--neutral badge-sm">${kategori}</span>` : '<span></span>'}
+            <span class="stock-badge stock-badge--${status}">${stokLabel[status]}</span>
+        </div>`;
 
         let aksi;
-        if (status === 'habis') {
-            aksi = '<button type="button" class="btn btn-brand btn-sm w-100" disabled><i class="bi bi-cart-plus me-1"></i> Habis</button>';
-        } else if (data.is_logged_in) {
-            aksi = `<form method="POST" action="${escapeHtml(data.urls.cart_add)}" class="cart-add-form" style="display:inline;" data-product-id="${produk.id}" data-stock="${produk.stock}">
+        if (habis) {
+            aksi = '<button type="button" class="btn btn-soft btn-sm w-100" disabled><i class="bi bi-cart-x me-1" aria-hidden="true"></i> Stok Habis</button>';
+        } else if (! data.is_logged_in) {
+            aksi = `<button type="button" class="btn btn-accent btn-sm w-100 d-flex align-items-center justify-content-center gap-1" onclick="requireLogin('menambahkan item ke keranjang')">
+                <i class="bi bi-cart-plus" aria-hidden="true"></i> Tambah ke Keranjang
+            </button>`;
+        } else {
+            const url = updateUrl();
+            const addForm = `<form method="POST" action="${escapeHtml(data.urls.cart_add)}" class="cart-add-form" data-product-id="${produk.id}" data-stock="${produk.stock}">
                 <input type="hidden" name="_token" value="${data.csrf}">
                 <input type="hidden" name="product_id" value="${produk.id}">
                 <input type="hidden" name="qty" value="1" class="cart-qty-input">
-                <button type="submit" class="btn btn-brand btn-sm w-100 d-flex align-items-center justify-content-center cart-add-btn">
-                    <i class="bi bi-cart-plus me-1"></i> Tambah ke Keranjang
+                <button type="submit" class="btn btn-accent btn-sm w-100 d-flex align-items-center justify-content-center gap-1 cart-add-btn">
+                    <i class="bi bi-cart-plus" aria-hidden="true"></i> Tambah ke Keranjang
                 </button>
             </form>`;
-        } else {
-            aksi = `<button type="button" class="btn btn-brand btn-sm w-100 d-flex align-items-center justify-content-center" onclick="requireLogin('menambahkan item ke keranjang')">
-                <i class="bi bi-cart-plus me-1"></i> Tambah ke Keranjang
-            </button>`;
+
+            aksi = url
+                ? `${addForm}${stepperMarkup({ ...produk, csrf: data.csrf }, nama, url)}`
+                : addForm;
         }
 
-        return `<div class="col">
-            <div class="product-card ${status === 'habis' ? 'product-card--out' : ''}" style="position:relative;display:flex;flex-direction:column;height:100%;">
+        return `<div class="col" data-cf-row data-cf-name="${escapeHtml(produk.name)}" data-category="${escapeHtml(produk.category_id ?? '')}" data-product-id="${produk.id}" data-stock="${produk.stock}">
+            <div class="product-card ${habis ? 'product-card--out' : ''}">
                 <div class="product-card__image">
                     ${gambar}
-                    ${status === 'habis' ? '<span class="product-card__out-badge">Habis</span>' : ''}
+                    ${habis ? '<span class="product-card__out-badge"><i class="bi bi-x-circle" aria-hidden="true"></i> Habis</span>' : ''}
+                    ${produk.is_featured ? '<span class="product-card__featured-badge" title="Produk unggulan"><i class="bi bi-star-fill" aria-hidden="true"></i></span>' : ''}
                 </div>
-                <div class="product-card__body d-flex flex-column gap-1 flex-grow-1">
-                    <div class="product-card__name">${nama}</div>
-                    <div class="product-card__meta">
-                        <span class="badge badge-soft badge-soft--neutral">${kategori}</span>
-                    </div>
+                <div class="product-card__body">
+                    ${eyebrow}
+                    <h3 class="product-card__name">${nama}</h3>
                     <div class="product-card__price">${rupiah(produk.price)}</div>
-                    <div class="small mt-auto pt-1">
-                        <span class="badge badge-soft ${stokBadge[status]}"><span class="badge-soft__dot"></span>${stokLabel[status]}</span>
-                    </div>
-                    <div class="mt-2">
+                    <div class="product-card__actions">
                         <a href="${escapeHtml(data.urls.produk + '/' + produk.id)}" class="stretched-link" aria-label="Lihat detail ${nama}"></a>
                         ${aksi}
                     </div>
@@ -95,16 +144,50 @@ if (grid) {
         </div>`;
     };
 
+    /* Selaraskan tombol tambah / stepper dengan isi keranjang saat ini. */
+    const syncCart = (cart) => {
+        grid.querySelectorAll('.col[data-product-id]').forEach((row) => {
+            const addForm = row.querySelector('.cart-add-form');
+            const stepForm = row.querySelector('.card-stepper');
+
+            if (! addForm || ! stepForm) {
+                return;
+            }
+
+            const nilai = stepForm.querySelector('[data-stepper-value]');
+            const item = cart[row.dataset.productId];
+
+            if (! item) {
+                addForm.hidden = false;
+                stepForm.hidden = true;
+
+                return;
+            }
+
+            const qty = Math.max(Number(item.qty) || 1, 1);
+            const stok = Math.max(Number(row.dataset.stock) || 0, 1);
+
+            addForm.hidden = true;
+            stepForm.hidden = false;
+
+            stepForm.querySelector('[data-cart-qty-input]').value = String(qty);
+            nilai.textContent = String(qty);
+
+            stepForm.querySelector('[data-cart-step="-1"]').disabled = qty <= 1;
+            stepForm.querySelector('[data-cart-step="1"]').disabled = qty >= stok;
+        });
+    };
+
     const renderFilter = (params, data) => {
         const kategoriAktif = params.get('category_id');
         const search = params.get('search') || '';
-        const semuaAktif = ! kategoriAktif && ! search;
+        const semuaAktif = ! kategoriAktif;
         const jumlah = data.kategori_counts || {};
 
         const itemSemua = `<li class="nav-item">
-            <a class="nav-link ${semuaAktif ? 'active' : ''}" href="${escapeHtml(marketplace)}" data-filter="semua">
-                <i class="bi bi-grid me-1"></i> Semua
-                <span class="badge badge-soft badge-soft--neutral badge-soft--count ms-1">${jumlah.semua ?? 0}</span>
+            <a class="nav-link ${semuaAktif ? 'active' : ''}" href="${escapeHtml(marketplace)}" data-filter="semua" data-cf-field="category_id" data-cf-value="">
+                <i class="bi bi-grid" aria-hidden="true"></i> Semua
+                <span class="cat-tabs__count">${jumlah.semua ?? 0}</span>
             </a>
         </li>`;
 
@@ -113,10 +196,10 @@ if (grid) {
             const href = `${marketplace}?category_id=${encodeURIComponent(kategori.id)}${search ? `&search=${encodeURIComponent(search)}` : ''}`;
 
             return `<li class="nav-item">
-                <a class="nav-link ${aktif ? 'active' : ''}" href="${escapeHtml(href)}" data-filter="${kategori.id}">
-                    <i class="bi ${escapeHtml(kategori.icon || '')} me-1"></i>
+                <a class="nav-link ${aktif ? 'active' : ''}" href="${escapeHtml(href)}" data-filter="${kategori.id}" data-cf-field="category_id" data-cf-value="${escapeHtml(kategori.id)}" ${aktif ? 'aria-current="page"' : ''}>
+                    <i class="bi ${escapeHtml(kategori.icon || 'bi-tag')}" aria-hidden="true"></i>
                     ${escapeHtml(kategori.name)}
-                    <span class="badge badge-soft badge-soft--neutral badge-soft--count ms-1">${jumlah[kategori.slug] ?? 0}</span>
+                    <span class="cat-tabs__count">${jumlah[kategori.slug] ?? 0}</span>
                 </a>
             </li>`;
         }).join('');
@@ -126,10 +209,27 @@ if (grid) {
 
     const renderGrid = (data) => {
         const produk = data.produk.data || [];
+        const pesan = escapeHtml(
+            paramsHalaman().get('search')
+                ? 'Tidak ada produk yang cocok dengan pencarian.'
+                : 'Tidak ada produk yang cocok dengan filter.',
+        );
+        const kartuKosong = `<div class="col-12" data-cf-empty hidden>
+            <div class="pane text-center py-5">
+                <div class="empty-state__icon"><i class="bi bi-search"></i></div>
+                <p class="text-muted-pos mb-0">${pesan}</p>
+            </div>
+        </div>`;
 
-        grid.innerHTML = produk.length
+        grid.innerHTML = (produk.length
             ? produk.map((item) => kartu(item, data)).join('')
-            : '<div class="col-12"><div class="pane text-center py-4"><p class="text-muted-pos">Tidak ada produk ditemukan.</p></div></div>';
+            : `<div class="col-12">
+                <div class="pane text-center py-5">
+                    <div class="empty-state__icon"><i class="bi bi-bag-x"></i></div>
+                    <p class="text-muted-pos mb-0">Tidak ada produk ditemukan.</p>
+                </div>
+            </div>`)
+            + (produk.length ? kartuKosong : '');
     };
 
     const hrefHalaman = (params, halaman) => {
@@ -201,7 +301,7 @@ if (grid) {
             ? `<li class="page-item"><a class="page-link" href="${escapeHtml(hrefHalaman(params, halamanIni + 1))}" data-page="${halamanIni + 1}" rel="next" aria-label="Halaman berikutnya">${panahKanan}</a></li>`
             : `<li class="page-item disabled"><span class="page-link" aria-hidden="true">${panahKanan}</span></li>`;
 
-        pagination.innerHTML = `<ul class="pagination mb-0">${tombolSebelumnya}${tombolHalaman}${tombolBerikutnya}</ul>`;
+        pagination.innerHTML = `<ul class="pagination pagination-arrow mb-0">${tombolSebelumnya}${tombolHalaman}${tombolBerikutnya}</ul>`;
     };
 
     const renderGagal = () => {
@@ -210,12 +310,26 @@ if (grid) {
         pagination.innerHTML = '';
     };
 
-    const muat = async (params) => {
+    const muat = async (params, tampilProgress = true) => {
         const id = ++permintaan;
         grid.innerHTML = skeleton();
 
+        const kueri = new URLSearchParams();
+        const halaman = params.get('page');
+
+        if (halaman) {
+            kueri.set('page', halaman);
+        }
+
+        if (tampilProgress) {
+            NProgress.start();
+        }
+
         try {
-            const respons = await fetch(`${api}?${params.toString()}`, { headers: { Accept: 'application/json' } });
+            const respons = await fetch(`${api}?${kueri.toString()}`, {
+                headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+            });
 
             if (! respons.ok) {
                 throw new Error(`HTTP ${respons.status}`);
@@ -230,7 +344,9 @@ if (grid) {
             konteks = data;
             renderFilter(params, data);
             renderGrid(data);
+            syncCart(cartAwal());
             renderPagination(params, data);
+            document.dispatchEvent(new CustomEvent('cf:refresh'));
         } catch (error) {
             if (id !== permintaan) {
                 return;
@@ -238,6 +354,10 @@ if (grid) {
 
             console.error('Gagal memuat katalog:', error);
             renderGagal();
+        } finally {
+            if (id === permintaan && tampilProgress) {
+                NProgress.done();
+            }
         }
     };
 
@@ -247,48 +367,6 @@ if (grid) {
         window.history.pushState(null, '', query ? `?${query}` : window.location.pathname);
         muat(params);
     };
-
-    searchForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-
-        const params = new URLSearchParams();
-        const kata = searchInput.value.trim();
-
-        if (kata) {
-            params.set('search', kata);
-        }
-
-        navigasi(params);
-    });
-
-    filterNav.addEventListener('click', (event) => {
-        const tautan = event.target.closest('[data-filter]');
-
-        if (! tautan) {
-            return;
-        }
-
-        event.preventDefault();
-
-        const filter = tautan.dataset.filter;
-
-        if (filter === 'semua') {
-            navigasi(new URLSearchParams());
-
-            return;
-        }
-
-        const params = new URLSearchParams();
-        const kata = searchInput ? searchInput.value.trim() : '';
-
-        params.set('category_id', filter);
-
-        if (kata) {
-            params.set('search', kata);
-        }
-
-        navigasi(params);
-    });
 
     pagination.addEventListener('click', (event) => {
         const tautan = event.target.closest('[data-page]');
@@ -305,15 +383,15 @@ if (grid) {
         navigasi(params);
     });
 
-    window.addEventListener('popstate', () => {
-        const params = paramsHalaman();
-
-        if (searchInput) {
-            searchInput.value = params.get('search') || '';
-        }
-
-        muat(params);
+    /* Tampilkan stepper begitu produk masuk keranjang, dan kembali ke tombol
+       tambah bila item dihapus dari halaman keranjang. */
+    document.addEventListener('cart:updated', (event) => {
+        syncCart(event.detail?.cart || {});
     });
 
-    muat(paramsHalaman());
+    window.addEventListener('popstate', () => {
+        muat(paramsHalaman());
+    });
+
+    muat(paramsHalaman(), false);
 }

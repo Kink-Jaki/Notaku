@@ -1,0 +1,261 @@
+/* ============================================================
+   Dark mode overrides & theme-aware refinements
+   ============================================================ */
+
+/* Scrollbars */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-strong) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-strong);
+    border: 2px solid transparent;
+    border-radius: var(--radius-full);
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-text-muted);
+    background-clip: content-box;
+}
+
+.scroll-area {
+    scrollbar-color: var(--color-border-strong) transparent;
+}
+
+.scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scroll-area::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-strong);
+    border-radius: 3px;
+}
+
+/* ============================================================
+   Dark mode — component corrections
+   ============================================================ */
+
+[data-theme="dark"] .app-sidebar__brand-mark,
+[data-theme="dark"] .store-topbar__brand-mark,
+[data-theme="dark"] .mobile-topbar__brand-mark {
+    box-shadow: 0 4px 14px rgba(var(--color-primary-rgb), 0.4);
+}
+
+[data-theme="dark"] .btn-brand {
+    --bs-btn-hover-bg: var(--color-primary);
+    --bs-btn-hover-border-color: var(--color-primary);
+}
+
+[data-theme="dark"] .btn-accent {
+    --bs-btn-hover-bg: var(--color-accent);
+    --bs-btn-hover-border-color: var(--color-accent);
+}
+
+[data-theme="dark"] .btn-soft {
+    --bs-btn-hover-bg: rgba(var(--color-primary-rgb), 0.28);
+}
+
+[data-theme="dark"] .table-wrap .table tbody tr:hover {
+    background-color: var(--color-bg-subtle);
+}
+
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .offcanvas,
+[data-theme="dark"] .dropdown-menu {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer,
+[data-theme="dark"] .offcanvas-header {
+    border-color: var(--color-border);
+}
+
+[data-theme="dark"] .modal-title {
+    color: var(--color-text);
+}
+
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+[data-theme="dark"] .dropdown-item:hover,
+[data-theme="dark"] .dropdown-item:focus {
+    background-color: var(--color-bg-subtle);
+}
+
+[data-theme="dark"] .pagination .page-link {
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .pagination .page-link:hover {
+    background-color: var(--color-bg-subtle);
+    color: var(--color-text);
+    border-color: var(--color-border-strong);
+}
+
+[data-theme="dark"] .pagination .page-item.active .page-link {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .pagination .page-item.disabled .page-link {
+    background-color: var(--color-surface);
+    color: var(--color-text-muted);
+    opacity: 0.5;
+}
+
+[data-theme="dark"] .form-select {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+/* Native color inputs (light-scheme) */
+[data-theme="dark"] input[type="color"],
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="datetime-local"],
+[data-theme="dark"] input[type="month"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] input[type="week"] {
+    color-scheme: dark;
+}
+
+/* Swal2 */
+[data-theme="dark"] .swal2-popup {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+[data-theme="dark"] .swal2-title,
+[data-theme="dark"] .swal2-html-container {
+    color: var(--color-text);
+}
+
+[data-theme="dark"] .swal2-confirm {
+    background-color: var(--color-primary);
+}
+
+[data-theme="dark"] .swal2-cancel {
+    background-color: var(--color-border);
+    color: var(--color-text);
+}
+
+/* NProgress */
+#nprogress .bar {
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent)) !important;
+    height: 3px;
+    z-index: 1100 !important;
+}
+
+#nprogress .peg {
+    box-shadow: 0 0 10px var(--color-primary), 0 0 5px var(--color-accent) !important;
+}
+
+#nprogress {
+    z-index: 1100 !important;
+}
+
+/* Bootstrap focus ring alignment */
+.form-control:focus-visible,
+.form-select:focus-visible {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+/* Keep icon-only buttons square in dark mode */
+[data-theme="dark"] .topbar-action,
+[data-theme="dark"] .mobile-topbar__action {
+    color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .topbar-action:hover,
+[data-theme="dark"] .topbar-action:focus,
+[data-theme="dark"] .mobile-topbar__action:hover,
+[data-theme="dark"] .mobile-topbar__action:focus {
+    background-color: var(--color-bg-subtle);
+    color: var(--color-text);
+}
+
+/* Sidebar keeps its dark identity in both themes */
+[data-theme="light"] .app-sidebar {
+    background: var(--color-sidebar-bg-gradient) !important;
+}
+
+/* ============================================================
+   Print (receipts & reports) — always light
+   ============================================================ */
+
+@media print {
+    [data-theme="dark"] body,
+    [data-theme="dark"] .store-content,
+    [data-theme="dark"] .app-page {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    .receipt {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border-color: #000000 !important;
+    }
+
+    .app-sidebar,
+    .app-topbar,
+    .store-topbar,
+    .mobile-bottombar,
+    .helper-fab,
+    .mobile-fab {
+        display: none !important;
+    }
+}
+
+/* ============================================================
+   Reduced motion — neutralise decorative animations
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .cat-tabs .nav-link.active::after,
+    .app-sidebar__badge,
+    .cart-add-btn.is-added,
+    .card-stepper {
+        animation: none !important;
+    }
+
+    .product-card:hover,
+    .product-card-mobile:hover,
+    .btn-brand:hover,
+    .btn-accent:hover,
+    .btn-soft:hover,
+    .cat-tabs .nav-link:hover,
+    .theme-toggle:hover,
+    .topbar-action:hover,
+    .cart-row:hover {
+        transform: none !important;
+    }
+
+    .product-card:hover .product-card__img,
+    .product-card-mobile__link:hover .product-card-mobile__img,
+    .product-card:hover .product-placeholder__icon,
+    .product-card-mobile:hover .product-placeholder__icon,
+    .cat-tabs .nav-link:hover .bi,
+    .app-sidebar .nav-link:hover .bi {
+        transform: none !important;
+    }
+}

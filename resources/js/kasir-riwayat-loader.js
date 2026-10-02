@@ -1,4 +1,9 @@
 const ENDPOINT = '/api/kasir/riwayat';
+const DEBOUNCE_MS = 300;
+
+let urutanMuat = 0;
+let jedaKetik = null;
+let statistikServer = null;
 
 const STATUS_BADGE = {
     selesai: 'success',
@@ -12,6 +17,18 @@ const EMPTY_STATE = `
                 <span class="empty-state__icon"><i class="bi bi-inbox"></i></span>
                 <div class="empty-state__title">Belum ada transaksi</div>
                 <div class="empty-state__text">Tidak ada transaksi pada filter yang dipilih.</div>
+            </div>
+        </td>
+    </tr>
+`;
+
+const EMPTY_FILTER_STATE = `
+    <tr data-cf-empty hidden>
+        <td colspan="9">
+            <div class="empty-state">
+                <span class="empty-state__icon"><i class="bi bi-search"></i></span>
+                <div class="empty-state__title">Tidak ada transaksi yang cocok</div>
+                <div class="empty-state__text">Coba ubah kata kunci atau filter di atas.</div>
             </div>
         </td>
     </tr>
@@ -81,7 +98,11 @@ function renderRows(rows, statusBadge) {
         body.innerHTML = EMPTY_STATE;
     } else {
         body.innerHTML = rows.map((row) => `
-            <tr>
+            <tr data-cf-row
+                data-cf-name="${escapeHtml(`${row.transaction_number} ${row.order_number ?? ''}`)}"
+                data-jenis="${escapeHtml(row.jenis)}"
+                data-status="${escapeHtml(row.status ?? 'selesai')}"
+                data-total="${escapeHtml(row.total)}">
                 <td>
                     <a href="${escapeHtml(row.detail_url)}" class="fw-semibold font-monospace">
                         ${escapeHtml(row.transaction_number)}
@@ -112,7 +133,7 @@ function renderRows(rows, statusBadge) {
                     </a>
                 </td>
             </tr>
-        `).join('');
+        `).join('') + EMPTY_FILTER_STATE;
     }
 
     body.setAttribute('aria-busy', 'false');
@@ -136,7 +157,23 @@ function renderError() {
         .forEach((el) => el?.setAttribute('aria-busy', 'false'));
 }
 
+function setLoading(loading) {
+    ['riwayat-stats', 'riwayat-body', 'riwayat-pagination', 'riwayat-info']
+        .forEach((id) => {
+            const el = document.getElementById(id);
+
+            if (el) {
+                el.style.opacity = loading ? '0.5' : '';
+                el.style.pointerEvents = loading ? 'none' : '';
+            }
+        });
+}
+
 async function loadRiwayat() {
+    const id = ++urutanMuat;
+
+    setLoading(true);
+
     try {
         const url = ENDPOINT + window.location.search;
         const response = await fetch(url, {
@@ -149,16 +186,84 @@ async function loadRiwayat() {
         }
 
         const payload = await response.json();
+
+        if (id !== urutanMuat) {
+            return;
+        }
+
         const data = payload.data ?? {};
+
+        statistikServer = {
+            badges: data.badges ?? {},
+            stat_cards: data.stat_cards ?? [],
+        };
 
         renderBadges(data.badges ?? {});
         renderStats(data.stat_cards ?? []);
         renderRows(data.rows ?? [], STATUS_BADGE);
         renderPagination(data.summary ?? {}, data.pagination ?? '');
+        document.dispatchEvent(new CustomEvent('cf:refresh'));
     } catch (error) {
+        if (id !== urutanMuat) {
+            return;
+        }
+
         console.error('Gagal memuat riwayat transaksi:', error);
         renderError();
+    } finally {
+        if (id === urutanMuat) {
+            setLoading(false);
+        }
     }
+}
+
+function filterParams() {
+    const form = document.getElementById('riwayat-filter');
+    const params = new URLSearchParams();
+
+    if (form) {
+        new FormData(form).forEach((value, key) => {
+            if (value !== '') {
+                params.set(key, value);
+            }
+        });
+    }
+
+    params.delete('page');
+
+    return params;
+}
+
+function navigasiRiwayat(params) {
+    const query = params.toString();
+
+    window.clearTimeout(jedaKetik);
+    window.history.pushState({ riwayat: true }, '', query ? `?${query}` : window.location.pathname);
+    sinkronFormRiwayat();
+    sinkronTombolCepat(params);
+    loadRiwayat();
+}
+
+function sinkronFormRiwayat() {
+    const params = new URLSearchParams(window.location.search);
+
+    document.querySelectorAll('#riwayat-filter [name]').forEach((control) => {
+        if (control === document.activeElement) {
+            return;
+        }
+
+        control.value = params.get(control.name) ?? control.dataset.rtInitial ?? '';
+    });
+}
+
+function sinkronTombolCepat(params) {
+    const dari = params.get('dari');
+
+    document.querySelectorAll('.btn-group[role="group"] a').forEach((tautan) => {
+        const dariTautan = new URL(tautan.href, window.location.origin).searchParams.get('dari');
+
+        tautan.classList.toggle('active', Boolean(dari) && dariTautan === dari);
+    });
 }
 
 function bootKasirRiwayat() {
@@ -166,11 +271,94 @@ function bootKasirRiwayat() {
         return;
     }
 
+    document.querySelectorAll('#riwayat-filter [name]').forEach((control) => {
+        control.dataset.rtInitial = control.value;
+    });
+
     document.addEventListener('click', (event) => {
         const retry = event.target.closest('[data-riwayat-retry]');
         if (retry) {
             loadRiwayat();
         }
+    });
+
+    document.addEventListener('submit', (event) => {
+        const form = event.target.closest('#riwayat-filter');
+
+        if (! form) {
+            return;
+        }
+
+        event.preventDefault();
+        navigasiRiwayat(filterParams());
+    }, true);
+
+    document.addEventListener('input', (event) => {
+        if (! event.target.matches('#riwayat-filter input[type="date"]')) {
+            return;
+        }
+
+        window.clearTimeout(jedaKetik);
+        jedaKetik = window.setTimeout(() => navigasiRiwayat(filterParams()), DEBOUNCE_MS);
+    }, true);
+
+    document.addEventListener('change', (event) => {
+        if (! event.target.matches('#riwayat-filter input[type="date"]')) {
+            return;
+        }
+
+        navigasiRiwayat(filterParams());
+    }, true);
+
+    document.addEventListener('click', (event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+            return;
+        }
+
+        const tautan = event.target.closest(
+            '.btn-group[role="group"] a[href], #riwayat-pagination a[href], a[data-rt-link]'
+        );
+
+        if (! tautan || tautan.getAttribute('href').startsWith('#') || tautan.hasAttribute('data-no-rt')) {
+            return;
+        }
+
+        event.preventDefault();
+        navigasiRiwayat(new URL(tautan.href, window.location.origin).searchParams);
+    }, true);
+
+    window.addEventListener('popstate', () => {
+        sinkronFormRiwayat();
+        sinkronTombolCepat(new URLSearchParams(window.location.search));
+        loadRiwayat();
+    });
+
+    document.addEventListener('cf:applied', (event) => {
+        if (! statistikServer || event.detail?.kunci !== 'riwayat') {
+            return;
+        }
+
+        if (! event.detail.adaFilter) {
+            renderBadges(statistikServer.badges);
+            renderStats(statistikServer.stat_cards);
+
+            return;
+        }
+
+        const baris = event.detail.baris;
+        const jumlah = baris.length;
+        const penjualan = baris.reduce((total, row) => total + (Number(row.dataset.total) || 0), 0);
+
+        renderBadges({
+            total_transaksi: formatNumber(jumlah),
+            total_penjualan: formatRupiah(penjualan),
+        });
+
+        renderStats([
+            { label: 'Total Transaksi', value: formatNumber(jumlah), icon: 'bi-receipt', modifier: 'primary' },
+            { label: 'Total Penjualan', value: formatRupiah(penjualan), icon: 'bi-cash-stack', modifier: 'success' },
+            { label: 'Rata-rata Transaksi', value: formatRupiah(jumlah > 0 ? Math.round(penjualan / jumlah) : 0), icon: 'bi-graph-up', modifier: 'info' },
+        ]);
     });
 
     loadRiwayat();

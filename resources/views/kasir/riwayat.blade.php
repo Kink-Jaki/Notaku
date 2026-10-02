@@ -23,7 +23,7 @@
     </div>
 
     <div class="pane mb-4">
-        <form class="row g-2 align-items-end" action="{{ route('kasir.riwayat') }}" method="get">
+        <form class="row g-2 align-items-end" action="{{ route('kasir.riwayat') }}" method="get" id="riwayat-filter" data-cf="riwayat" data-cf-fetch-submit>
             <div class="col-6 col-md-3 col-lg-2">
                 <label class="form-label" for="tanggalDari">Tanggal dari</label>
                 <input type="date" class="form-control" id="tanggalDari" name="dari" value="{{ $dari }}">
@@ -34,7 +34,7 @@
             </div>
             <div class="col-6 col-md-3 col-lg-2">
                 <label class="form-label" for="filterJenis">Jenis</label>
-                <select class="form-select" id="filterJenis" name="jenis">
+                <select class="form-select" id="filterJenis" name="jenis" data-cf-field="jenis">
                     <option value="Semua" {{ $jenis === 'Semua' ? 'selected' : '' }}>Semua</option>
                     <option value="Kasir" {{ $jenis === 'Kasir' ? 'selected' : '' }}>Kasir</option>
                     <option value="Online" {{ $jenis === 'Online' ? 'selected' : '' }}>Online</option>
@@ -42,7 +42,7 @@
             </div>
             <div class="col-6 col-md-3 col-lg-2">
                 <label class="form-label" for="filterStatus">Status</label>
-                <select class="form-select" id="filterStatus" name="status">
+                <select class="form-select" id="filterStatus" name="status" data-cf-field="status">
                     <option value="Semua" {{ $status === 'Semua' ? 'selected' : '' }}>Semua</option>
                     <option value="selesai" {{ $status === 'selesai' ? 'selected' : '' }}>Sukses</option>
                     <option value="dibatalkan" {{ $status === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
@@ -51,7 +51,7 @@
             <div class="col-12 col-md-6 col-lg-3">
                 <div class="search-box">
                     <i class="bi bi-search search-box__icon"></i>
-                    <input type="search" class="form-control" placeholder="Cari ID / No. Pesanan..." aria-label="Cari ID transaksi atau nomor pesanan" name="q" value="{{ $q }}">
+                    <input type="search" class="form-control" placeholder="Cari ID / No. Pesanan..." aria-label="Cari ID transaksi atau nomor pesanan" name="q" value="{{ $q }}" data-cf-search>
                 </div>
             </div>
             <div class="col-12 col-lg">
@@ -59,7 +59,7 @@
                     <button type="submit" class="btn btn-brand">
                         <i class="bi bi-funnel me-1"></i> Terapkan Filter
                     </button>
-                    <a href="{{ route('kasir.riwayat') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('kasir.riwayat') }}" class="btn btn-outline-secondary" data-rt-link>
                         <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
                     </a>
                 </div>
@@ -103,7 +103,7 @@
                         <th class="text-end">Aksi</th>
                     </tr>
                 </thead>
-                <tbody id="riwayat-body" aria-busy="true">
+                <tbody id="riwayat-body" aria-busy="true" data-cf="riwayat">
                     @foreach (range(1, 10) as $rowIndex)
                         <tr class="skeleton-row">
                             <td></td>
@@ -123,7 +123,7 @@
     </div>
 
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
-        <small class="text-muted-pos" id="riwayat-info">
+        <small class="text-muted-pos" id="riwayat-info" data-cf="riwayat" data-cf-summary="Menampilkan {n} transaksi di halaman ini">
             <span class="skeleton skeleton--text w-50"></span>
         </small>
         <nav aria-label="Navigasi halaman riwayat transaksi" id="riwayat-pagination"></nav>

@@ -14,27 +14,18 @@ class AdminUserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::query();
+        $users = User::query()->latest()->paginate(15)->withQueryString();
+        $data = ['users' => $users];
 
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%")
-                    ->orWhere('email', 'like', "%{$request->search}%");
-            });
+        if (! $request->ajax()) {
+            $data['roleCounts'] = [
+                'admin' => User::where('role', 'admin')->count(),
+                'kasir' => User::where('role', 'kasir')->count(),
+                'pelanggan' => User::where('role', 'pelanggan')->count(),
+            ];
         }
 
-        if ($request->filled('role')) {
-            $query->where('role', $request->role);
-        }
-
-        $users = $query->latest()->paginate(15)->withQueryString();
-        $roleCounts = [
-            'admin' => User::where('role', 'admin')->count(),
-            'kasir' => User::where('role', 'kasir')->count(),
-            'pelanggan' => User::where('role', 'pelanggan')->count(),
-        ];
-
-        return view('admin.role-user', compact('users', 'roleCounts'));
+        return $this->viewOrFragment($request, 'admin.role-user', 'admin.role-user-results', $data);
     }
 
     public function store(Request $request)

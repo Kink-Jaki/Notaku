@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\KasirAntrianApiController;
 use App\Http\Controllers\Api\KasirDashboardApiController;
 use App\Http\Controllers\Api\KasirLaporanHarianApiController;
 use App\Http\Controllers\Api\KasirRiwayatApiController;
+use App\Http\Controllers\Api\PelangganNotifikasiApiController;
 use App\Http\Controllers\Api\ProductApiController;
 use App\Http\Controllers\HelpCenterController;
 use App\Http\Controllers\Kasir\KasirAntrianController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Pelanggan\PelangganCartController;
 use App\Http\Controllers\Pelanggan\PelangganCheckoutController;
 use App\Http\Controllers\Pelanggan\PelangganKatalogController;
 use App\Http\Controllers\Pelanggan\PelangganRiwayatController;
+use App\Http\Controllers\Webhook\XenditWebhookController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -68,7 +70,13 @@ Route::middleware(['auth', 'verified', 'role:pelanggan'])->name('pelanggan.')->g
     Route::post('/checkout', [PelangganCheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/pesanan-saya', [PelangganRiwayatController::class, 'index'])->name('pesanan-saya');
     Route::put('/pesanan-saya/{order}/cancel', [PelangganRiwayatController::class, 'cancel'])->name('order.cancel');
+    Route::get('/pesanan-saya/{order}/bayar', [PelangganRiwayatController::class, 'bayar'])->name('pembayaran.bayar');
+    Route::get('/pesanan-saya/{order}/pembayaran', [PelangganRiwayatController::class, 'pembayaranStatus'])->name('pembayaran.status');
+    Route::post('/pesanan-saya/{order}/pesan-lagi', [PelangganRiwayatController::class, 'pesanLagi'])->name('pesanan.pesan-lagi');
     Route::get('/katalog/mobile', [PelangganKatalogController::class, 'indexMobile'])->name('katalog.mobile');
+
+    Route::get('/api/pelanggan/notifikasi', [PelangganNotifikasiApiController::class, 'index'])->name('notifikasi.list');
+    Route::post('/api/pelanggan/notifikasi/read', [PelangganNotifikasiApiController::class, 'markAllRead'])->name('notifikasi.read');
 });
 
 Route::get('/api/kasir/dashboard', [KasirDashboardApiController::class, 'index'])
@@ -96,6 +104,7 @@ Route::middleware(['auth', 'verified', 'role:kasir'])->prefix('kasir')->name('ka
     Route::get('/antrian', [KasirAntrianController::class, 'index'])->name('antrian');
     Route::post('/antrian/{order}/approve', [KasirAntrianController::class, 'approve'])->name('antrian.approve');
     Route::post('/antrian/{order}/reject', [KasirAntrianController::class, 'reject'])->name('antrian.reject');
+    Route::post('/antrian/{order}/complete', [KasirAntrianController::class, 'complete'])->name('antrian.complete');
 
     Route::get('/antrian/check-new', [KasirAntrianController::class, 'checkNewOrders'])->name('antrian.check-new');
 
@@ -128,3 +137,5 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
 });
 
 require __DIR__.'/auth.php';
+
+Route::post('/webhooks/xendit', XenditWebhookController::class)->name('webhook.xendit');

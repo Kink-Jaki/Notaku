@@ -1,47 +1,316 @@
 :root {
-    /* Brand palette */
-    --color-primary: #4F46E5;
-    --color-primary-dark: #4338CA;
-    --color-secondary: #64748B;
+  /* ============================================================
+     COLOR SYSTEM - Light Theme (Default)
+     ============================================================ */
 
-    /* Semantic palette */
-    --color-success: #10B981;
-    --color-warning: #F59E0B;
-    --color-danger: #EF4444;
-    --color-info: #0EA5E9;
+  /* Brand Colors */
+  --color-primary: #4F46E5;
+  --color-primary-hover: #4338CA;
+  --color-primary-active: #3730A3;
+  --color-primary-soft: #EEF2FF;
+  --color-primary-rgb: 79, 70, 229;
 
-    /* Surfaces & backgrounds */
-    --color-bg: #F8FAFC;
-    --color-surface: #FFFFFF;
-    --color-border: #E2E8F0;
+  --color-accent: #F97316;
+  --color-accent-hover: #EA580C;
+  --color-accent-active: #C2410C;
+  --color-accent-soft: #FFEDD5;
+  --color-accent-rgb: 249, 115, 22;
 
-    /* Text */
-    --color-text: #1E293B;
-    --color-text-muted: #94A3B8;
+  /* Semantic Colors */
+  --color-success: #10B981;
+  --color-success-hover: #059669;
+  --color-success-soft: #ECFDF5;
+  --color-success-rgb: 16, 185, 129;
 
-    /* Derived tokens */
-    --color-primary-rgb: 79, 70, 229;
-    --color-success-rgb: 16, 185, 129;
-    --color-warning-rgb: 245, 158, 11;
-    --color-danger-rgb: 239, 68, 68;
-    --color-info-rgb: 14, 165, 233;
-    --color-primary-soft: #EEF2FF;
-    --color-sidebar-bg: #1E1B4B;
-    --color-sidebar-text: #C7D2FE;
-    --color-sidebar-muted: rgba(199, 210, 254, 0.6);
+  --color-warning: #F59E0B;
+  --color-warning-hover: #D97706;
+  --color-warning-soft: #FFFBE6;
+  --color-warning-rgb: 245, 158, 11;
 
-    /* Radius & elevation */
-    --pos-radius: 0.5rem;
-    --pos-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 1px rgba(15, 23, 42, 0.06);
-    --pos-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05),
-        0 12px 24px -8px rgba(79, 70, 229, 0.12);
+  --color-danger: #EF4444;
+  --color-danger-hover: #DC2626;
+  --color-danger-soft: #FEF2F2;
+  --color-danger-rgb: 239, 68, 68;
 
-    /* Typography */
-    --pos-font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-    --pos-font-semibold: 600;
+  --color-info: #0EA5E9;
+  --color-info-hover: #0284C7;
+  --color-info-soft: #EFF6FF;
+  --color-info-rgb: 14, 165, 233;
 
-    /* Shell dimensions */
-    --pos-sidebar-width: 260px;
-    --pos-topbar-height: 64px;
+  /* Neutral / Surface Colors */
+  --color-bg: #F8FAFC;
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-subtle: #F1F5F9;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F8FAFC;
+  --color-surface-elevated: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-border-strong: #CBD5E1;
+  --color-divider: #E2E8F0;
+
+  /* Text Colors */
+  --color-text: #0F172A;
+  --color-text-secondary: #334155;
+  --color-text-muted: #94A3B8;
+  --color-text-inverse: #FFFFFF;
+  --color-text-link: #4F46E5;
+  --color-text-link-hover: #4338CA;
+
+  /* Sidebar Colors
+     Nilai final di-override inline oleh SettingsHelper::sidebarTokens() supaya
+     sidebar ikut berubah saat tema di Personalization diubah. Yang di sini
+     hanya fallback untuk konteks tanpa settings (mis. halaman auth). */
+  --color-sidebar-bg: #4338CA;
+  --color-sidebar-bg-gradient: linear-gradient(180deg, #4F46E5 0%, #4338CA 100%);
+  --color-sidebar-text: #E0E7FF;
+  --color-sidebar-text-muted: rgba(224, 231, 255, 0.6);
+  --color-sidebar-border: rgba(255, 255, 255, 0.08);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.1);
+  --color-sidebar-active-bg: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.25), rgba(var(--color-primary-rgb), 0.1));
+  --color-sidebar-active-border: rgba(var(--color-primary-rgb), 0.35);
+  --color-sidebar-brand-gradient: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+
+  /* Category Gradient Colors (for placeholders) */
+  --color-cat-makanan: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+  --color-cat-minuman: linear-gradient(135deg, #0EA5E9 0%, #38BDF8 100%);
+  --color-cat-sembako: linear-gradient(135deg, #84CC16 0%, #A3E635 100%);
+  --color-cat-snack: linear-gradient(135deg, #EC4899 0%, #F472B6 100%);
+  --color-cat-lainnya: linear-gradient(135deg, #64748B 0%, #94A3B8 100%);
+
+  /* Category Icons */
+  --icon-cat-makanan: "bi-egg-fried";
+  --icon-cat-minuman: "bi-cup-hot";
+  --icon-cat-sembako: "bi-basket";
+  --icon-cat-snack: "bi-emoji-smile";
+  --icon-cat-lainnya: "bi-box-seam";
+
+  /* ============================================================
+     SPACING SYSTEM
+     ============================================================ */
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+
+  /* ============================================================
+     TYPOGRAPHY
+     ============================================================ */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --font-size-xs: 0.6875rem;    /* 11px */
+  --font-size-sm: 0.8125rem;    /* 13px */
+  --font-size-base: 0.9375rem;  /* 15px */
+  --font-size-md: 1rem;         /* 16px */
+  --font-size-lg: 1.125rem;     /* 18px */
+  --font-size-xl: 1.25rem;      /* 20px */
+  --font-size-2xl: 1.5rem;      /* 24px */
+  --font-size-3xl: 1.875rem;    /* 30px */
+  --font-size-4xl: 2.25rem;     /* 36px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+
+  /* ============================================================
+     BORDER RADIUS
+     ============================================================ */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+
+  --pos-radius: var(--radius-lg);
+  --pos-radius-sm: var(--radius-md);
+  --pos-radius-lg: var(--radius-xl);
+
+  /* ============================================================
+     SHADOWS & ELEVATION
+     ============================================================ */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.03);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05), 0 12px 24px -8px rgba(79, 70, 229, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.05), 0 20px 25px -5px rgba(79, 70, 229, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+  --shadow-focus: 0 0 0 3px rgba(79, 70, 229, 0.25);
+
+  --pos-shadow-sm: var(--shadow-sm);
+  --pos-shadow-md: var(--shadow-md);
+  --pos-shadow-lg: var(--shadow-lg);
+
+  /* ============================================================
+     TRANSITIONS & ANIMATION
+     ============================================================ */
+  --transition-fast: 100ms ease;
+  --transition-base: 150ms ease;
+  --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  --pos-transition: var(--transition-smooth);
+
+  /* ============================================================
+     Z-INDEX LAYERS
+     ============================================================ */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-offcanvas: 1040;
+  --z-offcanvas-panel: 1045;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+
+  /* ============================================================
+     LAYOUT DIMENSIONS
+     ============================================================ */
+  --topbar-height: 64px;
+  --pos-topbar-height: var(--topbar-height);
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 72px;
+  --sidebar-transition: var(--pos-transition);
+  --bottombar-height: 64px;
+
+  /* ============================================================
+     COMPONENT-SPECIFIC
+     ============================================================ */
+  --card-padding: var(--space-4);
+  --card-padding-sm: var(--space-3);
+  --card-gap: var(--space-3);
+  --input-height: 2.5rem;
+  --btn-height: 2.5rem;
+  --btn-height-sm: 2rem;
+  --avatar-size: 2rem;
+  --avatar-size-sm: 1.75rem;
+  --avatar-size-lg: 2.75rem;
+  --avatar-size-xl: 3.5rem;
+}
+
+/* ============================================================
+   DARK MODE
+   ============================================================ */
+[data-theme="dark"] {
+  /* Brand Colors (adjusted for dark) */
+  --color-primary: #6366F1;
+  --color-primary-hover: #818CF8;
+  --color-primary-active: #4F46E5;
+  --color-primary-soft: #312E81;
+  --color-primary-rgb: 99, 102, 241;
+
+  --color-accent: #FB923C;
+  --color-accent-hover: #FDBA74;
+  --color-accent-active: #F97316;
+  --color-accent-soft: #7C2D12;
+  --color-accent-rgb: 251, 146, 60;
+
+  /* Semantic Colors (adjusted for dark) */
+  --color-success: #34D399;
+  --color-success-hover: #6EE7B7;
+  --color-success-soft: #064E3B;
+  --color-success-rgb: 52, 211, 153;
+
+  --color-warning: #FBBF24;
+  --color-warning-hover: #FCD34D;
+  --color-warning-soft: #78350F;
+  --color-warning-rgb: 251, 191, 36;
+
+  --color-danger: #F87171;
+  --color-danger-hover: #FCA5A5;
+  --color-danger-soft: #7F1D1D;
+  --color-danger-rgb: 248, 113, 113;
+
+  --color-info: #38BDF8;
+  --color-info-hover: #7DD3FC;
+  --color-info-soft: #1E3A5F;
+  --color-info-rgb: 56, 189, 248;
+
+  /* Neutral / Surface Colors */
+  --color-bg: #0F172A;
+  --color-bg-elevated: #1E293B;
+  --color-bg-subtle: #1E293B;
+  --color-surface: #1E293B;
+  --color-surface-hover: #334155;
+  --color-surface-elevated: #334155;
+  --color-border: #334155;
+  --color-border-strong: #475569;
+  --color-divider: #334155;
+
+  /* Text Colors */
+  --color-text: #F8FAFC;
+  --color-text-secondary: #E2E8F0;
+  --color-text-muted: #94A3B8;
+  --color-text-inverse: #0F172A;
+  --color-text-link: #A5B4FC;
+  --color-text-link-hover: #C7D2FE;
+
+  /* Sidebar Colors — tetap diturunkan dari primary agar ikut berubah tema.
+     Di halaman ter-autentikasi, override inline dari
+     SettingsHelper::sidebarTokens() yang menang (lihat layouts/app). */
+  --color-sidebar-bg: color-mix(in srgb, var(--color-primary-dark) 70%, #020617);
+  --color-sidebar-bg-gradient: linear-gradient(180deg, var(--color-primary-dark) 0%, color-mix(in srgb, var(--color-primary-dark) 55%, #020617) 100%);
+  --color-sidebar-text: #E0E7FF;
+  --color-sidebar-text-muted: rgba(224, 231, 255, 0.55);
+  --color-sidebar-border: rgba(255, 255, 255, 0.06);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --color-sidebar-active-bg: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.3), rgba(var(--color-primary-rgb), 0.15));
+  --color-sidebar-active-border: rgba(var(--color-primary-rgb), 0.4);
+  --color-sidebar-brand-gradient: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+
+  /* Shadows (adjusted for dark) */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2), 0 12px 24px -8px rgba(99, 102, 241, 0.15);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.25), 0 20px 25px -5px rgba(99, 102, 241, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.35);
+}
+
+/* ============================================================
+   PREFERS-COLOR-SCHEME MEDIA QUERY (Optional auto dark mode)
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Uncomment to enable auto dark mode based on system preference
+    --color-primary: #6366F1;
+    --color-primary-hover: #818CF8;
+    --color-primary-active: #4F46E5;
+    --color-primary-soft: #312E81;
+    --color-primary-rgb: 99, 102, 241;
+    ...etc
+    */
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --pos-transition: 0.01ms;
+    --transition-fast: 0.01ms;
+    --transition-base: 0.01ms;
+    --transition-smooth: 0.01ms;
+    --transition-slow: 0.01ms;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

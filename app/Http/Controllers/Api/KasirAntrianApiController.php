@@ -27,6 +27,10 @@ class KasirAntrianApiController extends Controller
                 'id' => $order->id,
                 'order_number' => $order->order_number,
                 'customer_name' => $order->customer_name,
+                'customer_phone' => $order->customer_phone,
+                'delivery_type' => $order->delivery_type,
+                'delivery_type_label' => $order->deliveryTypeLabel(),
+                'address' => $order->address,
                 'payment_method' => $order->payment_method,
                 'payment_method_label' => $this->paymentMethodLabel($order->payment_method),
                 'waktu' => $order->created_at->format('H:i'),
@@ -80,6 +84,7 @@ class KasirAntrianApiController extends Controller
             'total' => (int) $order->total,
             'keputusan' => $order->status === Order::STATUS_PROCESSING ? 'disetujui' : 'ditolak',
             'alasan' => $order->rejected_reason,
+            'complete_url' => $order->status === Order::STATUS_PROCESSING ? route('kasir.antrian.complete', $order) : null,
         ])->values()->all();
 
         $counts = [
@@ -114,6 +119,7 @@ class KasirAntrianApiController extends Controller
             'qris' => 'QRIS',
             'ewallet' => 'E-Wallet',
             'tunai' => 'Tunai',
+            'online' => 'Bayar Online',
             default => ucfirst((string) $method),
         };
     }

@@ -62,7 +62,7 @@
                         @if ($p->image)
                             <img src="{{ asset('storage/' . $p->image) }}" alt="{{ $p->name }}" class="product-card__img" style="width:100%;height:160px;object-fit:cover;">
                         @else
-                            <x-product-placeholder size="lg" />
+                            <x-product-placeholder size="lg" :category="$p->category?->name" :name="$p->name" />
                         @endif
                         @if ($stokSt === 'habis')
                             <span class="product-card__out-badge">Habis</span>
@@ -142,38 +142,3 @@
     </section>
 @endsection
 
-@push('scripts')
-<script>
-    const isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.cart-add-form').forEach(function(form) {
-            form.addEventListener('submit', function(e) {
-                if (! isLoggedIn) {
-                    e.preventDefault();
-                    requireLogin();
-                    return;
-                }
-                e.preventDefault();
-                const btn = form.querySelector('.cart-add-btn');
-                btn.disabled = true;
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json'},
-                    body: new FormData(form)
-                }).then(r => r.json()).then(data => {
-                    if (data.success) {
-                        Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Berhasil ditambahkan ke keranjang!', showConfirmButton: false, timer: 2000, timerProgressBar: true});
-                        btn.disabled = false;
-                    } else {
-                        Swal.fire({icon: 'error', title: 'Gagal', text: data.error || 'Terjadi kesalahan'});
-                        btn.disabled = false;
-                    }
-                }).catch(() => {
-                    Swal.fire({icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan jaringan'});
-                    btn.disabled = false;
-                });
-            });
-        });
-    });
-</script>
-@endpush

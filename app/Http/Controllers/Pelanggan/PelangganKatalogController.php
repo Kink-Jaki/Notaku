@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pelanggan;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
 class PelangganKatalogController extends Controller
 {
@@ -17,19 +18,21 @@ class PelangganKatalogController extends Controller
         return view('pelanggan.marketplace');
     }
 
-    public function indexMobile()
+    public function indexMobile(Request $request)
     {
         $produk = Product::with('category')
             ->where('is_active', true)
-            ->when(request('category_id'), fn ($q) => $q->where('category_id', request('category_id')))
-            ->when(request('search'), fn ($q) => $q->where('name', 'like', '%' . request('search') . '%'))
+            ->orderByOutOfStockLast()
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         $kategori = Category::orderBy('name')->get();
-        $kategoriCounts = $kategori->pluck('id')->mapWithKeys(fn ($id) => [$id => Product::where('category_id', $id)->where('is_active', true)->count()])->toArray();
 
-        return view('pelanggan.katalog-mobile', compact('produk', 'kategori', 'kategoriCounts'));
+        return $this->viewOrFragment($request, 'pelanggan.katalog-mobile', 'pelanggan.katalog-mobile-results', [
+            'produk' => $produk,
+            'kategori' => $kategori,
+        ]);
     }
 
     public function show(Product $produk)

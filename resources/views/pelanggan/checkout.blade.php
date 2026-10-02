@@ -7,7 +7,9 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ route('marketplace') }}">Katalog</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('pelanggan.cart') }}">Keranjang</a></li>
+            @unless (request()->filled('product_id'))
+                <li class="breadcrumb-item"><a href="{{ route('pelanggan.cart') }}">Keranjang</a></li>
+            @endunless
             <li class="breadcrumb-item active" aria-current="page">Checkout</li>
         </ol>
     </nav>
@@ -24,7 +26,7 @@
         <div class="checkout-stepper" role="list" aria-label="Langkah pemesanan">
             <div class="checkout-step is-done" role="listitem">
                 <span class="checkout-step__dot" aria-hidden="true"><i class="bi bi-check-lg"></i></span>
-                <span class="checkout-step__label">Keranjang</span>
+                <span class="checkout-step__label">{{ request()->filled('product_id') ? 'Beli Sekarang' : 'Keranjang' }}</span>
             </div>
             <div class="checkout-step is-active" role="listitem" aria-current="step">
                 <span class="checkout-step__dot" aria-hidden="true">2</span>
@@ -37,8 +39,18 @@
         </div>
     </div>
 
+    {{-- Form promo harus di luar form checkout: <form> tidak boleh di-nest,
+         karena </form> pertama akan menutup form utama dan membuat tombol
+         submit berada di luar form. --}}
+    <form method="POST" action="{{ route('pelanggan.cart.promo') }}" id="promoForm" hidden></form>
+    <form method="POST" action="{{ route('pelanggan.cart.promoRemove') }}" id="promoRemoveForm" hidden></form>
+
     <form method="POST" action="{{ route('pelanggan.checkout.store') }}">
         @csrf
+        @if (request()->filled('product_id'))
+            <input type="hidden" name="product_id" value="{{ request('product_id') }}">
+            <input type="hidden" name="qty" value="{{ request('qty', 1) }}">
+        @endif
         <div class="row g-3">
             {{-- ================= KIRI ================= --}}
             <div class="col-lg-8">
@@ -90,25 +102,29 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label d-block">Metode Pembayaran</label>
+                            @php
+                                $deliveryType = old('delivery_type', 'pickup');
+                                $canTunai = $deliveryType === 'pickup';
+                            @endphp
+
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="payment_method" id="metodeTunai" value="tunai" {{ old('payment_method', 'tunai') === 'tunai' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="metodeTunai"><i class="bi bi-cash me-1"></i> Tunai</label>
+                                <input class="form-check-input" type="radio" name="payment_method" id="metodeOnline" value="online" {{ old('payment_method', 'online') === 'online' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="metodeOnline"><i class="bi bi-credit-card me-1"></i> Bayar Online (QRIS/VA/e-Wallet)</label>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="payment_method" id="metodeQris" value="qris" {{ old('payment_method') === 'qris' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="metodeQris"><i class="bi bi-qr-code me-1"></i> QRIS</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="payment_method" id="metodeEwallet" value="ewallet" {{ old('payment_method') === 'ewallet' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="metodeEwallet"><i class="bi bi-wallet2 me-1"></i> E-Wallet</label>
+                            <div class="form-check form-check-inline {{ ! $canTunai ? 'd-none' : '' }}">
+                                <input class="form-check-input" type="radio" name="payment_method" id="metodeTunai" value="tunai" {{ old('payment_method') === 'tunai' ? 'checked' : '' }} {{ ! $canTunai ? 'disabled' : '' }}>
+                                <label class="form-check-label {{ ! $canTunai ? 'text-muted' : '' }}" for="metodeTunai"><i class="bi bi-cash me-1"></i> Tunai {{ ! $canTunai ? '(hanya pickup)' : '' }}</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="payment_method" id="metodeTransfer" value="transfer" {{ old('payment_method') === 'transfer' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="metodeTransfer"><i class="bi bi-building me-1"></i> Transfer</label>
+                                <label class="form-check-label" for="metodeTransfer"><i class="bi bi-building me-1"></i> Transfer Manual</label>
                             </div>
                             @error('payment_method')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="form-text text-muted d-block mt-1">
+                                <span id="tunaiHint" class="{{ ! $canTunai ? 'text-danger' : 'text-muted' }}">{{ ! $canTunai ? 'Pembayaran tunai hanya tersedia untuk Ambil di Tempat (pickup).' : '' }}</span>
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -137,7 +153,7 @@
                                                     @if ($item['image'] ?? null)
                                                         <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" class="thumb-sm" style="max-width:40px;object-fit:cover;">
                                                     @else
-                                                        <span class="thumb-sm"><x-product-placeholder size="sm" /></span>
+                                                        <span class="thumb-sm"><x-product-placeholder size="sm" :name="$item['name']" /></span>
                                                     @endif
                                                     <div>
                                                         <div class="fw-semibold">{{ $item['name'] }}</div>
@@ -181,20 +197,14 @@
 
                     <div class="mt-4">
                         <label for="kodePromo" class="form-label">Kode Promo</label>
-                        <form method="POST" action="{{ route('pelanggan.cart.promo') }}" style="display:inline;" id="promoForm">
-                            @csrf
-                            <div class="input-group mb-2">
-                                <input type="text" id="kodePromo" class="form-control text-uppercase" name="code" placeholder="Masukkan kode promo">
-                                <button type="submit" class="btn btn-outline-primary">Terapkan</button>
-                            </div>
-                        </form>
+                        <div class="input-group mb-2">
+                            <input type="text" id="kodePromo" class="form-control text-uppercase" name="code" form="promoForm" placeholder="Masukkan kode promo">
+                            <button type="submit" class="btn btn-outline-primary" form="promoForm">Terapkan</button>
+                        </div>
                         @if ($diskon > 0)
                             <div class="alert alert-success alert-dismissible fade show mt-2 mb-2" role="alert">
                                 Promo <strong>{{ $promoSession['code'] ?? '' }}</strong> diterapkan! Diskon: {{ 'Rp ' . number_format($diskon, 0, ',', '.') }}
-                                <form method="POST" action="{{ route('pelanggan.cart.promoRemove') }}" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
-                                </form>
+                                <button type="submit" class="btn-close" form="promoRemoveForm" data-bs-dismiss="alert" aria-label="Hapus promo"></button>
                             </div>
                         @endif
                     </div>
@@ -202,8 +212,43 @@
                     <button type="submit" class="btn btn-brand btn-lg w-100 mt-3">
                         <i class="bi bi-send me-1"></i> Submit Pesanan
                     </button>
-                </div>
-            </div>
+</div>
         </div>
-    </form>
+    </div>
+</form>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deliverySelect = document.getElementById('delivery_type');
+        const tunaiRadio = document.getElementById('metodeTunai');
+        const tunaiLabel = tunaiRadio ? tunaiRadio.closest('.form-check-inline') : null;
+        const tunaiHint = document.getElementById('tunaiHint');
+
+        // If critical elements don't exist, bail out
+        if (!deliverySelect || !tunaiRadio) {
+            return;
+        }
+
+        function updateTunai() {
+            const isPickup = deliverySelect.value === 'pickup';
+            if (tunaiLabel) tunaiLabel.classList.toggle('d-none', !isPickup);
+            if (tunaiRadio) tunaiRadio.disabled = !isPickup;
+            if (tunaiHint) {
+                tunaiHint.classList.toggle('text-danger', !isPickup);
+                tunaiHint.classList.toggle('text-muted', isPickup);
+                tunaiHint.textContent = isPickup ? '' : 'Pembayaran tunai hanya tersedia untuk Ambil di Tempat (pickup).';
+            }
+
+            if (!isPickup && tunaiRadio && tunaiRadio.checked) {
+                const onlineRadio = document.getElementById('metodeOnline');
+                if (onlineRadio) onlineRadio.checked = true;
+            }
+        }
+
+        deliverySelect.addEventListener('change', updateTunai);
+        updateTunai();
+    });
+</script>
+@endpush
 @endsection

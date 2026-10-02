@@ -27,7 +27,7 @@ var e=`
                 </span>
             </a>
         </li>
-    `).join(``),t.setAttribute(`aria-busy`,`false`)}function o(t,r){let a=document.getElementById(`antrian-pending-body`),o=document.getElementById(`antrian-pending-count`),s=document.getElementById(`antrian-menunggu-badge`);s&&(s.innerHTML=`<i class="bi bi-hourglass-split me-1"></i> ${t.length} pesanan menunggu`),o&&(o.textContent=t.length),a.innerHTML=t.length===0?e:t.map(e=>`
+    `).join(``),t.setAttribute(`aria-busy`,`false`)}function o(t,r){let a=document.getElementById(`antrian-pending-body`),o=document.getElementById(`antrian-pending-count`),s=document.getElementById(`antrian-menunggu-badge`);s&&(s.innerHTML=`<i class="bi bi-hourglass-split me-1"></i> ${t.length} pesanan menunggu`),o&&(o.textContent=t.length),a&&(a.innerHTML=t.length===0?e:t.map(e=>`
             <tr>
                 <td>
                     <span class="fw-semibold font-monospace">${n(e.order_number)}</span>
@@ -37,6 +37,7 @@ var e=`
                     <span class="avatar">${n(String(e.customer_name??`-`).charAt(0).toUpperCase())}</span>
                     <span class="text-truncate ms-2">${n(e.customer_name)}</span>
                     <div class="small text-muted-pos">${n(e.payment_method_label)}</div>
+                    <div class="small text-muted-pos">Pengiriman: ${n(e.delivery_type_label??`—`)}</div>
                 </td>
                 <td class="text-nowrap">Dipesan ${n(e.waktu)}</td>
                 <td class="text-nowrap">${n(e.item)} item</td>
@@ -53,7 +54,7 @@ var e=`
                     </button>
                 </td>
             </tr>
-        `).join(``),a.setAttribute(`aria-busy`,`false`),document.getElementById(`antrian-modals`)&&c(t,r)}function s(e){let r=document.getElementById(`antrian-handled-body`),a=document.getElementById(`antrian-handled-count`);a&&(a.textContent=e.length),r.innerHTML=e.length===0?t:e.map(e=>`
+        `).join(``),a.setAttribute(`aria-busy`,`false`),document.getElementById(`antrian-modals`)&&c(t,r))}function s(e){let r=document.getElementById(`antrian-handled-body`),a=document.getElementById(`antrian-handled-count`);a&&(a.textContent=e.length),r&&(r.innerHTML=e.length===0?t:e.map(e=>`
             <tr>
                 <td>
                     ${e.trx?`<a href="${n(e.trx_url)}" class="fw-semibold">${n(e.trx)}</a><div class="small text-muted-pos">${n(e.no)}</div>`:`<span class="fw-semibold text-muted-pos">${n(e.no)}</span>`}
@@ -66,11 +67,19 @@ var e=`
                     ${e.keputusan===`disetujui`?`<span class="badge badge-soft badge-soft--success"><span class="badge-soft__dot"></span>Disetujui</span>`:`<span class="badge badge-soft badge-soft--danger"><span class="badge-soft__dot"></span>Ditolak</span>
                            ${e.alasan?`<div class="decision-note text-truncate mt-1" title="${n(e.alasan)}">${n(e.alasan)}</div>`:``}`}
                 </td>
+                <td class="text-end">
+                    ${e.complete_url?`
+                        <button type="button" class="btn btn-success btn-sm btn-complete" data-order-id="${n(e.no)}">
+                            <i class="bi bi-check-lg me-1"></i> Selesai
+                        </button>
+                    `:``}
+                </td>
             </tr>
-        `).join(``),r.setAttribute(`aria-busy`,`false`)}function c(e,t){let n=document.getElementById(`antrian-modals`);n.innerHTML=e.map(e=>`
+        `).join(``),r.setAttribute(`aria-busy`,`false`))}function c(e,t){let n=document.getElementById(`antrian-modals`);n.innerHTML=e.map(e=>`
         ${l(e)}
         ${u(e,t)}
         ${d(e,t)}
+        ${e.complete_url?f(e,t):``}
     `).join(``)}function l(e){let t=e.items.map(e=>`
         <tr>
             <td>${n(e.product_name)}</td>
@@ -93,6 +102,9 @@ var e=`
                         </div>
                         <div class="order-detail-list mb-4">
                             <div class="order-detail-list__row"><span class="order-detail-list__label">Pelanggan</span><span class="order-detail-list__value">${n(e.customer_name)}</span></div>
+                            <div class="order-detail-list__row"><span class="order-detail-list__label">No. WA</span><span class="order-detail-list__value">${n(e.customer_phone??`—`)}</span></div>
+                            <div class="order-detail-list__row"><span class="order-detail-list__label">Pengiriman</span><span class="order-detail-list__value">${n(e.delivery_type_label??`—`)}</span></div>
+                            ${e.address?`<div class="order-detail-list__row"><span class="order-detail-list__label">Alamat</span><span class="order-detail-list__value">${n(e.address)}</span></div>`:``}
                             <div class="order-detail-list__row"><span class="order-detail-list__label">Metode Pembayaran</span><span class="order-detail-list__value">${n(e.payment_method_label)}</span></div>
                             <div class="order-detail-list__row"><span class="order-detail-list__label">Catatan</span><span class="order-detail-list__value">${n(e.note??`—`)}</span></div>
                         </div>
@@ -201,7 +213,34 @@ var e=`
                 </form>
             </div>
         </div>
-    `}function f(){let n=(document.getElementById(`antrian-pending-body`)?.closest(`section`))?.querySelector(`tbody`);n&&n.replaceWith(e);let r=document.getElementById(`antrian-handled-body`);r&&(r.innerHTML=t);let i=document.getElementById(`antrian-pending-count`);i&&(i.textContent=``);let a=document.getElementById(`antrian-handled-count`);a&&(a.textContent=``);let o=document.getElementById(`antrian-menunggu-badge`);o&&(o.innerHTML=`<i class="bi bi-hourglass-split me-1"></i> — pesanan menunggu`);let s=document.getElementById(`antrian-tabs`);s&&(s.innerHTML=`
+    `}function f(e,t){return`
+<div id="antrian-complete-{{id}}" class="modal fade" tabindex="-1" aria-labelledby="antrian-complete-{{id}}-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" action="{{complete_url}}" class="complete-form">
+            <input type="hidden" name="_token" value="{{csrf}}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="antrian-complete-{{id}}-label">Tandai Selesai</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted-pos mb-3">
+                        Pesanan <strong>{{order_number}}</strong> dari <strong class="text-body">{{customer_name}}</strong>
+                        sudah diproses. Tandai sebagai selesai?
+                    </p>
+                    <div class="note-box note-box--info">
+                        <i class="bi bi-info-circle note-box__icon"></i>
+                        <span>Setelah ditandai selesai, pesanan tidak akan muncul di antrian lagi dan pelanggan akan menerima notifikasi.</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-1"></i> Tandai Selesai</button>
+                </div>
+            </div>
+        </form>
+</div>
+`.replace(`{{id}}`,e.id).replace(`{{complete_url}}`,e.complete_url).replace(`{{csrf}}`,t).replace(`{{order_number}}`,e.order_number).replace(`{{customer_name}}`,e.customer_name)}function p(e){let t=document.getElementById(`antrian-pending-section`),n=document.getElementById(`antrian-handled-section`);t&&t.classList.toggle(`d-none`,![`semua`,`menunggu`].includes(e)),n&&n.classList.toggle(`d-none`,![`semua`,`diproses`,`ditolak`].includes(e))}function m(){let n=document.getElementById(`antrian-pending-body`);n&&(n.innerHTML=e);let r=document.getElementById(`antrian-handled-body`);r&&(r.innerHTML=t);let i=document.getElementById(`antrian-pending-count`);i&&(i.textContent=``);let a=document.getElementById(`antrian-handled-count`);a&&(a.textContent=``);let o=document.getElementById(`antrian-menunggu-badge`);o&&(o.innerHTML=`<i class="bi bi-hourglass-split me-1"></i> — pesanan menunggu`);let s=document.getElementById(`antrian-tabs`);s&&(s.innerHTML=`
     <div class="empty-state">
         <span class="empty-state__icon"><i class="bi bi-exclamation-triangle"></i></span>
         <div class="empty-state__title">Data gagal dimuat</div>
@@ -210,4 +249,4 @@ var e=`
             <i class="bi bi-arrow-clockwise me-1"></i> Muat Ulang
         </button>
     </div>
-`),[s,document.getElementById(`antrian-pending-section`),document.getElementById(`antrian-handled-section`)].forEach(e=>e?.setAttribute(`aria-busy`,`false`))}function p(e){let t=document.getElementById(e);if(!t||!window.bootstrap)return;let n=document.querySelector(`.modal.show`);if(n&&n!==t){let e=window.bootstrap.Modal.getInstance(n);if(e){n.addEventListener(`hidden.bs.modal`,()=>{window.bootstrap.Modal.getOrCreateInstance(t).show()},{once:!0}),e.hide();return}}window.bootstrap.Modal.getOrCreateInstance(t).show()}async function m(){try{let e=`/api/kasir/antrian`+window.location.search,t=await fetch(e,{headers:{Accept:`application/json`,"X-Requested-With":`XMLHttpRequest`},credentials:`same-origin`});if(!t.ok)throw Error(`HTTP ${t.status}`);let n=(await t.json()).data??{},r=document.getElementById(`antrian-modals`)?.dataset.csrf??``;a(n.tabs??[]),o(n.pending??[],r),s(n.handled??[])}catch(e){console.error(`Gagal memuat antrian pesanan:`,e),f()}}function h(){document.getElementById(`antrian-tabs`)&&(document.addEventListener(`click`,e=>{if(e.target.closest(`[data-antrian-retry]`)){m();return}let t=e.target.closest(`.btn-detail`);if(t){p(`antrian-detail-${t.dataset.orderId}`);return}let n=e.target.closest(`.btn-approve`);if(n){p(`antrian-approve-${n.dataset.orderId}`);return}let r=e.target.closest(`.btn-reject`);if(r){p(`antrian-reject-${r.dataset.orderId}`);return}}),document.addEventListener(`submit`,e=>{let t=e.target.closest(`form.reject-form`);if(t){if(e.preventDefault(),typeof Swal>`u`){t.submit();return}Swal.fire({title:`Tolak pesanan ini?`,text:`Pesanan akan ditandai ditolak dan pelanggan menerima pemberitahuan beserta alasannya.`,icon:`warning`,showCancelButton:!0,confirmButtonText:`Ya, tolak!`,cancelButtonText:`Batal`,reverseButtons:!0}).then(e=>{e.isConfirmed&&t.submit()})}}),m())}document.readyState===`loading`?document.addEventListener(`DOMContentLoaded`,h):h();
+`),[s,document.getElementById(`antrian-pending-section`),document.getElementById(`antrian-handled-section`)].forEach(e=>e?.setAttribute(`aria-busy`,`false`))}function h(e){let t=document.getElementById(e);if(!t||!window.bootstrap)return;let n=document.querySelector(`.modal.show`);if(n&&n!==t){let e=window.bootstrap.Modal.getInstance(n);if(e){n.addEventListener(`hidden.bs.modal`,()=>{window.bootstrap.Modal.getOrCreateInstance(t).show()},{once:!0}),e.hide();return}}window.bootstrap.Modal.getOrCreateInstance(t).show()}var g=0;function _(e){[`antrian-tabs`,`antrian-pending-section`,`antrian-handled-section`].forEach(t=>{let n=document.getElementById(t);n&&(n.style.opacity=e?`0.5`:``,n.style.pointerEvents=e?`none`:``)})}async function v(){let e=++g;_(!0);try{let t=`/api/kasir/antrian`+window.location.search,n=await fetch(t,{headers:{Accept:`application/json`,"X-Requested-With":`XMLHttpRequest`},credentials:`same-origin`});if(!n.ok)throw Error(`HTTP ${n.status}`);let r=await n.json();if(e!==g)return;let i=r.data??{},c=document.getElementById(`antrian-modals`)?.dataset.csrf??``;a(i.tabs??[]),p(i.status??`semua`),o(i.pending??[],c),s(i.handled??[])}catch(t){if(e!==g)return;console.error(`Gagal memuat antrian pesanan:`,t),m()}finally{e===g&&_(!1)}}function y(){document.getElementById(`antrian-tabs`)&&(document.addEventListener(`click`,e=>{if(e.target.closest(`[data-antrian-retry]`)){v();return}let t=e.target.closest(`.btn-detail`);if(t){h(`antrian-detail-${t.dataset.orderId}`);return}let n=e.target.closest(`.btn-approve`);if(n){h(`antrian-approve-${n.dataset.orderId}`);return}let r=e.target.closest(`.btn-reject`);if(r){h(`antrian-reject-${r.dataset.orderId}`);return}let i=e.target.closest(`.btn-complete`);if(i){h(`antrian-complete-${i.dataset.orderId}`);return}}),document.addEventListener(`click`,e=>{if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;let t=e.target.closest(`#antrian-tabs a[href]`);if(!t)return;e.preventDefault();let n=new URL(t.href,window.location.origin);window.history.pushState({antrian:!0},``,n.pathname+n.search),v()},!0),window.addEventListener(`popstate`,()=>{v()}),document.addEventListener(`submit`,e=>{if(e.target.closest(`form.reject-form`)){if(e.preventDefault(),typeof Swal>`u`){form.submit();return}Swal.fire({title:`Tolak pesanan ini?`,text:`Pesanan akan ditandai ditolak dan pelanggan menerima pemberitahuan beserta alasannya.`,icon:`warning`,showCancelButton:!0,confirmButtonText:`Ya, tolak!`,cancelButtonText:`Batal`,reverseButtons:!0}).then(e=>{e.isConfirmed&&form.submit()});return}let t=e.target.closest(`form.complete-form`);if(t){if(e.preventDefault(),typeof Swal>`u`){t.submit();return}Swal.fire({title:`Tandai pesanan selesai?`,text:`Pesanan akan ditandai selesai dan tidak muncul di antrian lagi.`,icon:`question`,showCancelButton:!0,confirmButtonText:`Ya, selesai!`,cancelButtonText:`Batal`,reverseButtons:!0}).then(e=>{e.isConfirmed&&t.submit()})}}),v())}document.readyState===`loading`?document.addEventListener(`DOMContentLoaded`,y):y();

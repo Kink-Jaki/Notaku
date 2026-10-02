@@ -10,6 +10,16 @@ const EMPTY_STOCKS = `
     </div>
 `;
 
+const EMPTY_TOP_SPENDERS = `
+    <div class="col-12">
+        <div class="empty-state py-3">
+            <div class="empty-state__icon"><i class="bi bi-people"></i></div>
+            <div class="empty-state__title">Belum ada top spender</div>
+            <div class="empty-state__text">Top spender akan muncul setelah ada pesanan yang selesai.</div>
+        </div>
+    </div>
+`;
+
 const EMPTY_TRANSACTIONS = `
     <tr>
         <td colspan="6">
@@ -101,6 +111,34 @@ function renderStocks(stocks) {
     document.getElementById('admin-stocks-pane').setAttribute('aria-busy', 'false');
 }
 
+function renderTopSpenders(spenders) {
+    const container = document.getElementById('admin-top-spenders');
+    const count = document.getElementById('admin-top-spenders-count');
+
+    count.innerHTML = `<span class="badge badge-soft badge-soft--warning">${spenders.length} pelanggan</span>`;
+
+    if (spenders.length === 0) {
+        container.innerHTML = EMPTY_TOP_SPENDERS;
+    } else {
+        container.innerHTML = spenders.map((spender) => `
+            <div class="col">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge badge-soft badge-soft--${escapeHtml(spender.modifier)} text-nowrap fw-semibold">
+                        Tier ${escapeHtml(spender.tier)} &middot; #${formatNumber(spender.rank)}
+                    </span>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="small fw-semibold text-truncate">${escapeHtml(spender.name)}</div>
+                        <div class="small text-muted-pos">${formatNumber(spender.orders)} pesanan</div>
+                    </div>
+                    <span class="small fw-semibold text-nowrap">${formatRupiah(spender.total)}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    document.getElementById('admin-top-spenders-pane').setAttribute('aria-busy', 'false');
+}
+
 function renderTransactions(transactions) {
     const body = document.getElementById('admin-transactions-body');
     const count = document.getElementById('admin-transactions-count');
@@ -158,20 +196,23 @@ function renderError() {
     const stats = document.getElementById('admin-stats');
     const chart = document.getElementById('admin-sales-chart');
     const stocks = document.getElementById('admin-stocks');
+    const topSpenders = document.getElementById('admin-top-spenders');
     const transactions = document.getElementById('admin-transactions-body');
 
     stats.innerHTML = `<div class="col-12">${errorState}</div>`;
     chart.innerHTML = errorState;
     stocks.innerHTML = errorState;
+    topSpenders.innerHTML = `<div class="col-12">${errorState}</div>`;
     transactions.innerHTML = EMPTY_TRANSACTIONS;
 
     document.getElementById('admin-stocks-count').innerHTML = '';
+    document.getElementById('admin-top-spenders-count').innerHTML = '';
     document.getElementById('admin-transactions-count').innerHTML = '';
     document.querySelectorAll('[data-summary-key]').forEach((element) => {
         element.textContent = '—';
     });
 
-    [stats, chart, document.getElementById('admin-stocks-pane'), document.getElementById('admin-transactions-pane')]
+    [stats, chart, document.getElementById('admin-stocks-pane'), document.getElementById('admin-top-spenders-pane'), document.getElementById('admin-transactions-pane')]
         .forEach((element) => element.setAttribute('aria-busy', 'false'));
 }
 
@@ -192,6 +233,7 @@ async function loadAdminDashboard() {
         renderStats(data.stats ?? []);
         renderChart(data.chart ?? {});
         renderStocks(data.stocks ?? []);
+        renderTopSpenders(data.topSpenders ?? []);
         renderTransactions(data.recentTransactions ?? []);
         renderSummary(data.summary ?? {});
     } catch (error) {

@@ -25,6 +25,21 @@ class PelangganCartController extends Controller
         return session($this->cartKey(), []);
     }
 
+    /**
+     * State keranjang terkini untuk di-sync ke client (localStorage) supaya
+     * badge & daftar item bisa ter-update tanpa reload.
+     *
+     * @param  array<int, array<string, mixed>>  $cart
+     * @return array{cart: array<int, array<string, mixed>>, cart_count: int}
+     */
+    private function cartState(array $cart): array
+    {
+        return [
+            'cart' => $cart,
+            'cart_count' => collect($cart)->sum('qty'),
+        ];
+    }
+
     public function index(Request $request)
     {
         if (! auth()->check()) {
@@ -145,7 +160,7 @@ class PelangganCartController extends Controller
 
         session(['pelanggan_cart' => $cart]);
 
-        return response()->json(['success' => true, 'cart_count' => collect($cart)->sum('qty')]);
+        return response()->json(['success' => true, ...$this->cartState($cart)]);
     }
 
     public function update(Request $request)
@@ -189,7 +204,7 @@ class PelangganCartController extends Controller
 
         session(['pelanggan_cart' => $cart]);
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, ...$this->cartState($cart)]);
     }
 
     public function remove(Request $request)
@@ -214,7 +229,7 @@ class PelangganCartController extends Controller
         unset($cart[$request->integer('product_id')]);
         session(['pelanggan_cart' => $cart]);
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, ...$this->cartState($cart)]);
     }
 
     public function clear(Request $request)
@@ -229,7 +244,7 @@ class PelangganCartController extends Controller
 
         session()->forget(['pelanggan_cart', 'pelanggan_promo']);
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'promo' => null, ...$this->cartState([])]);
     }
 
     public function applyPromo(Request $request)
@@ -269,17 +284,24 @@ class PelangganCartController extends Controller
             return back()->withErrors(['code' => 'Subtotal belum memenuhi minimum pesanan promo ini'])->withInput();
         }
 
-        session('pelanggan_promo', [
+        $discount = $promo->discountFor($subtotal);
+
+        session(['pelanggan_promo' => [
             'promo_code_id' => $promo->id,
             'code' => $promo->code,
-            'discount' => $promo->discountFor($subtotal),
-        ]);
+            'discount' => $discount,
+        ]]);
 
         if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'discount' => $promo->discountFor($subtotal)]);
+            return response()->json([
+                'success' => true,
+                'code' => $promo->code,
+                'discount' => $discount,
+                'promo' => ['code' => $promo->code, 'discount' => $discount],
+            ]);
         }
 
-        return back()->with('success', 'Promo diterapkan! Diskon: '.number_format($promo->discountFor($subtotal), 0, ',', '.'));
+        return back()->with('success', 'Promo diterapkan! Diskon: '.number_format($discount, 0, ',', '.'));
     }
 
     public function removePromo(Request $request)
@@ -287,7 +309,7 @@ class PelangganCartController extends Controller
         session()->forget('pelanggan_promo');
 
         if ($request->wantsJson()) {
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'promo' => null]);
         }
 
         return back()->with('success', 'Promo dihapus.');

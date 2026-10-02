@@ -6,11 +6,6 @@
 @section('content')
     @include('partials.ajax-modal-form')
     @php
-        $roleBadge = [
-            'admin' => 'badge-soft--warning',
-            'kasir' => 'badge-soft--info',
-            'pelanggan' => 'badge-soft--success',
-        ];
         $roleNames = [
             'admin' => 'Admin',
             'kasir' => 'Kasir',
@@ -43,17 +38,17 @@
         {{-- ================= TAB 1 — DAFTAR USER ================= --}}
         <div class="tab-pane fade show active" id="tab-daftar-user" role="tabpanel" aria-labelledby="tab-daftar-user-tab">
             <div class="pane mb-4">
-                <form class="row g-2 align-items-end" action="{{ route('admin.user-role.index') }}" method="get">
+                <form class="row g-2 align-items-end" action="{{ route('admin.user-role.index') }}" method="get" data-cf="role-user">
                     <div class="col-12 col-md-4 col-lg-3">
                         <label class="form-label" for="cariUser">Cari User</label>
                         <div class="search-box">
                             <i class="bi bi-search search-box__icon"></i>
-                            <input type="search" class="form-control" id="cariUser" placeholder="Cari nama / username..." aria-label="Cari nama atau username" name="search" value="{{ request('search') }}">
+                            <input type="search" class="form-control" id="cariUser" data-cf-search placeholder="Cari nama / username..." aria-label="Cari nama atau username" name="search" value="{{ request('search') }}">
                         </div>
                     </div>
                     <div class="col-6 col-md-4 col-lg-3">
                         <label class="form-label" for="filterRole">Role</label>
-                        <select class="form-select" id="filterRole" name="role">
+                        <select class="form-select" id="filterRole" name="role" data-cf-field="role">
                             @foreach ($roleSelects as $role)
                                 <option value="{{ $role === 'Semua Role' ? '' : strtolower($role) }}" {{ request('role') == ($role === 'Semua Role' ? '' : strtolower($role)) ? 'selected' : '' }}>{{ $role }}</option>
                             @endforeach
@@ -64,7 +59,7 @@
                             <button type="submit" class="btn btn-brand">
                                 <i class="bi bi-funnel me-1"></i> Filter
                             </button>
-                            <a href="{{ route('admin.user-role.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('admin.user-role.index') }}" class="btn btn-outline-secondary" data-rt-link>
                                 <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
                             </a>
                         </div>
@@ -72,68 +67,8 @@
                 </form>
             </div>
 
-            <div class="table-wrap">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Username</th>
-                                <th>Role</th>
-                                <th>Terakhir Login</th>
-                                <th class="text-end">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($users as $user)
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="avatar">{{ Str::upper(substr($user->name, 0, 2)) }}</span>
-                                            <div class="min-w-0">
-                                                <div class="fw-semibold text-truncate">{{ $user->name }}</div>
-                                                <div class="small text-muted-pos text-truncate">{{ $user->email }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="font-monospace text-nowrap">{{ Str::lower(substr($user->name, 0, 1)) }}{{ substr($user->name, strpos($user->name, ' ') + 1, 1) }}</td>
-                                    <td>
-                                        <span class="badge badge-soft {{ $roleBadge[$user->role] }}">
-                                            {{ $roleNames[$user->role] }}
-                                        </span>
-                                    </td>
-                                    <td class="text-nowrap">{{ $user->updated_at->diffForHumans() }}</td>
-                                    <td class="text-end text-nowrap">
-                                        <button type="button" class="btn btn-sm link-secondary py-0" title="Edit user" data-bs-toggle="modal" data-bs-target="#modalUser" data-mode="edit" data-url="{{ route('admin.user-role.update', $user) }}" data-payload="{{ json_encode([
-                                            'name' => $user->name,
-                                            'email' => $user->email,
-                                            'role' => $user->role,
-                                        ]) }}">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <form method="POST" action="{{ route('admin.user-role.destroy', $user) }}" style="display:inline;" data-confirm="Hapus user ini?">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-sm link-danger py-0" title="Hapus user">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted-pos py-4">Tidak ada user ditemukan.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
-                <small class="text-muted-pos">Menampilkan {{ $users->firstItem() ?? 0 }}-{{ $users->lastItem() ?? 0 }} dari {{ $users->total() }} user</small>
-                <nav aria-label="Navigasi halaman daftar user">
-                    {{ $users->links() }}
-                </nav>
+            <div data-rt-results data-cf="role-user">
+                @include('admin.role-user-results')
             </div>
         </div>
 
@@ -285,25 +220,6 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('form[data-confirm]').forEach(function (form) {
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Konfirmasi',
-                text: this.getAttribute('data-confirm'),
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    this.submit();
-                }
-            });
-        });
-    });
-
     var userForm = document.getElementById('formUser');
     var userModal = document.getElementById('modalUser');
 

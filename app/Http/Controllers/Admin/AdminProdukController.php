@@ -15,26 +15,14 @@ class AdminProdukController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::query()->with('category');
+        $products = Product::query()->with('category')->latest()->paginate(15)->withQueryString();
+        $data = ['products' => $products];
 
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%");
-            });
+        if (! $request->ajax()) {
+            $data['categories'] = Category::query()->withCount('products')->orderBy('name')->get();
         }
 
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
-
-        if ($request->filled('status')) {
-            $query->where('is_active', $request->status === 'active');
-        }
-
-        $products = $query->latest()->paginate(15)->withQueryString();
-        $categories = Category::query()->withCount('products')->orderBy('name')->get();
-
-        return view('admin.produk', compact('products', 'categories'));
+        return $this->viewOrFragment($request, 'admin.produk', 'admin.produk-results', $data);
     }
 
     public function store(Request $request)

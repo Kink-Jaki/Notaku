@@ -7,7 +7,7 @@
 # Test info
 
 - Name: verify-skeleton.spec.ts >> Kasir Pages Verification >> Antrian approve works with SweetAlert
-- Location: verify-skeleton.spec.ts:68:5
+- Location: playwright\verify-skeleton.spec.ts:68:5
 
 # Error details
 

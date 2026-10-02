@@ -29,7 +29,7 @@ class ProductApiController extends Controller
             $query->where('name', 'like', "%{$request->search}%");
         }
 
-        $produk = $query->orderBy('name')->paginate(12)->withQueryString();
+        $produk = $query->orderByOutOfStockLast()->latest()->paginate(12)->withQueryString();
 
         $kategori = Category::orderBy('name')->get();
 

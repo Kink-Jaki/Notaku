@@ -92,10 +92,9 @@ class LaporanHarianController extends Controller
 
         $kasirList = User::where('role', 'kasir')->orderBy('name')->get(['id', 'name']);
 
-        return view('admin.laporan-harian', [
+        $data = [
             'tanggal' => $tanggal,
             'kasirId' => $kasirId,
-            'kasirList' => $kasirList,
             'totalPenjualan' => $totalPenjualan,
             'totalTransaksi' => $totalTransaksi,
             'totalItem' => $totalItem,
@@ -109,6 +108,15 @@ class LaporanHarianController extends Controller
             'fmt' => $fmt,
             'rp' => $rp,
             'jenisBadge' => $jenisBadge,
-        ]);
+        ];
+
+        if (! $request->ajax()) {
+            $data['kasirList'] = $kasirList;
+            $data['totalHariIni'] = (int) Transaction::where('status', 'selesai')
+                ->whereDate('created_at', now())
+                ->sum('total');
+        }
+
+        return $this->viewOrFragment($request, 'admin.laporan-harian', 'admin.laporan-harian-results', $data);
     }
 }

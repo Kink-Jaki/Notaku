@@ -39,6 +39,11 @@ class Product extends Model
         return $query->where('is_active', true);
     }
 
+    public function scopeOrderByOutOfStockLast($query)
+    {
+        return $query->orderByRaw('CASE WHEN stock <= 0 THEN 1 ELSE 0 END');
+    }
+
     public function scopeFilter($query, array $filters)
     {
         if ($filters['category_id'] ?? null) {

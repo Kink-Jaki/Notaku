@@ -8,163 +8,56 @@
         <p class="text-muted-pos mb-0 small">Laporan rekap penjualan per bulan (PDF)</p>
         <div class="d-flex flex-wrap align-items-center gap-2">
             <span class="badge badge-soft badge-soft--success fs-6 fw-semibold">
-                <i class="bi bi-check-circle me-1"></i> Rekap {{ $labelBulan }}
+                <i class="bi bi-check-circle me-1"></i> Rekap <span data-rt-bulan>{{ $labelBulan }}</span>
             </span>
         </div>
     </div>
 
     <div class="pane mb-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
-            <div class="d-flex flex-wrap align-items-end gap-2">
-                <div>
-                    <label class="form-label" for="bulanLaporan">Bulan</label>
-                    <select class="form-select" id="bulanLaporan" name="bulan">
-                        @foreach ($daftarBulan as $kode => $nama)
-                            <option value="{{ $kode }}" @selected($kode === $bulan)>{{ $nama }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label" for="tahunLaporan">Tahun</label>
-                    <select class="form-select" id="tahunLaporan" name="tahun">
-                        @foreach ($daftarTahun as $tahunOpt)
-                            <option value="{{ $tahunOpt }}" @selected((string) $tahunOpt === $tahun)>{{ $tahunOpt }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label" for="kasirFilter">Kasir</label>
-                    <select class="form-select" id="kasirFilter" name="kasir_id">
-                        <option value="">Semua Kasir</option>
-                        @foreach ($kasirList as $kasir)
-                            <option value="{{ $kasir->id }}" {{ $kasirId == $kasir->id ? 'selected' : '' }}>
-                                {{ $kasir->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-brand" onclick="document.getElementById('bulanLaporan').form.submit()">
-                    <i class="bi bi-funnel me-1"></i> Tampilkan
-                </button>
-            </div>
-            <div class="text-end">
-                <a href="{{ route('kasir.laporan-bulanan.export', ['bulan' => $bulan, 'tahun' => $tahun, 'kasir_id' => $kasirId]) }}" class="btn btn-brand text-uppercase">
-                    <i class="bi bi-file-earmark-pdf me-1"></i> Unduh PDF
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-3 mb-4">
-        @foreach ($statCards as $stat)
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="stat-card stat-card--{{ $stat['modifier'] }}">
+        <form action="{{ route('kasir.laporan-bulanan') }}" method="get" data-realtime>
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div class="d-flex flex-wrap align-items-end gap-2">
                     <div>
-                        <div class="stat-card__label">{{ $stat['label'] }}</div>
-                        <div class="stat-card__value text-truncate" title="{{ $stat['value'] }}">{{ $stat['value'] }}</div>
+                        <label class="form-label" for="bulanLaporan">Bulan</label>
+                        <select class="form-select" id="bulanLaporan" name="bulan">
+                            @foreach ($daftarBulan as $kode => $nama)
+                                <option value="{{ $kode }}" @selected($kode === $bulan)>{{ $nama }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="stat-card__icon">
-                        <i class="bi {{ $stat['icon'] }}"></i>
+                    <div>
+                        <label class="form-label" for="tahunLaporan">Tahun</label>
+                        <select class="form-select" id="tahunLaporan" name="tahun">
+                            @foreach ($daftarTahun as $tahunOpt)
+                                <option value="{{ $tahunOpt }}" @selected((string) $tahunOpt === $tahun)>{{ $tahunOpt }}</option>
+                            @endforeach
+                        </select>
                     </div>
+                    <div>
+                        <label class="form-label" for="kasirFilter">Kasir</label>
+                        <select class="form-select" id="kasirFilter" name="kasir_id">
+                            <option value="">Semua Kasir</option>
+                            @foreach ($kasirList as $kasir)
+                                <option value="{{ $kasir->id }}" {{ $kasirId == $kasir->id ? 'selected' : '' }}>
+                                    {{ $kasir->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-brand">
+                        <i class="bi bi-funnel me-1"></i> Tampilkan
+                    </button>
+                </div>
+                <div class="text-end">
+                    <a href="{{ route('kasir.laporan-bulanan.export', ['bulan' => $bulan, 'tahun' => $tahun, 'kasir_id' => $kasirId]) }}" class="btn btn-brand text-uppercase" data-rt-href>
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Unduh PDF
+                    </a>
                 </div>
             </div>
-        @endforeach
+        </form>
     </div>
 
-    <div class="pane pane--flush mb-4">
-        <div class="pane__header px-3 pt-3 pb-0">
-            <h2 class="pane__title h5">Rekap per Tanggal</h2>
-            <span class="badge badge-soft badge-soft--neutral">{{ $labelBulan }}</span>
-        </div>
-
-        <div class="table-wrap mt-3">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th class="text-end">Transaksi</th>
-                            <th class="text-end">Item Terjual</th>
-                            <th class="text-end">Kasir Manual</th>
-                            <th class="text-end">Online (approved)</th>
-                            <th class="text-end">Diskon</th>
-                            <th class="text-end">Total Penjualan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($rekap as $baris)
-                            <tr class="{{ $baris['hari'] === $tglHariIni ? 'table-active' : '' }}">
-                                <td class="text-nowrap">
-                                    {{ $baris['hari'] }} {{ $shortBulan }}
-                                    @if ($baris['hari'] === $tglHariIni)
-                                        <span class="badge badge-soft badge-soft--neutral ms-1">&middot; hari ini</span>
-                                    @endif
-                                </td>
-                                <td class="text-end text-nowrap">{{ $fmt($baris['trx']) }}</td>
-                                <td class="text-end text-nowrap">{{ $fmt($baris['item']) }}</td>
-                                <td class="text-end text-nowrap">{{ $rp($baris['manual']) }}</td>
-                                <td class="text-end text-nowrap">{{ $rp($baris['online']) }}</td>
-                                <td class="text-end text-nowrap text-muted-pos">−{{ $rp($baris['diskon']) }}</td>
-                                <td class="text-end fw-semibold text-nowrap">{{ $rp($baris['total']) }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot>
-                        <tr class="fw-semibold">
-                            <td class="border-top">Total</td>
-                            <td class="border-top text-end text-nowrap">{{ $fmt($grandTrx) }}</td>
-                            <td class="border-top text-end text-nowrap">{{ $fmt($grandItem) }}</td>
-                            <td class="border-top text-end text-nowrap">{{ $rp($grandManual) }}</td>
-                            <td class="border-top text-end text-nowrap">{{ $rp($grandOnline) }}</td>
-                            <td class="border-top text-end text-nowrap text-muted-pos">−{{ $rp($grandDiskon) }}</td>
-                            <td class="border-top text-end text-nowrap">{{ $rp($grandTotal) }}</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="pane">
-        <div class="pane__header">
-            <h2 class="pane__title h5">Kategori Produk Terlaris</h2>
-            <span class="badge badge-soft badge-soft--neutral">{{ $labelBulan }}</span>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-borderless align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th>Kategori</th>
-                        <th class="text-end">Penjualan</th>
-                        <th class="text-end">Bagian</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($topKategori as $kategori)
-                        @php $bagian = round(($kategori['total'] / $grandTotal) * 100); @endphp
-                        <tr>
-                            <td>
-                                <i class="bi {{ $kategori['icon'] }} me-2"></i>{{ $kategori['nama'] }}
-                            </td>
-                            <td class="text-end text-nowrap">
-                                <span class="fw-semibold">{{ $rp($kategori['total']) }}</span>
-                                <span class="small text-muted-pos d-block">± {{ number_format($kategori['total'] / 1000000, 1, ',', '.') }} jt</span>
-                            </td>
-                            <td class="text-end">
-                                <span class="badge badge-soft badge-soft--{{ $kategori['badge'] }}">{{ $bagian }}%</span>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-                <tfoot>
-                    <tr class="fw-semibold">
-                        <td class="border-top">Total</td>
-                        <td class="border-top text-end text-nowrap">{{ $rp($grandTotal) }}</td>
-                        <td class="border-top text-end">100%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+    <div data-rt-results>
+        @include('kasir.laporan-bulanan-results')
     </div>
 @endsection

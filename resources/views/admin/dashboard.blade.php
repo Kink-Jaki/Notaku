@@ -54,6 +54,26 @@
         </div>
     </div>
 
+    <div class="pane mb-4" id="admin-top-spenders-pane" aria-busy="true">
+        <div class="pane__header">
+            <h2 class="pane__title h5">Top Spender Tierlist</h2>
+            <span id="admin-top-spenders-count">
+                <span class="skeleton skeleton--badge"></span>
+            </span>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 g-3" id="admin-top-spenders">
+            @foreach (range(1, 6) as $spenderIndex)
+                <div class="col">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="skeleton skeleton--badge"></span>
+                        <span class="skeleton skeleton--text w-50"></span>
+                        <span class="skeleton skeleton--value w-25 ms-auto"></span>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
     <div class="pane" id="admin-transactions-pane" aria-busy="true">
         <div class="pane__header">
             <h2 class="pane__title h5">Transaksi Terbaru (Semua Outlet/Sesi)</h2>

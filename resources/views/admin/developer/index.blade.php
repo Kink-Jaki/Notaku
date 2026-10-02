@@ -4,6 +4,57 @@
 
 @section('page_title', 'Pengaturan Developer')
 
+@push('styles')
+<style>
+    /* Miniature sidebar di panel Live Preview. Memakai token sidebar yang
+       sama dengan sidebar asli agar warna hasil Ubah Terlihat akurat. */
+    .dev-preview-sidebar {
+        border-radius: var(--pos-radius, 0.5rem);
+        overflow: hidden;
+        background: var(--color-sidebar-bg-gradient) !important;
+        color: var(--color-sidebar-text);
+        box-shadow: var(--shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.08));
+    }
+
+    .dev-preview-sidebar__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 0.875rem;
+        border-bottom: 1px solid var(--color-sidebar-border);
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .dev-preview-sidebar__nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        padding: 0.5rem;
+    }
+
+    .dev-preview-sidebar__item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4375rem 0.625rem;
+        border-radius: var(--pos-radius, 0.5rem);
+        font-size: 0.8125rem;
+        color: var(--color-sidebar-text);
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .dev-preview-sidebar__item.is-active {
+        background: var(--color-sidebar-active-bg);
+        border: 1px solid var(--color-sidebar-active-border);
+    }
+
+    .dev-preview-sidebar__item:not(.is-active):hover {
+        background: var(--color-sidebar-hover);
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="row g-3">
     <div class="col-12 col-xl-8">
@@ -73,16 +124,17 @@
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label for="color_secondary" class="form-label fw-semibold">Secondary</label>
+                                <label for="color_secondary" class="form-label fw-semibold">Accent</label>
                                 <div class="d-flex align-items-center gap-2">
-                                    <input type="color" class="form-control form-control-color" id="color_secondary" name="color_secondary" value="{{ $settings->color_secondary }}" data-preview="secondary">
+                                    <input type="color" class="form-control form-control-color" id="color_secondary" name="color_secondary" value="{{ $settings->color_secondary }}" data-preview="accent">
                                     <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_secondary }}" readonly id="color_secondary_hex">
                                 </div>
+                                <div class="form-text">Warna CTA utama, mis. tombol "Tambah Keranjang".</div>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label for="color_secondary_dark" class="form-label fw-semibold">Secondary Dark</label>
+                                <label for="color_secondary_dark" class="form-label fw-semibold">Accent Dark</label>
                                 <div class="d-flex align-items-center gap-2">
-                                    <input type="color" class="form-control form-control-color" id="color_secondary_dark" name="color_secondary_dark" value="{{ $settings->color_secondary_dark }}" data-preview="secondary-dark">
+                                    <input type="color" class="form-control form-control-color" id="color_secondary_dark" name="color_secondary_dark" value="{{ $settings->color_secondary_dark }}" data-preview="accent-dark">
                                     <input type="text" class="form-control form-control-sm text-uppercase" value="{{ $settings->color_secondary_dark }}" readonly id="color_secondary_dark_hex">
                                 </div>
                             </div>
@@ -205,7 +257,8 @@
                     </div>
                 </form>
             </div>
-</div>
+    </x-card>
+    </div>
 
     {{-- Live Preview Panel --}}
     <div class="col-12 col-xl-4">
@@ -231,12 +284,35 @@
                 </div>
 
                 <div class="preview-section mb-4">
+                    <h4 class="small text-muted text-uppercase mb-2">Sidebar</h4>
+                    <div id="preview-sidebar" class="dev-preview-sidebar">
+                        <div class="dev-preview-sidebar__brand">
+                            <span class="app-sidebar__brand-mark">
+                                <i class="bi bi-bag" aria-hidden="true"></i>
+                            </span>
+                            <span class="app-sidebar__brand-text">{{ $settings->brand_name }}</span>
+                        </div>
+                        <div class="dev-preview-sidebar__nav">
+                            <span class="dev-preview-sidebar__item is-active">
+                                <i class="bi bi-speedometer2" aria-hidden="true"></i> Dashboard
+                            </span>
+                            <span class="dev-preview-sidebar__item">
+                                <i class="bi bi-box-seam" aria-hidden="true"></i> Manajemen Produk
+                            </span>
+                            <span class="dev-preview-sidebar__item">
+                                <i class="bi bi-tags" aria-hidden="true"></i> Kategori
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-section mb-4">
                     <h4 class="small text-muted text-uppercase mb-2">Buttons</h4>
                     <div class="d-flex flex-wrap gap-2" id="preview-buttons">
                         <button type="button" class="btn btn-sm" id="preview-btn-primary">Primary</button>
                         <button type="button" class="btn btn-sm" id="preview-btn-primary-dark" style="background-color: var(--color-primary-dark); border-color: var(--color-primary-dark);">Primary Dark</button>
-                        <button type="button" class="btn btn-sm" id="preview-btn-secondary">Secondary</button>
-                        <button type="button" class="btn btn-sm" id="preview-btn-secondary-dark" style="background-color: var(--color-secondary-dark); border-color: var(--color-secondary-dark);">Secondary Dark</button>
+                        <button type="button" class="btn btn-sm" id="preview-btn-accent" style="background-color: var(--color-accent); border-color: var(--color-accent);">Accent</button>
+                        <button type="button" class="btn btn-sm" id="preview-btn-accent-dark" style="background-color: var(--color-accent-dark); border-color: var(--color-accent-dark);">Accent Dark</button>
                         <button type="button" class="btn btn-success btn-sm" id="preview-btn-success">Success</button>
                         <button type="button" class="btn btn-warning btn-sm" id="preview-btn-warning">Warning</button>
                         <button type="button" class="btn btn-danger btn-sm" id="preview-btn-danger">Danger</button>
@@ -247,7 +323,7 @@
                     <h4 class="small text-muted text-uppercase mb-2">Badges</h4>
                     <div class="d-flex flex-wrap gap-2" id="preview-badges">
                         <span class="badge" id="preview-badge-primary">Primary</span>
-                        <span class="badge" id="preview-badge-secondary">Secondary</span>
+                        <span class="badge" id="preview-badge-accent" style="background-color: var(--color-accent);">Accent</span>
                         <span class="badge" id="preview-badge-success">Success</span>
                         <span class="badge" id="preview-badge-warning">Warning</span>
                         <span class="badge" id="preview-badge-danger">Danger</span>
@@ -258,7 +334,7 @@
                     <h4 class="small text-muted text-uppercase mb-2">Alerts</h4>
                     <div class="d-flex flex-column gap-2" id="preview-alerts">
                         <div class="alert alert-primary py-2 px-3 mb-0" id="preview-alert-primary">Primary alert example</div>
-                        <div class="alert alert-secondary py-2 px-3 mb-0" id="preview-alert-secondary">Secondary alert example</div>
+                        <div class="alert py-2 px-3 mb-0" id="preview-alert-accent" style="background-color: var(--color-accent-soft); color: var(--color-accent-dark);">Accent alert example</div>
                         <div class="alert alert-success py-2 px-3 mb-0" id="preview-alert-success">Success alert example</div>
                         <div class="alert alert-warning py-2 px-3 mb-0" id="preview-alert-warning">Warning alert example</div>
                         <div class="alert alert-danger py-2 px-3 mb-0" id="preview-alert-danger">Danger alert example</div>
@@ -287,16 +363,12 @@
         // Preset color definitions (from PHP ThemePresets)
         const presets = @json(\App\Support\ThemePresets::all());
 
-        const defaultValues = {
-            brand_name: 'Notaku',
-            color_primary: '#4F46E5',
-            color_primary_dark: '#4338CA',
-            color_secondary: '#64748B',
-            color_secondary_dark: '#475569',
-            color_success: '#10B981',
-            color_warning: '#F59E0B',
-            color_danger: '#EF4444',
-        };
+        // Nilai reset diambil dari preset default supaya tidak lagi melenceng
+        // dari ThemePresets::all()['default'].
+        const defaultValues = Object.assign(
+            { brand_name: 'Notaku' },
+            presets.default,
+        );
 
         const colorPickers = document.querySelectorAll('input[type="color"][data-preview]');
         const hexInputs = {
@@ -304,6 +376,8 @@
             'primary-dark': document.getElementById('color_primary_dark_hex'),
             'secondary': document.getElementById('color_secondary_hex'),
             'secondary-dark': document.getElementById('color_secondary_dark_hex'),
+            'accent': document.getElementById('color_secondary_hex'),
+            'accent-dark': document.getElementById('color_secondary_dark_hex'),
             'success': document.getElementById('color_success_hex'),
             'warning': document.getElementById('color_warning_hex'),
             'danger': document.getElementById('color_danger_hex'),
@@ -338,11 +412,12 @@
 
         // Update preview elements
         function updatePreview() {
-            // Update navbar brand name
-            const brandNameEl = document.getElementById('preview-brand-name');
-            if (brandNameEl) {
-                brandNameEl.textContent = document.getElementById('brand_name').value || defaultValues.brand_name;
-            }
+            // Update brand name di navbar & preview sidebar
+            const brandName = document.getElementById('brand_name').value || defaultValues.brand_name;
+
+            document.querySelectorAll('#preview-brand-name').forEach(el => {
+                el.textContent = brandName;
+            });
 
             // Update color pickers hex display
             colorPickers.forEach(picker => {
@@ -353,18 +428,114 @@
                 }
             });
 
-            // Update CSS custom properties for preview elements only
-            const root = document.documentElement;
-            root.style.setProperty('--preview-primary', document.getElementById('color_primary').value);
-            root.style.setProperty('--preview-primary-dark', document.getElementById('color_primary_dark').value);
-            root.style.setProperty('--preview-secondary', document.getElementById('color_secondary').value);
-            root.style.setProperty('--preview-secondary-dark', document.getElementById('color_secondary_dark').value);
-            root.style.setProperty('--preview-success', document.getElementById('color_success').value);
-            root.style.setProperty('--preview-warning', document.getElementById('color_warning').value);
-            root.style.setProperty('--preview-danger', document.getElementById('color_danger').value);
-
-            // Apply to preview elements
             applyPreviewStyles();
+        }
+
+        function hexToRgb(hex) {
+            let value = String(hex || '').trim().replace('#', '');
+
+            if (value.length === 3) {
+                value = value.split('').map(c => c + c).join('');
+            }
+
+            if (!/^[0-9a-fA-F]{6}$/.test(value)) {
+                return '79, 70, 229';
+            }
+
+            return [
+                parseInt(value.slice(0, 2), 16),
+                parseInt(value.slice(2, 4), 16),
+                parseInt(value.slice(4, 6), 16),
+            ].join(', ');
+        }
+
+        /**
+         * Campur hex dengan warna target; `amount` adalah porsi warna asal.
+         * Cerminan dari SettingsHelper::mix() supaya preview akurat.
+         */
+        function mixHex(hex, target, amount) {
+            const to = [1, 3, 5].map((i) => parseInt(String(target).replace('#', '').slice(i, i + 2), 16));
+            const from = String(hex || '')
+                .trim()
+                .replace('#', '')
+                .match(/.{2}/g)
+                ?.map((c) => parseInt(c, 16));
+
+            if (!from || from.length !== 3 || from.some(Number.isNaN)) {
+                return '#4F46E5';
+            }
+
+            const channels = from.map((value, index) =>
+                Math.round(value * amount + to[index] * (1 - amount)),
+            );
+
+            return `#${channels.map((c) => c.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+        }
+
+        /**
+         * Terapkan warna terpilih ke seluruh shell (bukan hanya kartu preview)
+         * supaya sidebar, topbar, dan footer ikut berubah seketika.
+         * Nilai final tetap disimpan lewat form submit.
+         */
+        function applyPreviewStyles() {
+            const primary = document.getElementById('color_primary').value;
+            const primaryDark = document.getElementById('color_primary_dark').value;
+            const primaryRgb = hexToRgb(primary);
+            const accent = document.getElementById('color_secondary').value;
+            const accentDark = document.getElementById('color_secondary_dark').value;
+            const success = document.getElementById('color_success').value;
+            const warning = document.getElementById('color_warning').value;
+            const danger = document.getElementById('color_danger').value;
+
+            const shell = {
+                '--color-primary': primary,
+                '--color-primary-dark': primaryDark,
+                '--color-primary-rgb': primaryRgb,
+                '--color-primary-hover': primaryDark,
+                '--color-primary-active': mixHex(primaryDark, '#000000', 0.82),
+                '--color-primary-soft': mixHex(primary, '#FFFFFF', 0.12),
+                // `color_secondary` pada form = warna accent di desain baru
+                '--color-accent': accent,
+                '--color-accent-rgb': hexToRgb(accent),
+                '--color-accent-dark': accentDark,
+                '--color-accent-hover': accentDark,
+                '--color-accent-active': mixHex(accentDark, '#000000', 0.82),
+                '--color-accent-soft': mixHex(accent, '#FFFFFF', 0.14),
+                '--color-success': success,
+                '--color-success-rgb': hexToRgb(success),
+                '--color-success-hover': mixHex(success, '#000000', 0.88),
+                '--color-success-soft': mixHex(success, '#FFFFFF', 0.12),
+                '--color-warning': warning,
+                '--color-warning-rgb': hexToRgb(warning),
+                '--color-warning-hover': mixHex(warning, '#000000', 0.88),
+                '--color-warning-soft': mixHex(warning, '#FFFFFF', 0.12),
+                '--color-danger': danger,
+                '--color-danger-rgb': hexToRgb(danger),
+                '--color-danger-hover': mixHex(danger, '#000000', 0.88),
+                '--color-danger-soft': mixHex(danger, '#FFFFFF', 0.12),
+                // Sidebar & footer mengikuti primary (samakan dengan SettingsHelper::sidebarTokens)
+                '--color-sidebar-bg': primaryDark,
+                '--color-sidebar-bg-gradient': `linear-gradient(180deg, ${primary} 0%, ${primaryDark} 100%)`,
+                '--color-sidebar-active-bg': `linear-gradient(135deg, rgba(${primaryRgb}, 0.25), rgba(${primaryRgb}, 0.1))`,
+                '--color-sidebar-active-border': `rgba(${primaryRgb}, 0.35)`,
+                '--color-sidebar-brand-gradient': `linear-gradient(135deg, ${primary} 0%, ${primaryDark} 100%)`,
+                '--color-footer-bg': primaryDark,
+                '--bs-primary': primary,
+                '--bs-primary-rgb': primaryRgb,
+            };
+
+            const targets = [
+                document.documentElement,
+                ...document.querySelectorAll('#preview-navbar, #preview-sidebar'),
+            ];
+
+            targets.forEach(target => {
+                if (!target) return;
+
+                Object.entries(shell).forEach(([name, value]) => {
+                    target.style.setProperty(name, value);
+                });
+            });
         }
 
         // Event: preset change

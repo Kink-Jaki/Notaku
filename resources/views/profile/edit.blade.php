@@ -141,19 +141,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('form[data-confirm]').forEach(function (form) {
-        form.addEventListener('submit', function (e) {
-            if (typeof Swal === 'undefined') {
-                return;
-            }
-            e.preventDefault();
-            Swal.fire({ title: 'Konfirmasi', text: this.getAttribute('data-confirm'), icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, hapus!', cancelButtonText: 'Batal', reverseButtons: true }).then((result) => { if (result.isConfirmed) this.submit(); });
-        });
-    });
-});
-</script>
-@endpush

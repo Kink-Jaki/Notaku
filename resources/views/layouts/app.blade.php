@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         @php
             $settings = \App\Support\SettingsHelper::get();
@@ -24,150 +25,14 @@
 
         <!-- Dynamic CSS Variables from Settings (override variables.css) -->
         <style>
-            :root {
-                --color-primary: {{ $settings->color_primary }};
-                --color-primary-dark: {{ $settings->color_primary_dark }};
-                --color-secondary: {{ $settings->color_secondary }};
-                --color-secondary-dark: {{ $settings->color_secondary_dark }};
-                --color-success: {{ $settings->color_success }};
-                --color-warning: {{ $settings->color_warning }};
-                --color-danger: {{ $settings->color_danger }};
-                /* Derive sidebar colors from primary for consistency */
-                --color-sidebar-bg: {{ $settings->color_primary_dark }};
-                --color-sidebar-text: #E0E7FF;
-                --color-sidebar-muted: rgba(224, 231, 255, 0.6);
-                /* Footer uses primary dark */
-                --color-footer-bg: {{ $settings->color_primary_dark }};
-                --color-footer-text: #FFFFFF;
-            }
+{!! \App\Support\SettingsHelper::sidebarCss($settings) !!}
 
-            /* Theme Variant Styles - Applied based on selected preset */
-            @php
-                $variantStyles = [
-                    'default' => '
-                        --color-bg: #F8FAFC;
-                        --color-surface: #FFFFFF;
-                        --color-border: #E2E8F0;
-                        --color-text: #1E293B;
-                        --color-text-muted: #94A3B8;
-                        --color-primary-rgb: 79, 70, 229;
-                        --color-success-rgb: 16, 185, 129;
-                        --color-warning-rgb: 245, 158, 11;
-                        --color-danger-rgb: 239, 68, 68;
-                        --color-primary-soft: #EEF2FF;
-                        --pos-radius: 0.5rem;
-                        --pos-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 1px rgba(15, 23, 42, 0.06);
-                        --pos-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05), 0 12px 24px -8px rgba(79, 70, 229, 0.12);
-                    ',
-                    'ocean' => '
-                        --color-bg: #F0FDFA;
-                        --color-surface: #FFFFFF;
-                        --color-border: #CCFBF1;
-                        --color-text: #134E4A;
-                        --color-text-muted: #4B9B8E;
-                        --color-primary-rgb: 13, 148, 136;
-                        --color-success-rgb: 16, 185, 129;
-                        --color-warning-rgb: 245, 158, 11;
-                        --color-danger-rgb: 239, 68, 68;
-                        --color-primary-soft: #CCFBF1;
-                        --pos-radius: 0.5rem;
-                        --pos-shadow-sm: 0 1px 2px rgba(13, 148, 136, 0.05);
-                        --pos-shadow-md: 0 4px 6px -1px rgba(13, 148, 136, 0.07), 0 2px 4px -2px rgba(13, 148, 136, 0.05), 0 12px 24px -8px rgba(13, 148, 136, 0.12);
-                    ',
-                    'forest' => '
-                        --color-bg: #F0FDF4;
-                        --color-surface: #FFFFFF;
-                        --color-border: #DCFCE7;
-                        --color-text: #14532D;
-                        --color-text-muted: #4ADE80;
-                        --color-primary-rgb: 5, 150, 105;
-                        --color-success-rgb: 34, 197, 94;
-                        --color-warning-rgb: 245, 158, 11;
-                        --color-danger-rgb: 239, 68, 68;
-                        --color-primary-soft: #DCFCE7;
-                        --pos-radius: 0.5rem;
-                        --pos-shadow-sm: 0 1px 2px rgba(5, 150, 105, 0.05);
-                        --pos-shadow-md: 0 4px 6px -1px rgba(5, 150, 105, 0.07), 0 2px 4px -2px rgba(5, 150, 105, 0.05), 0 12px 24px -8px rgba(5, 150, 105, 0.12);
-                    ',
-                    'sunset' => '
-                        --color-bg: #FFF7ED;
-                        --color-surface: #FFFFFF;
-                        --color-border: #FFEDD5;
-                        --color-text: #7C2D12;
-                        --color-text-muted: #FB923C;
-                        --color-primary-rgb: 234, 88, 12;
-                        --color-success-rgb: 16, 185, 129;
-                        --color-warning-rgb: 251, 191, 36;
-                        --color-danger-rgb: 239, 68, 68;
-                        --color-primary-soft: #FFEDD5;
-                        --pos-radius: 0.5rem;
-                        --pos-shadow-sm: 0 1px 2px rgba(234, 88, 12, 0.05);
-                        --pos-shadow-md: 0 4px 6px -1px rgba(234, 88, 12, 0.07), 0 2px 4px -2px rgba(234, 88, 12, 0.05), 0 12px 24px -8px rgba(234, 88, 12, 0.12);
-                    ',
-                    'midnight' => '
-                        --color-bg: #0F172A;
-                        --color-surface: #1E293B;
-                        --color-border: #334155;
-                        --color-text: #F1F5F9;
-                        --color-text-muted: #94A3B8;
-                        --color-primary-rgb: 30, 58, 138;
-                        --color-success-rgb: 16, 185, 129;
-                        --color-warning-rgb: 245, 158, 11;
-                        --color-danger-rgb: 239, 68, 68;
-                        --color-primary-soft: #1E3A8A;
-                        --pos-radius: 0.5rem;
-                        --pos-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-                        --pos-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2), 0 12px 24px -8px rgba(30, 58, 138, 0.3);
-                    ',
-                    'rose' => '
-                        --color-bg: #FFF1F2;
-                        --color-surface: #FFFFFF;
-                        --color-border: #FFE4E6;
-                        --color-text: #881337;
-                        --color-text-muted: #FB7185;
-                        --color-primary-rgb: 225, 29, 72;
-                        --color-success-rgb: 16, 185, 129;
-                        --color-warning-rgb: 245, 158, 11;
-                        --color-danger-rgb: 239, 68, 68;
-                        --color-primary-soft: #FFE4E6;
-                        --pos-radius: 0.5rem;
-                        --pos-shadow-sm: 0 1px 2px rgba(225, 29, 72, 0.05);
-                        --pos-shadow-md: 0 4px 6px -1px rgba(225, 29, 72, 0.07), 0 2px 4px -2px rgba(225, 29, 72, 0.05), 0 12px 24px -8px rgba(225, 29, 72, 0.12);
-                    ',
-                    'violet' => '
-                        --color-bg: #FAF5FF;
-                        --color-surface: #FFFFFF;
-                        --color-border: #F3E8FF;
-                        --color-text: #4C1D95;
-                        --color-text-muted: #C084FC;
-                        --color-primary-rgb: 124, 58, 237;
-                        --color-success-rgb: 16, 185, 129;
-                        --color-warning-rgb: 245, 158, 11;
-                        --color-danger-rgb: 239, 68, 68;
-                        --color-primary-soft: #F3E8FF;
-                        --pos-radius: 0.5rem;
-                        --pos-shadow-sm: 0 1px 2px rgba(124, 58, 237, 0.05);
-                        --pos-shadow-md: 0 4px 6px -1px rgba(124, 58, 237, 0.07), 0 2px 4px -2px rgba(124, 58, 237, 0.05), 0 12px 24px -8px rgba(124, 58, 237, 0.12);
-                    ',
-                    'amber' => '
-                        --color-bg: #FFFDF6;
-                        --color-surface: #FFFFFF;
-                        --color-border: #FEF3C7;
-                        --color-text: #78350F;
-                        --color-text-muted: #FBBF24;
-                        --color-primary-rgb: 217, 119, 6;
-                        --color-success-rgb: 16, 185, 129;
-                        --color-warning-rgb: 251, 191, 36;
-                        --color-danger-rgb: 239, 68, 68;
-                        --color-primary-soft: #FEF3C7;
-                        --pos-radius: 0.5rem;
-                        --pos-shadow-sm: 0 1px 2px rgba(217, 119, 6, 0.05);
-                        --pos-shadow-md: 0 4px 6px -1px rgba(217, 119, 6, 0.07), 0 2px 4px -2px rgba(217, 119, 6, 0.05), 0 12px 24px -8px rgba(217, 119, 6, 0.12);
-                    ',
-                ];
-                $selectedVariant = $variantStyles[$settings->theme_variant] ?? $variantStyles['default'];
-            @endphp
-            {{ $selectedVariant }}
+            /* Warna netral per varian tema (latar, border, teks).
+               Dibatasi ke mode terang: blok [data-theme="dark"] di
+               variables.css harus tetap menang, dan spesifisitasnya sama. */
+            :root:not([data-theme="dark"]) {
+{!! \App\Support\SettingsHelper::surfaceCss($settings->theme_variant) !!}
+            }
 
             /* Developer Mode - Advanced styles when dev_mode is enabled */
             @if ($settings->dev_mode)
@@ -244,46 +109,23 @@
             tabindex="-1"
             aria-labelledby="sidebarBrand"
         >
-            <div id="sidebarBrand" class="app-sidebar__brand">
-                <span class="app-sidebar__brand-mark">
-                    @if ($settings->logo_path)
-                        <img src="{{ asset('storage/'.$settings->logo_path) }}" alt="{{ $settings->brand_name }}" style="height: 28px; width: auto;">
-                    @else
-                        <i class="bi bi-bag"></i>
-                    @endif
-                </span>
-                <span>{{ $settings->brand_name }}</span>
-            </div>
-
-            <button
-                type="button"
-                class="btn-close btn-close-white app-sidebar__close"
-                data-bs-dismiss="offcanvas"
-                data-bs-target="#sidebarOffcanvas"
-                aria-label="Tutup menu"
-            ></button>
-
-            <nav class="app-sidebar__nav nav flex-column">
-                @yield('sidebar-menu')
-            </nav>
+            @yield('sidebar-menu')
 
             <div class="app-sidebar__footer">
-                <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <span class="avatar avatar--dark avatar--lg flex-shrink-0">{{ strtoupper(mb_substr(Auth::user()->name ?? '', 0, 1)) }}</span>
-                        <div class="text-truncate flex-grow-1">
-                            <div class="text-white fw-semibold text-truncate">{{ Auth::user()->name ?? 'User' }}</div>
-                            <div class="text-white-50 small text-capitalize">{{ Auth::user()->role ?? '-' }}</div>
-                        </div>
+                <div class="app-sidebar__footer-content">
+                    <span class="app-sidebar__user-avatar">{{ strtoupper(mb_strimwidth(Auth::user()->name ?? '', 0, 1, '')) }}</span>
+                    <div class="app-sidebar__user-info">
+                        <span class="app-sidebar__user-name text-truncate">{{ Auth::user()->name ?? 'User' }}</span>
+                        <span class="app-sidebar__user-role text-truncate">{{ Auth::user()->role ?? '-' }}</span>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2">
-                            <i class="bi bi-box-arrow-right"></i>
-                            <span>Keluar</span>
-                        </button>
-                    </form>
                 </div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="app-sidebar__logout-btn">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                        <span>Keluar</span>
+                    </button>
+                </form>
             </div>
         </aside>
         @else

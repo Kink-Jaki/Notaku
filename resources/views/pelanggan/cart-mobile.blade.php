@@ -275,32 +275,6 @@
         padding: 0.875rem 2rem;
         font-size: 1rem;
     }
-
-    /* Toast notification for mobile */
-    .cart-toast {
-        position: fixed;
-        bottom: 5.5rem;
-        left: 1rem;
-        right: 1rem;
-        max-width: 320px;
-        margin: 0 auto;
-        z-index: 1100;
-        animation: slideUp 0.3s ease;
-    }
-
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(1rem); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (min-width: 768px) {
-        .cart-toast {
-            bottom: 2rem;
-            right: 2rem;
-            left: auto;
-            margin: 0;
-        }
-    }
 </style>
 @endpush
 
@@ -313,38 +287,37 @@
     <header class="cart-mobile-header d-flex flex-wrap align-items-center justify-content-between gap-2">
         <div>
             <h1 class="h5 mb-0">Keranjang</h1>
-            <p class="small text-muted-pos mb-0">{{ $jumlahItem }} item</p>
+            <p class="small text-muted-pos mb-0"><span data-cart-item-count>{{ $jumlahItem }} item</span></p>
         </div>
         <a href="{{ route('marketplace') }}" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left me-1"></i> Belanja
         </a>
     </header>
 
-    @if ($jumlahItem === 0)
-        {{-- ================= EMPTY CART ================= --}}
-        <div class="cart-empty-mobile">
-            <div class="cart-empty-mobile__icon"><i class="bi bi-cart-x"></i></div>
-            <div class="cart-empty-mobile__title">Keranjang kosong</div>
-            <p class="cart-empty-mobile__text">Belum ada menu di keranjang. Yuk pilih menu favoritmu dari katalog.</p>
-            <a href="{{ route('marketplace') }}" class="btn btn-brand cart-empty-mobile__btn">
-                <i class="bi bi-grid me-1"></i> Mulai Belanja
-            </a>
-        </div>
-    @else
-        {{-- ================= ITEM LIST ================= --}}
-        <div class="px-3 pb-5" id="cartItems">
+    {{-- ================= EMPTY CART ================= --}}
+    <div class="cart-empty-mobile {{ $jumlahItem === 0 ? '' : 'd-none' }}" data-cart-empty-state>
+        <div class="cart-empty-mobile__icon"><i class="bi bi-cart-x"></i></div>
+        <div class="cart-empty-mobile__title">Keranjang kosong</div>
+        <p class="cart-empty-mobile__text">Belum ada menu di keranjang. Yuk pilih menu favoritmu dari katalog.</p>
+        <a href="{{ route('marketplace') }}" class="btn btn-brand cart-empty-mobile__btn">
+            <i class="bi bi-grid me-1"></i> Mulai Belanja
+        </a>
+    </div>
+
+    {{-- ================= ITEM LIST ================= --}}
+    <div class="px-3 pb-5 {{ $jumlahItem === 0 ? 'd-none' : '' }}" id="cartItems" data-cart-body>
             @foreach ($items as $productId => $item)
                 @php
                     $itemTotal = $item['line_total'] ?? ($item['price'] * $item['qty']);
                     $productName = $item['product']?->name ?? $item['name'] ?? 'Produk';
                     $productThumb = $item['product']?->image ?? null;
                 @endphp
-                <article class="cart-item-mobile" data-product-id="{{ $productId }}">
+                <article class="cart-item-mobile" data-cart-row="{{ $productId }}" data-product-id="{{ $productId }}">
                     <div class="cart-item-mobile__image">
                         @if ($productThumb)
                             <img src="{{ asset('storage/' . $productThumb) }}" alt="{{ $productName }}" loading="lazy" width="60" height="60">
                         @else
-                            <x-product-placeholder size="sm" />
+                            <x-product-placeholder size="sm" :name="$productName" />
                         @endif
                     </div>
 
@@ -361,12 +334,13 @@
                             <form method="POST" action="{{ route('pelanggan.cart.update') }}" class="cart-update-form-mobile d-flex align-items-center gap-0" data-product-id="{{ $productId }}">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $productId }}">
-                                <button type="submit" class="cart-item-mobile__qty-btn" name="qty" value="{{ $item['qty'] - 1 }}" {{ $item['qty'] <= 1 ? 'disabled' : '' }} aria-label="Kurangi"><i class="bi bi-dash-lg"></i></button>
-                                <input type="text" class="cart-item-mobile__qty-input" value="{{ $item['qty'] }}" readonly aria-label="Jumlah">
-                                <button type="submit" class="cart-item-mobile__qty-btn" name="qty" value="{{ $item['qty'] + 1 }}" aria-label="Tambah"><i class="bi bi-plus-lg"></i></button>
+                                <input type="hidden" name="qty" value="{{ $item['qty'] }}" data-cart-qty-input>
+                                <button type="button" class="cart-item-mobile__qty-btn" data-cart-step="-1" {{ $item['qty'] <= 1 ? 'disabled' : '' }} aria-label="Kurangi"><i class="bi bi-dash-lg"></i></button>
+                                <input type="text" class="cart-item-mobile__qty-input" value="{{ $item['qty'] }}" readonly aria-label="Jumlah" data-cart-row-qty>
+                                <button type="button" class="cart-item-mobile__qty-btn" data-cart-step="1" aria-label="Tambah"><i class="bi bi-plus-lg"></i></button>
                             </form>
 
-                            <div class="cart-item-mobile__subtotal">{{ $rp($itemTotal) }}</div>
+                            <div class="cart-item-mobile__subtotal" data-cart-row-subtotal>{{ $rp($itemTotal) }}</div>
 
                             <button type="button" class="cart-item-mobile__remove cart-remove-btn-mobile" data-product-id="{{ $productId }}" data-product-name="{{ $productName }}" aria-label="Hapus {{ $productName }}">
                                 <i class="bi bi-trash" style="font-size: 1.125rem;"></i>
@@ -375,170 +349,42 @@
                     </div>
                 </article>
             @endforeach
+    </div>
+
+    {{-- ================= STICKY SUMMARY / CHECKOUT ================= --}}
+    <footer class="cart-summary-mobile {{ $jumlahItem === 0 ? 'd-none' : '' }}" data-cart-body>
+        <div class="cart-summary-mobile__row">
+            <span>Subtotal</span>
+            <span data-cart-summary-subtotal>{{ $rp($subtotal) }}</span>
+        </div>
+        <div class="cart-summary-mobile__row cart-summary-mobile__row--discount {{ $diskon > 0 ? '' : 'd-none' }}" data-cart-discount-row>
+            <span>Diskon (<span data-promo-code>{{ $promoSession['code'] ?? '' }}</span>)</span>
+            <span data-cart-summary-discount>−{{ $rp($diskon) }}</span>
+        </div>
+        <div class="cart-summary-mobile__row cart-summary-mobile__row--total">
+            <span>Total</span>
+            <span data-cart-summary-total>{{ $rp($total) }}</span>
         </div>
 
-        {{-- ================= STICKY SUMMARY / CHECKOUT ================= --}}
-        <footer class="cart-summary-mobile">
-            <div class="cart-summary-mobile__row">
-                <span>Subtotal</span>
-                <span>{{ $rp($subtotal) }}</span>
+        <div class="cart-promo-mobile" id="promoSection">
+            <div class="cart-promo-mobile__applied {{ $diskon > 0 ? '' : 'd-none' }}" data-promo-applied>
+                <span>Promo <strong data-promo-code>{{ $promoSession['code'] ?? '' }}</strong> aktif — Diskon {{ $rp($diskon) }}</span>
+                <form method="POST" action="{{ route('pelanggan.cart.promoRemove') }}" class="cart-promo-remove-form" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="cart-promo-mobile__remove"><i class="bi bi-x-lg me-1"></i> Hapus</button>
+                </form>
             </div>
-            @if ($diskon > 0)
-                <div class="cart-summary-mobile__row cart-summary-mobile__row--discount">
-                    <span>Diskon ({{ $promoSession['code'] ?? '' }})</span>
-                    <span>−{{ $rp($diskon) }}</span>
-                </div>
-            @endif
-            <div class="cart-summary-mobile__row cart-summary-mobile__row--total">
-                <span>Total</span>
-                <span>{{ $rp($total) }}</span>
-            </div>
+            <form method="POST" action="{{ route('pelanggan.cart.promo') }}" class="cart-promo-form cart-promo-mobile__input-group {{ $diskon > 0 ? 'd-none' : '' }}" id="promoForm" data-promo-apply>
+                @csrf
+                <input type="text" name="code" class="form-control cart-promo-mobile__input" placeholder="Kode promo" aria-label="Kode promo" autocomplete="off">
+                <button type="submit" class="btn btn-outline-primary cart-promo-mobile__btn">Terapkan</button>
+            </form>
+        </div>
 
-            <div class="cart-promo-mobile" id="promoSection">
-                @if ($diskon > 0)
-                    <div class="cart-promo-mobile__applied">
-                        <span>Promo <strong>{{ $promoSession['code'] }}</strong> aktif — Diskon {{ $rp($diskon) }}</span>
-                        <form method="POST" action="{{ route('pelanggan.cart.promoRemove') }}" style="display:inline;">
-                            @csrf
-                            <button type="submit" class="cart-promo-mobile__remove"><i class="bi bi-x-lg me-1"></i> Hapus</button>
-                        </form>
-                    </div>
-                @else
-                    <form method="POST" action="{{ route('pelanggan.cart.promo') }}" class="cart-promo-mobile__input-group" id="promoForm">
-                        @csrf
-                        <input type="text" name="code" class="form-control cart-promo-mobile__input" placeholder="Kode promo" aria-label="Kode promo" autocomplete="off">
-                        <button type="submit" class="btn btn-outline-primary cart-promo-mobile__btn">Terapkan</button>
-                    </form>
-                @endif
-            </div>
+        <a href="{{ route('pelanggan.checkout') }}" class="btn btn-brand btn-lg cart-summary-mobile__checkout-btn">
+            <i class="bi bi-bag-check me-1"></i> Checkout (<span data-cart-checkout-total>{{ $rp($total) }}</span>)
+        </a>
 
-            <a href="{{ route('pelanggan.checkout') }}" class="btn btn-brand btn-lg cart-summary-mobile__checkout-btn">
-                <i class="bi bi-bag-check me-1"></i> Checkout ({{ $rp($total) }})
-            </a>
-
-            <p class="small text-muted-pos text-center mt-2 mb-0">Pembayaran di tempat saat pesanan siap diambil/antar</p>
-        </footer>
-    @endif
-
-    {{-- Toast container --}}
-    <div id="cartToast" class="cart-toast d-none" role="alert" aria-live="polite"></div>
+        <p class="small text-muted-pos text-center mt-2 mb-0">Pembayaran di tempat saat pesanan siap diambil/antar</p>
+    </footer>
 @endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Qty update via fetch
-        document.querySelectorAll('.cart-update-form-mobile').forEach(function(form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const productId = form.querySelector('input[name="product_id"]').value;
-                const btn = e.submitter;
-
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: new FormData(form)
-                }).then(r => r.json()).then(data => {
-                    if (data.success) {
-                        showToast('Keranjang diperbarui', 'success');
-                        // Update UI without reload for smooth UX
-                        setTimeout(() => location.reload(), 500);
-                    } else {
-                        showToast(data.error || 'Gagal memperbarui', 'error');
-                    }
-                }).catch(() => showToast('Terjadi kesalahan jaringan', 'error'));
-            });
-        });
-
-        // Remove item
-        document.querySelectorAll('.cart-remove-btn-mobile').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                const productId = btn.dataset.productId;
-                const productName = btn.dataset.productName;
-
-                Swal.fire({
-                    title: 'Hapus dari keranjang?',
-                    text: productName + ' akan dihapus.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Hapus',
-                    cancelButtonText: 'Batal',
-                    confirmButtonColor: '#ef4444'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch('{{ route('pelanggan.cart.remove') }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({product_id: productId})
-                        }).then(r => r.json()).then(data => {
-                            if (data.success) {
-                                showToast(productName + ' dihapus', 'success');
-                                setTimeout(() => location.reload(), 500);
-                            } else {
-                                showToast(data.error || 'Gagal menghapus', 'error');
-                            }
-                        }).catch(() => showToast('Terjadi kesalahan jaringan', 'error'));
-                    }
-                });
-            });
-        });
-
-        // Promo form submit
-        const promoForm = document.getElementById('promoForm');
-        if (promoForm) {
-            promoForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const btn = promoForm.querySelector('button[type="submit"]');
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
-
-                fetch(promoForm.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: new FormData(promoForm)
-                }).then(r => r.json()).then(data => {
-                    btn.disabled = false;
-                    btn.textContent = 'Terapkan';
-                    if (data.success) {
-                        showToast('Promo diterapkan!', 'success');
-                        setTimeout(() => location.reload(), 500);
-                    } else {
-                        showToast(data.error || 'Kode promo tidak valid', 'error');
-                    }
-                }).catch(() => {
-                    btn.disabled = false;
-                    btn.textContent = 'Terapkan';
-                    showToast('Terjadi kesalahan jaringan', 'error');
-                });
-            });
-        }
-
-        // Toast helper
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('cartToast');
-            const bgColor = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#0ea5e9');
-            toast.innerHTML = `
-                <div class="toast show" role="alert" style="background: ${bgColor}; color: white; border-radius: var(--pos-radius); padding: 0.75rem 1rem; box-shadow: var(--pos-shadow-md); display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="bi bi-${type === 'success' ? 'check-circle' : (type === 'error' ? 'x-circle' : 'info-circle')}"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-            toast.classList.remove('d-none');
-
-            setTimeout(() => {
-                toast.classList.add('d-none');
-            }, 3000);
-        }
-    });
-</script>
-@endpush

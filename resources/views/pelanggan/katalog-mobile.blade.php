@@ -259,69 +259,30 @@
 
 @section('content')
     @php
-        $rp = fn ($value) => 'Rp ' . number_format($value, 0, ',', '.');
-        $stokStatus = fn (int $stok) => $stok <= 0 ? 'habis' : ($stok <= 10 ? 'menipis' : 'tersedia');
-        $stokLabel = ['tersedia' => 'Tersedia', 'menipis' => 'Stok menipis', 'habis' => 'Habis'];
-        $stokBadge = ['tersedia' => 'badge-soft--success', 'menipis' => 'badge-soft--warning', 'habis' => 'badge-soft--danger'];
         $langkah = [
             ['judul' => 'Pilih menu', 'teks' => 'Tambah produk favoritmu ke keranjang.'],
             ['judul' => 'Checkout & submit', 'teks' => 'Isi data pesanan lalu kirim.'],
             ['judul' => 'Kasir konfirmasi', 'teks' => 'Kasir memverifikasi pesanan sebelum diproses.'],
         ];
-        $currentCategory = request('category_id');
         $currentSearch = request('search');
     @endphp
 
     {{-- ================= HERO / SEARCH ================= --}}
-    <div class="catalog-mobile-hero">
+    <div class="catalog-mobile-hero" data-cf="katalog-m">
         <h1 class="h5 mb-1">Katalog Menu</h1>
         <p class="small text-muted-pos mb-2">Pesan dari kami — konfirmasi kasir sebelum diproses.</p>
 
         <div class="search-mobile">
-            <form action="{{ route('pelanggan.katalog.index') }}" method="get" class="d-flex">
+            <form action="{{ route('pelanggan.katalog.mobile') }}" method="get" class="d-flex">
                 <i class="bi bi-search search-mobile__icon"></i>
-                <input type="search" name="search" class="search-mobile__input" placeholder="Cari menu..." value="{{ $currentSearch }}" aria-label="Cari menu" autocomplete="off">
+                <input type="search" name="search" class="search-mobile__input" data-cf-search placeholder="Cari menu..." value="{{ $currentSearch }}" aria-label="Cari menu" autocomplete="off">
             </form>
         </div>
     </div>
 
-    {{-- ================= CATEGORY FILTER ================= --}}
-    <nav class="category-pills" aria-label="Filter kategori" role="tablist">
-        <a href="{{ route('pelanggan.katalog.index') }}"
-           class="category-pill {{ !$currentCategory && !$currentSearch ? 'active' : '' }}"
-           role="tab"
-           aria-selected="{{ !$currentCategory && !$currentSearch ? 'true' : 'false' }}">
-            <i class="bi bi-grid me-1"></i> Semua
-        </a>
-        @foreach ($kategori as $k)
-            <a href="{{ route('pelanggan.katalog.index', ['category_id' => $k->id, 'search' => $currentSearch]) }}"
-               class="category-pill {{ $currentCategory == $k->id ? 'active' : '' }}"
-               role="tab"
-               aria-selected="{{ $currentCategory == $k->id ? 'true' : 'false' }}">
-                <i class="bi {{ $k->icon }} me-1"></i> {{ $k->name }}
-            </a>
-        @endforeach
-    </nav>
-
-    {{-- ================= PRODUCT GRID ================= --}}
-    <div class="product-grid-mobile" id="productGrid">
-        @forelse ($produk as $p)
-            @php
-                $stokSt = $stokStatus($p->stock);
-            @endphp
-            <x-product-card-mobile :product="$p" :showAddToCart="true" />
-        @empty
-            <div class="col-12">
-                <div class="empty-state-mobile">
-                    <div class="empty-state-mobile__icon"><i class="bi bi-box-seam"></i></div>
-                    <div class="empty-state-mobile__title">Tidak ada produk</div>
-                    <p class="empty-state-mobile__text">Coba ubah filter atau kata kunci pencarian.</p>
-                    <a href="{{ route('pelanggan.katalog.index') }}" class="btn btn-brand btn-sm">
-                        <i class="bi bi-arrow-clockwise me-1"></i> Reset Filter
-                    </a>
-                </div>
-            </div>
-        @endforelse
+    {{-- ================= CATEGORY FILTER + PRODUCT GRID + PAGINATION ================= --}}
+    <div data-rt-results data-cf="katalog-m">
+        @include('pelanggan.katalog-mobile-results')
     </div>
 
     {{-- ================= SKELETON LOADING (hidden by default) ================= --}}
@@ -337,11 +298,6 @@
             </div>
         @endfor
     </div>
-
-    {{-- ================= PAGINATION ================= --}}
-    <nav class="pagination-mobile" aria-label="Navigasi halaman katalog">
-        {{ $produk->onEachSide(1)->links('vendor.pagination.custom') }}
-    </nav>
 
     {{-- ================= HOW IT WORKS ================= --}}
     <section class="how-it-works-mobile">

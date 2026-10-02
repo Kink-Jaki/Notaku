@@ -33,32 +33,58 @@ class ChangelogTest extends TestCase
         $entries = Changelog::entries();
 
         $this->assertNotEmpty($entries);
-        $this->assertSame('1.4.0', $entries[0]['version']);
-        $this->assertSame('Personalization & Mobile UI', $entries[0]['title']);
-        $this->assertSame('success', $entries[0]['badge']);
-        $this->assertSame('Added', $entries[0]['sections'][0]['type']);
-        $this->assertSame('warning', $entries[1]['badge']);
-        $this->assertSame('Fixed', $entries[1]['sections'][0]['type']);
+
+        // Entri terbaru di-parse dari CHANGELOG.md apa adanya (versi bisa
+        // bertambah karena hook post-commit), jadi jangan di-hardcode.
+        $terbaru = $entries[0];
+        $this->assertArrayHasKey('version', $terbaru);
+        $this->assertArrayHasKey('badge', $terbaru);
+        $this->assertNotEmpty($terbaru['sections']);
+
+        // Entri 1.4.0 adalah rilis "Personalization & Mobile UI".
+        $personalization = collect($entries)->firstWhere('version', '1.4.0');
+        $this->assertNotNull($personalization);
+        $this->assertSame('Personalization & Mobile UI', $personalization['title']);
+        $this->assertSame('success', $personalization['badge']);
+        $this->assertSame('Added', $personalization['sections'][0]['type']);
+
+        // Entri_features 1.3.1 memuat bagian Fixed.
+        $bugfix = collect($entries)->firstWhere('version', '1.3.1');
+        $this->assertNotNull($bugfix);
+        $this->assertSame('Fixed', $bugfix['sections'][0]['type']);
     }
 
     public function test_append_menambah_entri_dan_menaikkan_versi(): void
     {
         copy(base_path('CHANGELOG.md'), $this->path);
 
+        $versiSebelum = Changelog::entries($this->path)[0]['version'];
+
         $entry = Changelog::append('feat: tambah placeholder brand', $this->path);
 
         $this->assertNotNull($entry);
-        $this->assertSame('1.5.0', $entry['version']);
         $this->assertSame('Added', $entry['section']);
 
+        // Versi baru harus naik dari versi terbaru sebelumnya, mengikuti
+        // jenis entri (`feat:` menaikkan minor, `fix:` menaikkan patch).
+        [$major, $minor] = array_map('intval', explode('.', $versiSebelum));
+        $this->assertSame("{$major}.".($minor + 1).'.0', $entry['version']);
+
         $entries = Changelog::entries($this->path);
-        $this->assertSame('1.5.0', $entries[0]['version']);
+        $this->assertSame($entry['version'], $entries[0]['version']);
         $this->assertSame('tambah placeholder brand', $entries[0]['sections'][0]['items'][0]);
-        $this->assertSame('1.4.0', $entries[1]['version']);
+        $this->assertSame($versiSebelum, $entries[1]['version']);
+
+        $versiFeat = $entry['version'];
 
         $entry = Changelog::append('fix: perbaikan kecil', $this->path);
-        $this->assertSame('1.5.1', $entry['version']);
+
+        $this->assertNotNull($entry);
         $this->assertSame('Fixed', $entry['section']);
+
+        // `fix:` menaikkan patch dari versi yang baru saja ditulis.
+        [$major, $minor, $patch] = array_map('intval', explode('.', $versiFeat));
+        $this->assertSame("{$major}.{$minor}.".($patch + 1), $entry['version']);
     }
 
     public function test_append_melewati_merge_dan_duplikat(): void

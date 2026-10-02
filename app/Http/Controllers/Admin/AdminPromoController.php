@@ -13,25 +13,9 @@ class AdminPromoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = PromoCode::query();
+        $promos = PromoCode::query()->latest()->paginate(15)->withQueryString();
 
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('code', 'like', "%{$request->search}%");
-            });
-        }
-
-        if ($request->filled('status')) {
-            if ($request->status === 'active') {
-                $query->where('is_active', true);
-            } elseif ($request->status === 'inactive') {
-                $query->where('is_active', false);
-            }
-        }
-
-        $promos = $query->latest()->paginate(15)->withQueryString();
-
-        return view('admin.promo', compact('promos'));
+        return $this->viewOrFragment($request, 'admin.promo', 'admin.promo-results', compact('promos'));
     }
 
     public function store(Request $request)

@@ -99,6 +99,40 @@ class AdminDashboardApiController extends Controller
             ])
             ->values();
 
+        $topSpenders = Order::query()
+            ->join('users', 'users.id', '=', 'orders.user_id')
+            ->where('orders.status', Order::STATUS_COMPLETED)
+            ->groupBy('orders.user_id', 'users.name')
+            ->selectRaw('orders.user_id as user_id, users.name as name, COALESCE(SUM(orders.total), 0) as total_spent, COUNT(orders.id) as order_count')
+            ->orderByDesc('total_spent')
+            ->orderByDesc('order_count')
+            ->limit(10)
+            ->get()
+            ->map(function (object $spender, int $index): array {
+                $rank = $index + 1;
+                $tier = match (true) {
+                    $rank === 1 => 'S',
+                    $rank <= 3 => 'A',
+                    $rank <= 6 => 'B',
+                    default => 'C',
+                };
+
+                return [
+                    'rank' => $rank,
+                    'tier' => $tier,
+                    'modifier' => match ($tier) {
+                        'S' => 'warning',
+                        'A' => 'success',
+                        'B' => 'info',
+                        default => 'neutral',
+                    },
+                    'name' => (string) $spender->name,
+                    'orders' => (int) $spender->order_count,
+                    'total' => (int) $spender->total_spent,
+                ];
+            })
+            ->values();
+
         $recentTransactions = Transaction::query()
             ->with('user')
             ->latest()
@@ -125,6 +159,7 @@ class AdminDashboardApiController extends Controller
                     'omzet' => $chartDays->pluck('sales')->values()->all(),
                 ],
                 'stocks' => $stocks,
+                'topSpenders' => $topSpenders,
                 'recentTransactions' => $recentTransactions,
                 'summary' => [
                     'products' => Product::query()->count(),

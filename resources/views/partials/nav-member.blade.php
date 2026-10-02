@@ -1,5 +1,7 @@
-<button type="button" class="nav-link" disabled aria-disabled="true">
-    <i class="bi bi-star"></i>
-    <span class="flex-grow-1">Member</span>
-    <span class="badge badge-soft badge-soft--info rounded-pill">Coming Soon</span>
+<button type="button" class="nav-link" disabled aria-disabled="true" data-tooltip="Member">
+    <i class="bi bi-star" aria-hidden="true"></i>
+    <span class="app-sidebar__nav-text">Member</span>
+    <span class="badge badge-soon">
+        <i class="bi bi-hourglass-split" aria-hidden="true"></i>Soon
+    </span>
 </button>

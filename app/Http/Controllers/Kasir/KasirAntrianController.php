@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\PromoCode;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Notifications\OrderStatusUpdated;
 use App\Support\NumberGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -121,6 +122,8 @@ class KasirAntrianController extends Controller
             return back()->with('error', $exception->getMessage());
         }
 
+        $order->user?->notify(new OrderStatusUpdated($order->refresh()));
+
         return back()->with('swal_success', "Pesanan disetujui — {$order->order_number} (Transaksi {$transactionNumber})");
     }
 
@@ -156,7 +159,37 @@ class KasirAntrianController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
+        $order->user?->notify(new OrderStatusUpdated($order->refresh()));
+
         return back()->with('swal_success', "Pesanan ditolak — {$order->order_number}.");
+    }
+
+    public function complete(Request $request, Order $order)
+    {
+        if (! $order->isProcessing()) {
+            return back()->with('error', 'Hanya pesanan yang sedang diproses yang dapat diselesaikan.');
+        }
+
+        $order->forceFill([
+            'status' => Order::STATUS_COMPLETED,
+        ])->save();
+
+        // Audit log
+        AuditLog::create([
+            'user_id' => $request->user()->id,
+            'action' => 'complete_order',
+            'model_type' => Order::class,
+            'model_id' => $order->id,
+            'description' => "Menyelesaikan pesanan {$order->order_number} ({$order->customer_name})",
+            'old_values' => ['status' => 'processing'],
+            'new_values' => ['status' => 'completed'],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        $order->user?->notify(new OrderStatusUpdated($order->refresh()));
+
+        return back()->with('swal_success', "Pesanan selesai — {$order->order_number}.");
     }
 
     public function checkNewOrders(Request $request)

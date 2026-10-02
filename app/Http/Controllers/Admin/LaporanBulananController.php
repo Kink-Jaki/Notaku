@@ -126,7 +126,7 @@ class LaporanBulananController extends Controller
 
         $tglHariIni = now()->day;
 
-        return view('admin.laporan-bulanan', [
+        return $this->viewOrFragment($request, 'admin.laporan-bulanan', 'admin.laporan-bulanan-results', [
             'bulan' => $bulan,
             'tahun' => $tahun,
             'kasirId' => $kasirId,

@@ -11,17 +11,15 @@ use Illuminate\Http\Request;
 class KasirRiwayatApiController extends Controller
 {
     /**
-     * Data riwayat transaksi (filter tanggal, jenis, status, pencarian) untuk halaman /kasir/riwayat.
+     * Data riwayat transaksi (filter tanggal) untuk halaman /kasir/riwayat.
+     * Filter jenis, status, dan pencarian diterapkan di sisi klien.
      */
     public function index(Request $request): JsonResponse
     {
         $dari = $request->query('dari', now()->subDays(6)->format('Y-m-d'));
         $sampai = $request->query('sampai', now()->format('Y-m-d'));
-        $jenis = $request->query('jenis', 'Semua');
-        $status = $request->query('status', 'Semua');
-        $q = $request->query('q', '');
 
-        $totals = $this->filteredQuery($dari, $sampai, $jenis, $status, $q)
+        $totals = $this->filteredQuery($dari, $sampai)
             ->selectRaw('count(*) as total_transaksi, coalesce(sum(total), 0) as total_penjualan')
             ->toBase()
             ->first();
@@ -30,7 +28,7 @@ class KasirRiwayatApiController extends Controller
         $totalPenjualan = (int) ($totals->total_penjualan ?? 0);
         $rataRata = $totalTransaksi > 0 ? (int) round($totalPenjualan / $totalTransaksi) : 0;
 
-        $riwayat = $this->filteredQuery($dari, $sampai, $jenis, $status, $q)
+        $riwayat = $this->filteredQuery($dari, $sampai)
             ->with(['items', 'user', 'order'])
             ->latest('created_at')
             ->paginate(10)
@@ -96,26 +94,9 @@ class KasirRiwayatApiController extends Controller
         ]);
     }
 
-    private function filteredQuery(string $dari, string $sampai, string $jenis, string $status, string $q): Builder
+    private function filteredQuery(string $dari, string $sampai): Builder
     {
         $query = Transaction::query()->where('status', 'selesai');
-
-        if ($q !== '') {
-            $query->where(function (Builder $qry) use ($q) {
-                $qry->where('transaction_number', 'like', "%{$q}%")
-                    ->orWhere('user_id', 'like', "%{$q}%");
-            });
-        }
-
-        if ($jenis !== 'Semua') {
-            $jenis === 'Kasir'
-                ? $query->whereNull('order_id')
-                : $query->whereNotNull('order_id');
-        }
-
-        if ($status !== 'Semua') {
-            $query->where('status', $status);
-        }
 
         $query->whereBetween('created_at', [$dari, $sampai.' 23:59:59']);
 

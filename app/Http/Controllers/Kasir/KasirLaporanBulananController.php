@@ -125,8 +125,9 @@ class KasirLaporanBulananController extends Controller
         );
 
         $tglHariIni = now()->day;
+        $fmt = fn ($value) => number_format($value, 0, ',', '.');
 
-        return view('kasir.laporan-bulanan', [
+        return $this->viewOrFragment($request, 'kasir.laporan-bulanan', 'kasir.laporan-bulanan-results', [
             'bulan' => $bulan,
             'tahun' => $tahun,
             'kasirId' => $kasirId,
@@ -144,6 +145,7 @@ class KasirLaporanBulananController extends Controller
             'topKategori' => $topKategori,
             'statCards' => $statCards,
             'rp' => $rp,
+            'fmt' => $fmt,
             'daftarBulan' => $daftarBulan,
             'daftarTahun' => $daftarTahun,
             'tglHariIni' => $tglHariIni,

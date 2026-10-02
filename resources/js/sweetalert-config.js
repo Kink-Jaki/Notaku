@@ -10,3 +10,27 @@ Swal.mixin({
     },
     buttonsStyling: false,
 });
+
+document.addEventListener('submit', (event) => {
+    const form = event.target.closest('form[data-confirm]');
+
+    if (! form || event.defaultPrevented) {
+        return;
+    }
+
+    event.preventDefault();
+
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: form.getAttribute('data-confirm'),
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            HTMLFormElement.prototype.submit.call(form);
+        }
+    });
+});
