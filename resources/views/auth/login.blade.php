@@ -1,6 +1,10 @@
 @extends('layouts.auth')
 
-@section('title', 'Login — {{ $settings->brand_name }}')
+@php
+    $settings = \App\Support\SettingsHelper::get();
+@endphp
+
+@section('title', 'Login — ' . $settings->brand_name)
 
 @section('auth_content')
     <h1 class="h4 fw-semibold text-center mb-1">Masuk ke Akun Anda</h1>
@@ -30,9 +34,14 @@
         <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center mb-1">
                 <label class="form-label mb-0" for="password">Password</label>
-                @if (Route::has('password.request'))
-                    <a class="small fw-semibold" href="{{ route('password.request') }}">Lupa password?</a>
-                @endif
+                <button
+                    type="button"
+                    class="btn btn-link p-0 small fw-semibold text-decoration-none align-baseline"
+                    data-bs-toggle="modal"
+                    data-bs-target="#lupaPasswordModal .modal"
+                >
+                    Lupa password?
+                </button>
             </div>
             <input
                 id="password"
@@ -58,12 +67,41 @@
         </button>
     </form>
 
-    <div class="auth-card__foot">
-        <div class="d-flex justify-content-around text-capitalize flex-wrap gap-2">
-            <span><i class="bi bi-person-badge me-1"></i>admin@posapp.test</span>
-            <span>password</span>
-        </div>
-        <div class="text-muted-pos mt-2">Akun demo untuk semua role (admin / kasir / pelanggan)</div>
+    {{-- ================= MODAL LUPA PASSWORD ================= --}}
+    <div id="lupaPasswordModal">
+        <x-modal size="modal-sm" title="Lupa Password">
+            <p class="mb-3">Silahkan hubungi admin outlet untuk reset password akun Anda.</p>
+
+            @if ($settings->social_whatsapp || $settings->contact_phone || $settings->contact_email)
+                <ul class="list-unstyled mb-0">
+                    @if ($settings->social_whatsapp)
+                        <li class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-whatsapp text-success" aria-hidden="true"></i>
+                            <span>
+                                WhatsApp:
+                                <a href="https://wa.me/{{ $settings->social_whatsapp }}" target="_blank" rel="noopener">
+                                    {{ $settings->social_whatsapp }}
+                                </a>
+                            </span>
+                        </li>
+                    @endif
+                    @if ($settings->contact_phone)
+                        <li class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-telephone text-primary" aria-hidden="true"></i>
+                            <span>Telepon: {{ $settings->contact_phone }}</span>
+                        </li>
+                    @endif
+                    @if ($settings->contact_email)
+                        <li class="d-flex align-items-center gap-2">
+                            <i class="bi bi-envelope text-primary" aria-hidden="true"></i>
+                            <span>Email: <a href="mailto:{{ $settings->contact_email }}">{{ $settings->contact_email }}</a></span>
+                        </li>
+                    @endif
+                </ul>
+            @else
+                <p class="small text-muted-pos mb-0">Hubungi admin atau kasir di outlet tempat Anda mendaftar.</p>
+            @endif
+        </x-modal>
     </div>
 @endsection
 

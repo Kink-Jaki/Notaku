@@ -155,17 +155,20 @@
                 </h2>
                 <div id="collapseLupaPassword" class="accordion-collapse collapse" data-bs-parent="#pusatBantuanAccordion">
                     <div class="accordion-body">
-                        <p class="mb-3">Gunakan fitur <strong>Lupa password?</strong> yang tersedia di halaman Login:</p>
+                        <p class="mb-3">
+                            Reset password dilakukan oleh admin outlet, bukan lewat email otomatis.
+                            Ikuti langkah berikut:
+                        </p>
                         <ol class="mb-3">
-                            <li>Buka halaman Login, lalu klik tautan <strong>Lupa password?</strong> (atau langsung ke <code>/forgot-password</code>).</li>
-                            <li>Masukkan alamat email yang terdaftar, lalu kirim tautan reset password.</li>
-                            <li>Buka email masuk dan klik tautan <strong>Reset Password</strong> yang dikirim sistem.</li>
-                            <li>Masukkan password baru, lalu login kembali dengan password terbaru.</li>
+                            <li>Hubungi admin outlet dan sampaikan email akun yang terdaftar.</li>
+                            <li>Admin membuat tautan reset dari menu <strong>Manajemen User &amp; Role</strong> lalu mengirimkannya ke Anda (mis. lewat WhatsApp).</li>
+                            <li>Buka tautan tersebut, lalu masukkan password baru.</li>
+                            <li>Login kembali dengan password terbaru.</li>
                         </ol>
-                        <a href="{{ route('password.request') }}" class="btn btn-brand btn-sm">
-                            <i class="bi bi-key me-1"></i> Reset Password Sekarang
-                        </a>
-                        <p class="small text-muted-pos mt-3 mb-0">Email reset tidak masuk? Cek folder <strong>Spam</strong> atau hubungi admin outlet.</p>
+                        <p class="small text-muted-pos mb-0">
+                            Tautan hanya berlaku sekali dan kedaluwarsa singkat setelah dibuat. Jika sudah tidak berlaku,
+                            minta admin membuat tautan baru.
+                        </p>
                     </div>
                 </div>
             </div>

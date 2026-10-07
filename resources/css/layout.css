@@ -3,8 +3,6 @@
 :root {
   --bs-primary: var(--color-primary);
   --bs-primary-rgb: var(--color-primary-rgb);
-  --bs-secondary: #64748B;
-  --bs-secondary-rgb: 100, 116, 139;
   --bs-success: var(--color-success);
   --bs-success-rgb: var(--color-success-rgb);
   --bs-warning: var(--color-warning);
@@ -13,8 +11,14 @@
   --bs-danger-rgb: var(--color-danger-rgb);
   --bs-info: var(--color-info);
   --bs-info-rgb: var(--color-info-rgb);
-  --bs-body-bg: var(--color-bg);
+--bs-body-bg: var(--color-bg);
   --bs-body-color: var(--color-text);
+  /* Bootstrap menurunkan warna sel tabel lewat
+     .table { --bs-table-color: var(--bs-emphasis-color) } dan override
+     --bs-emphasis-color hanya untuk [data-bs-theme], yang tidak pernah dipakai
+     aplikasi ini (kita memakai [data-theme]). Akibatnya nilainya tetap #000 dan
+     setiap <td> polos jadi hitam, bahkan di mode terang. */
+  --bs-emphasis-color: var(--color-text);
   --bs-body-font-family: var(--font-sans);
   --bs-border-color: var(--color-border);
   --bs-border-radius: var(--pos-radius);
@@ -134,9 +138,24 @@ a:hover {
   margin-left: var(--sidebar-collapsed-width);
 }
 
+/* A sticky topbar already consumes the first --topbar-height of the viewport,
+   so the shell below it must not claim a full 100vh on top of that. */
+.app-main--below-topbar {
+  min-height: calc(100vh - var(--topbar-height));
+}
+
 /* Page canvas — keeps content off the sidebar edge */
 .app-page {
   padding: var(--space-6);
+  /* Jangkar untuk overlay page-skeleton yang menutupi konten. */
+  position: relative;
+}
+
+/* Auth shell owns the whole canvas, so it drops the page padding and
+   stretches to the height left over by the topbar. */
+.app-page--flush {
+  padding: 0;
+  flex: 1;
 }
 
 @media (max-width: 991.98px) {
@@ -618,6 +637,69 @@ a:hover {
     width: var(--sidebar-width);
   }
 
+  /* Safety net: the collapsed rail is a desktop-only layout, so every label it
+     hides has to come back here. Keeps the drawer readable even if `.collapsed`
+     is present before JS reconciles state (or is ever server-rendered). */
+  .app-sidebar.collapsed .app-sidebar__brand-text,
+  .app-sidebar.collapsed .app-sidebar__section-title,
+  .app-sidebar.collapsed .app-sidebar__nav-text,
+  .app-sidebar.collapsed .app-sidebar__badge,
+  .app-sidebar.collapsed .app-sidebar__footer-content,
+  .app-sidebar.collapsed .app-sidebar__profile-text {
+    opacity: 1;
+    visibility: visible;
+    width: auto;
+  }
+
+  .app-sidebar.collapsed .app-sidebar__section-title {
+    padding: var(--space-4) 0 var(--space-2);
+    text-align: left;
+  }
+
+  .app-sidebar.collapsed .app-sidebar__brand-mark {
+    margin: 0;
+  }
+
+  .app-sidebar.collapsed .app-sidebar__nav {
+    scrollbar-width: auto;
+  }
+
+  .app-sidebar.collapsed .app-sidebar__nav::-webkit-scrollbar {
+    display: block;
+  }
+
+  .app-sidebar.collapsed .nav-link {
+    justify-content: flex-start;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* Hover tooltips belong to the icon rail; the drawer already spells the
+     label out, so they would just duplicate it. */
+  .app-sidebar.collapsed .nav-link::after {
+    content: none;
+  }
+
+  .app-sidebar.collapsed .nav-link.active::before {
+    display: block;
+  }
+
+  .app-sidebar.collapsed .nav-link .badge-soon {
+    display: inline-flex;
+  }
+
+  .app-sidebar.collapsed .app-sidebar__guest-cta {
+    display: block;
+  }
+
+  .app-sidebar.collapsed .app-sidebar__logout-btn {
+    justify-content: center;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .app-sidebar.collapsed .app-sidebar__logout-btn span {
+    display: inline;
+  }
+
   .app-main {
     margin-left: 0;
   }
@@ -628,6 +710,13 @@ a:hover {
 
   .app-sidebar__close {
     display: inline-block;
+  }
+
+  /* The drawer is already narrow, so the perkecil/perlebar toggle is dead
+     weight here — and it would otherwise leak a persisted .collapsed state
+     back into the desktop layout. */
+  .app-sidebar__collapse-btn {
+    display: none;
   }
 }
 
@@ -646,6 +735,12 @@ a:hover {
 
   .app-topbar.app-topbar--sidebar-collapsed {
     margin-left: var(--sidebar-collapsed-width);
+  }
+
+  /* Guest shells have no sidebar, so the topbar spans the full width and
+     stays flush with the centred auth card. */
+  .app-topbar.app-topbar--no-sidebar {
+    margin-left: 0;
   }
 
   .app-sidebar.collapsed ~ .app-main,
@@ -1166,7 +1261,7 @@ a:hover {
    AUTH SHELL
    ============================================================ */
 .auth-shell {
-  min-height: 100vh;
+  min-height: calc(100vh - var(--topbar-height));
   display: grid;
   place-items: center;
   padding: var(--space-6);
@@ -1248,6 +1343,14 @@ a:hover {
 @media (min-width: 992px) {
   .store-topbar--with-sidebar .store-topbar__brand {
     display: none;
+  }
+
+  /* Collapsed rail is 72px wide, so the storefront shell has to give up the
+     remaining 188px instead of leaving a dead gutter on the left. */
+  .app-sidebar.collapsed ~ .store-main--with-sidebar,
+  body.sidebar-collapsed .store-topbar--with-sidebar,
+  body.sidebar-collapsed .store-main--with-sidebar {
+    margin-left: var(--sidebar-collapsed-width);
   }
 }
 

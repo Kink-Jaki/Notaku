@@ -35,7 +35,7 @@ class DeveloperController extends Controller
             'color_success' => 'required|string|max:7',
             'color_warning' => 'required|string|max:7',
             'color_danger' => 'required|string|max:7',
-            'theme_variant' => 'required|in:' . implode(',', $presetKeys),
+            'theme_variant' => 'required|in:'.implode(',', $presetKeys),
             'dev_mode' => 'boolean',
             'footer_tagline' => 'nullable|string|max:200',
             'social_instagram' => 'nullable|url|max:255',
@@ -49,12 +49,12 @@ class DeveloperController extends Controller
 
         $setting = Setting::first() ?? new Setting;
         $setting->brand_name = $validated['brand_name'];
-        
+
         // Apply preset colors if theme_variant changed (unless in dev_mode where user customizes manually)
         $newVariant = $validated['theme_variant'];
         $isDevMode = $request->boolean('dev_mode');
-        
-        if (!$isDevMode || $setting->theme_variant !== $newVariant) {
+
+        if (! $isDevMode || $setting->theme_variant !== $newVariant) {
             ThemePresets::applyToSettings($newVariant, $setting);
         } else {
             // In dev_mode and same variant - use manually entered colors
@@ -66,7 +66,7 @@ class DeveloperController extends Controller
             $setting->color_warning = $validated['color_warning'];
             $setting->color_danger = $validated['color_danger'];
         }
-        
+
         $setting->theme_variant = $newVariant;
         $setting->dev_mode = $isDevMode;
         $setting->footer_tagline = $validated['footer_tagline'] ?? null;

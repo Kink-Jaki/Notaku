@@ -3,6 +3,7 @@
 namespace App\Services\Payments;
 
 use App\Models\Order;
+use Illuminate\Support\Facades\Log;
 use Xendit\Exceptions\ApiException;
 use Xendit\Invoice;
 use Xendit\Xendit;
@@ -36,7 +37,14 @@ class XenditGateway implements PaymentGateway
                 'invoice_id' => $invoice['id'] ?? ($invoice->id ?? ''),
             ];
         } catch (ApiException $e) {
-            throw new \RuntimeException('Gagal membuat invoice Xendit: '.$e->getMessage());
+            Log::error('Xendit: gagal membuat invoice', [
+                'order_number' => $order->order_number,
+                'http_status' => $e->getCode(),
+                'error_code' => $e->getErrorCode(),
+                'message' => $e->getMessage(),
+            ]);
+
+            throw new \RuntimeException('Pembayaran online sedang tidak tersedia. Silakan coba lagi sebentar.');
         }
     }
 
@@ -47,6 +55,13 @@ class XenditGateway implements PaymentGateway
 
             return true;
         } catch (ApiException $e) {
+            Log::warning('Xendit: gagal expire invoice', [
+                'xendit_invoice_id' => $xenditInvoiceId,
+                'http_status' => $e->getCode(),
+                'error_code' => $e->getErrorCode(),
+                'message' => $e->getMessage(),
+            ]);
+
             return false;
         }
     }

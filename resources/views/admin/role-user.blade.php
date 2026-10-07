@@ -215,6 +215,38 @@
         </div>
     </div>
 
+    {{-- ================= MODAL TAUTAN RESET PASSWORD ================= --}}
+    <div id="modalResetLink" class="modal fade" tabindex="-1" aria-labelledby="modalResetLinkLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalResetLinkLabel">Tautan Reset Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small mb-3">
+                        Salin tautan di bawah lalu kirimkan manual ke
+                        <strong id="resetLinkEmail">user</strong> (mis. lewat WhatsApp).
+                        Tautan hanya berlaku sekali dan kedaluwarsa setelah
+                        <strong id="resetLinkExpiry">60 menit</strong>.
+                    </p>
+                    <div class="input-group">
+                        <input type="text" id="resetLinkUrl" class="form-control font-monospace" readonly>
+                        <button type="button" class="btn btn-brand" id="resetLinkCopy">
+                            <i class="bi bi-clipboard me-1"></i> Salin
+                        </button>
+                    </div>
+                    <div class="form-text">
+                        Membuat tautan baru akan membatalkan tautan sebelumnya untuk user yang sama.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
@@ -276,6 +308,153 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         POSModalForm.submit(userForm);
+    });
+});
+
+/* Tautan reset password dibuat manual oleh admin. Tombolnya ada di partial
+   tabel yang di-render ulang saat filter berubah, jadi event-nya didelegasikan
+   ke document, bukan diikat langsung ke tombol. */
+
+/* Clipboard API hanya tersedia di secure context, sedangkan outlet sering
+   diakses lewat http:// — jadi ada fallback ke execCommand. */
+function copyText(value) {
+    if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(value).then(function () {
+            return true;
+        }).catch(function () {
+            return copyTextFallback(value);
+        });
+    }
+
+    return Promise.resolve(copyTextFallback(value));
+}
+
+function copyTextFallback(value) {
+    var field = document.createElement('textarea');
+
+    field.value = value;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    document.body.appendChild(field);
+    field.select();
+
+    var copied = false;
+
+    try {
+        copied = document.execCommand('copy');
+    } catch (error) {
+        copied = false;
+    }
+
+    document.body.removeChild(field);
+
+    return copied;
+}
+
+document.addEventListener('click', function (event) {
+    var trigger = event.target.closest('[data-reset-link]');
+
+    if (!trigger) {
+        return;
+    }
+
+    event.preventDefault();
+
+    var url = trigger.getAttribute('data-url');
+    var email = trigger.getAttribute('data-email') || '';
+
+    var modalElement = document.getElementById('modalResetLink');
+    var urlField = document.getElementById('resetLinkUrl');
+    var emailLabel = document.getElementById('resetLinkEmail');
+    var expiryLabel = document.getElementById('resetLinkExpiry');
+
+    if (!modalElement || !urlField) {
+        return;
+    }
+
+    Swal.fire({
+        title: 'Buat Tautan Reset Password?',
+        text: 'Tautan untuk ' + email + ' akan dibuat dan harus dikirim manual ke user.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, buat!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then(function (result) {
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        Swal.fire({
+            title: 'Membuat tautan...',
+            allowOutsideClick: false,
+            didOpen: function () {
+                Swal.showLoading();
+            }
+        });
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                'X-Requested-With': 'XMLHttpRequest',
+                Accept: 'application/json'
+            }
+        })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    return { ok: response.ok, data: data };
+                });
+            })
+            .then(function (result) {
+                if (!result.ok) {
+                    throw new Error(result.data.message || 'Gagal membuat tautan reset password.');
+                }
+
+                Swal.close();
+
+                urlField.value = result.data.url;
+                emailLabel.textContent = result.data.email || email;
+                expiryLabel.textContent = result.data.expires_in_minutes + ' menit';
+
+                bootstrap.Modal.getOrCreateInstance(modalElement).show();
+            })
+            .catch(function (error) {
+                Swal.close();
+                Swal.fire({
+                    title: 'Gagal',
+                    text: error.message,
+                    icon: 'error',
+                    confirmButtonText: 'Tutup'
+                });
+            });
+    });
+});
+
+document.addEventListener('click', function (event) {
+    var copyButton = event.target.closest('#resetLinkCopy');
+
+    if (!copyButton) {
+        return;
+    }
+
+    event.preventDefault();
+
+    var urlField = document.getElementById('resetLinkUrl');
+
+    if (!urlField || !urlField.value) {
+        return;
+    }
+
+    copyText(urlField.value).then(function (copied) {
+        Swal.fire({
+            title: copied ? 'Tautan tersalin' : 'Gagal menyalin',
+            text: copied ? '' : 'Salin manual dari kolom tautan.',
+            icon: copied ? 'success' : 'warning',
+            timer: copied ? 1500 : null,
+            showConfirmButton: !copied
+        });
     });
 });
 </script>

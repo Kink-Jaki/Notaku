@@ -1,4 +1,4 @@
-import{initDashboardChart as e}from"./dashboard-chart-CpZ534_Z.js";var t=`/api/admin/dashboard`,n=`
+import{initDashboardChart as e}from"./dashboard-chart-DqYHqzQs.js";var t=`/api/admin/dashboard`,n=`
     <div class="empty-state py-3">
         <div class="empty-state__icon"><i class="bi bi-check-circle"></i></div>
         <div class="empty-state__title">Semua stok aman</div>

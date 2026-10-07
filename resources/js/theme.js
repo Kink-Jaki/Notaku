@@ -27,6 +27,10 @@ const applyTheme = (theme) => {
             theme === 'dark' ? 'Mode terang' : 'Mode gelap',
         );
     });
+
+    // Widget berbasis <canvas> (Chart.js) tidak bisa di-style lewat CSS,
+    // jadi perlu sinyal eksplisit untuk menggambar ulang dengan palet tema.
+    document.dispatchEvent(new CustomEvent('themechange', { detail: { theme } }));
 };
 
 const persistTheme = (theme) => {

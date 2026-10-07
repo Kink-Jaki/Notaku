@@ -18,6 +18,12 @@ class ThemePresets
      * Key `surfaces` menyimpan warna netral (latar, border, teks) yang
      * diturunkan per varian supaya tidak perlu ditulis manual di Blade.
      *
+     * Semua varian di sini berlatar terang. Mode gelap punya jalurnya sendiri
+     * lewat blok `[data-theme="dark"]` (lihat `SettingsHelper::sidebarCss`),
+     * jadi preset varian tidak perlu menyediakan pasangan gelap — memaksakan
+     * gelap lewat preset bikin `data-theme` dan pilihan admin saling
+     * bertentangan.
+     *
      * @var array<string, array<string, mixed>>
      */
     private const PALETTES = [
@@ -87,23 +93,6 @@ class ThemePresets
                 'color_border' => '#FDE68A',
                 'color_text' => '#78350F',
                 'color_text_muted' => '#D97706',
-            ],
-        ],
-        'midnight' => [
-            'name' => 'Midnight (Navy)',
-            'color_primary' => '#1E3A8A',
-            'color_primary_dark' => '#1E293B',
-            'color_secondary' => '#6366F1',
-            'color_secondary_dark' => '#4F46E5',
-            'color_success' => '#10B981',
-            'color_warning' => '#F59E0B',
-            'color_danger' => '#EF4444',
-            'surfaces' => [
-                'color_bg' => '#0F172A',
-                'color_surface' => '#1E293B',
-                'color_border' => '#334155',
-                'color_text' => '#F1F5F9',
-                'color_text_muted' => '#94A3B8',
             ],
         ],
         'rose' => [

@@ -15,6 +15,7 @@ export class Sidebar {
             collapsedClass: 'collapsed',
             openClass: 'is-open',
             mainCollapsedClass: 'app-main--sidebar-collapsed',
+            topbarCollapsedClass: 'app-topbar--sidebar-collapsed',
             storageKey: 'sidebar-collapsed',
             ...options
         };
@@ -93,29 +94,32 @@ export class Sidebar {
         document.body.classList.remove('sidebar-open');
     }
 
-applyState() {
-        if (this.isCollapsed) {
-            this.sidebar.classList.add('collapsed');
-            this.topbar?.classList.add('app-topbar--sidebar-collapsed');
-            if (this.mainContent) {
-                this.mainContent.classList.add(this.options.mainCollapsedClass);
-            }
-            if (this.collapseBtn) {
-                this.collapseBtn.setAttribute('aria-expanded', 'true');
-                this.collapseBtn.setAttribute('aria-label', 'Perkecil sidebar');
-                this.collapseBtn.querySelector('span').textContent = 'Perkecil';
-            }
-} else {
-            this.sidebar.classList.remove('collapsed');
-            this.topbar?.classList.remove('app-topbar--sidebar-collapsed');
-            if (this.mainContent) {
-                this.mainContent.classList.remove(this.options.mainCollapsedClass);
-            }
-            if (this.collapseBtn) {
-                this.collapseBtn.setAttribute('aria-expanded', 'false');
-                this.collapseBtn.setAttribute('aria-label', 'Perlebar sidebar');
-                this.collapseBtn.querySelector('span').textContent = 'Perlebar';
-            }
+    applyState() {
+        // The collapsed rail is a desktop-only affordance. On mobile the sidebar
+        // is a full-width drawer, so a persisted `collapsed` must not be
+        // re-applied or every label collapses into an icon-only rail.
+        const collapsed = this.isCollapsed && !this.isMobile;
+
+        this.sidebar.classList.toggle(this.options.collapsedClass, collapsed);
+        this.topbar?.classList.toggle(this.options.topbarCollapsedClass, collapsed);
+        this.mainContent?.classList.toggle(this.options.mainCollapsedClass, collapsed);
+
+        // Storefront shell (marketplace) is offset by CSS, not by an element the
+        // module knows about, so mirror the state onto <body>.
+        document.body.classList.toggle('sidebar-collapsed', collapsed);
+
+        if (!this.collapseBtn) {
+            return;
+        }
+
+        const action = collapsed ? 'Perkecil' : 'Perlebar';
+
+        this.collapseBtn.setAttribute('aria-expanded', String(collapsed));
+        this.collapseBtn.setAttribute('aria-label', `${action} sidebar`);
+
+        const label = this.collapseBtn.querySelector('span');
+        if (label) {
+            label.textContent = action;
         }
     }
 
@@ -149,6 +153,7 @@ applyState() {
                 this.sidebar.classList.add('offcanvas', 'offcanvas-start');
                 this.sidebar.setAttribute('tabindex', '-1');
                 this.mainContent?.classList.remove(this.options.mainCollapsedClass);
+                this.applyState();
             } else {
                 // Desktop: restore sidebar
                 this.sidebar.classList.remove('offcanvas', 'offcanvas-start', this.options.openClass);

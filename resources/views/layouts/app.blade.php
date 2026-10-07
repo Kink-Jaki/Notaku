@@ -45,6 +45,28 @@
                 .app-sidebar .nav-link { padding: 0.375rem 0.5rem; font-size: 0.8125rem; }
             @endif
         </style>
+
+        {{-- Terapkan tema sebelum render pertama. resources/js/theme.js baru jalan
+             setelah bundle Vite termuat (deferred), jadi tanpa ini halaman admin
+             berkedip terang dulu setiap load saat mode gelap aktif.
+             Kunci localStorage harus sama dengan THEME_KEY di theme.js. --}}
+        <script>
+            (function () {
+                var theme;
+
+                try {
+                    theme = window.localStorage.getItem('notaku-theme');
+                } catch (error) {
+                    theme = null;
+                }
+
+                if (theme !== 'light' && theme !== 'dark') {
+                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+
+                document.documentElement.setAttribute('data-theme', theme);
+            })();
+        </script>
     </head>
     <body>
         @php
@@ -79,10 +101,12 @@
             </a>
 
             <div class="ms-auto d-flex align-items-center gap-2">
+                @include('partials.theme-toggle')
+
                 <div class="dropdown">
                     <button
                         type="button"
-                        class="btn btn-light dropdown-toggle d-flex align-items-center gap-2"
+                        class="btn btn-soft dropdown-toggle d-flex align-items-center gap-2"
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                     >
@@ -130,7 +154,7 @@
         </aside>
         @else
         @if(! Auth::check())
-        <nav class="app-topbar">
+        <nav class="app-topbar app-topbar--no-sidebar">
             <a href="{{ url('/') }}" class="app-topbar__brand">
                 <span class="app-sidebar__brand-mark">
                     @if ($settings->logo_path)
@@ -154,8 +178,10 @@
         @endif
         @endif
 
-        <div class="app-main @if((isset($hideSidebar) && $hideSidebar) || Auth::guest() || $sidebarMode === 'drawer') app-main--no-sidebar @endif">
-            <main class="app-page">
+        <div class="app-main @if((isset($hideSidebar) && $hideSidebar) || Auth::guest() || $sidebarMode === 'drawer') app-main--no-sidebar @endif @if(isset($authShell) && $authShell) app-main--below-topbar @endif">
+            <main class="app-page @if(isset($authShell) && $authShell) app-page--flush @endif">
+                @include('partials.page-skeleton')
+
                 @yield('content')
             </main>
 

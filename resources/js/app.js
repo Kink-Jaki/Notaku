@@ -8,6 +8,7 @@ import './realtime-filter';
 import './client-filter';
 import './cart';
 import './page-progress.js';
+import './page-skeleton.js';
 import './sidebar.js';
 
 window.bootstrap = bootstrap;

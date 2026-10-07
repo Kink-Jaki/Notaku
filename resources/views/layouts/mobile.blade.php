@@ -15,7 +15,7 @@
     ];
 @endphp
 
-@section('title', '{{ $settings->brand_name }}')
+@section('title', $settings->brand_name)
 
 @section('store-shell')
     {{-- Mobile Top Bar --}}

@@ -40,10 +40,11 @@ class HelpCenterTest extends TestCase
             ->assertSee('helper-fab', false);
     }
 
-    public function test_topik_lupa_password_mengarah_ke_fitur_reset_breeze(): void
+    public function test_topik_lupa_password_menyarankan_hubungi_admin(): void
     {
         $this->get('/pusat-bantuan')
             ->assertOk()
-            ->assertSee(route('password.request'), false);
+            ->assertSee('Hubungi admin outlet', false)
+            ->assertDontSee('/forgot-password', false);
     }
 }

@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -139,5 +140,41 @@ class AdminUserController extends Controller
         ]);
 
         return redirect()->route('admin.user-role.index')->with('swal_success', 'Data berhasil dihapus');
+    }
+
+    /**
+     * Buat tautan reset password untuk satu user dan kembalikan tautannya,
+     * supaya admin bisa mengirimkannya manual (mis. lewat WhatsApp).
+     *
+     * Email reset tidak pernah dikirim otomatis: alur /forgot-password sudah
+     * dihapus, jadi token baru membatalkan token lama milik user yang sama.
+     */
+    public function resetLink(Request $request, User $user)
+    {
+        $token = Password::createToken($user);
+        $url = route('password.reset', ['token' => $token, 'email' => $user->email]);
+        $expiresInMinutes = (int) config('auth.passwords.users.expire', 60);
+
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'create_password_reset_link',
+            'model_type' => User::class,
+            'model_id' => $user->id,
+            'description' => "Membuat tautan reset password untuk {$user->name} ({$user->email})",
+            'old_values' => null,
+            'new_values' => ['email' => $user->email, 'expires_in_minutes' => $expiresInMinutes],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return $request->expectsJson()
+            ? response()->json([
+                'message' => 'Tautan reset password berhasil dibuat.',
+                'url' => $url,
+                'email' => $user->email,
+                'expires_in_minutes' => $expiresInMinutes,
+            ])
+            : redirect()->route('admin.user-role.index')
+                ->with('swal_success', 'Tautan reset password untuk '.$user->email.' berhasil dibuat.');
     }
 }

@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Verifikasi Email — {{ $settings->brand_name }}')
+@section('title', 'Verifikasi Email — ' . \App\Support\SettingsHelper::get()->brand_name)
 
 @section('auth_content')
     <div class="text-center mb-4">

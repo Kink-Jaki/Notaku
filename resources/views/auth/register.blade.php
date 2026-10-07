@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Daftar — {{ $settings->brand_name }}')
+@section('title', 'Daftar — ' . \App\Support\SettingsHelper::get()->brand_name)
 
 @section('auth_content')
     <h1 class="h4 fw-semibold text-center mb-1">Buat Akun Baru</h1>

@@ -1,10 +1,12 @@
 @extends('layouts.app')
 @php
     $hideSidebar = true;
+    $hideFullFooter = true;
+    $authShell = true;
     $settings = \App\Support\SettingsHelper::get();
 @endphp
 
-@section('title', 'Masuk — {{ $settings->brand_name }}')
+@section('title', 'Masuk — ' . $settings->brand_name)
 
 @section('content')
     <div class="auth-shell">

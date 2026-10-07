@@ -49,6 +49,9 @@
                             ]) }}">
                                 <i class="bi bi-pencil"></i>
                             </button>
+                            <button type="button" class="btn btn-sm link-secondary py-0" title="Kirim tautan reset password" data-reset-link data-url="{{ route('admin.user-role.reset-link', $user) }}" data-email="{{ $user->email }}">
+                                <i class="bi bi-key"></i>
+                            </button>
                             <form method="POST" action="{{ route('admin.user-role.destroy', $user) }}" style="display:inline;" data-confirm="Hapus user ini?">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-sm link-danger py-0" title="Hapus user">

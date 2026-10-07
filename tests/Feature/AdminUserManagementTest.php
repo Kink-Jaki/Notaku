@@ -33,4 +33,16 @@ class AdminUserManagementTest extends TestCase
             ->assertDontSee('name="status"', false)
             ->assertDontSee('is_active', false);
     }
+
+    public function test_daftar_user_menampilkan_tombol_tautan_reset_password(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $user = User::factory()->create();
+
+        $this->actingAs($admin)
+            ->get('/admin/user-role')
+            ->assertOk()
+            ->assertSee('title="Kirim tautan reset password"', false)
+            ->assertSee(route('admin.user-role.reset-link', $user), false);
+    }
 }

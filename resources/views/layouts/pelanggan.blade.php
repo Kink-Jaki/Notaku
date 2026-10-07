@@ -4,7 +4,7 @@
     $settings = \App\Support\SettingsHelper::get();
 @endphp
 
-@section('title', 'Marketplace — {{ $settings->brand_name }}')
+@section('title', 'Marketplace — ' . $settings->brand_name)
 
 @section('store-shell')
     @php

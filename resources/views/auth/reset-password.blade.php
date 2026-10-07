@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Reset Password — {{ $settings->brand_name }}')
+@section('title', 'Reset Password — ' . \App\Support\SettingsHelper::get()->brand_name)
 
 @section('auth_content')
     <h1 class="h4 fw-semibold text-center mb-4">Atur Password Baru</h1>

@@ -465,8 +465,9 @@ Setiap layout role (admin, kasir, pelanggan) extends `layouts.app` dan menyediak
 ### Auth Blade Views
 
 Terletak di `resources/views/auth/`:
-- `login.blade.php`, `register.blade.php`, `forgot-password.blade.php`, dll.
+- `login.blade.php`, `register.blade.php`, `reset-password.blade.php`, dll.
 - Semua extends `layouts.auth` → `layouts.app` dengan `hideSidebar=true`
+- Reset password tidak mandiri: halaman `/forgot-password` tidak ada. Admin membuat tautan dari `Manajemen User & Role` dan mengirimkannya manual ke user.
 
 ---
 

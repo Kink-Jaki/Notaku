@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Konfirmasi Password — {{ $settings->brand_name }}')
+@section('title', 'Konfirmasi Password — ' . \App\Support\SettingsHelper::get()->brand_name)
 
 @section('auth_content')
     <h1 class="h4 fw-semibold text-center mb-1">Konfirmasi Password</h1>

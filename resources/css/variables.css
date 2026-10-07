@@ -48,10 +48,16 @@
   --color-border-strong: #CBD5E1;
   --color-divider: #E2E8F0;
 
+  /* Skeleton placeholder */
+  --color-skeleton: #E2E8F0;
+  --color-skeleton-shine: rgba(255, 255, 255, 0.75);
+
   /* Text Colors */
   --color-text: #0F172A;
   --color-text-secondary: #334155;
-  --color-text-muted: #94A3B8;
+  --color-text-muted: #64748B;
+  --color-text-subtle: #64748B;
+  --color-text-subtle-rgb: 100, 116, 139;
   --color-text-inverse: #FFFFFF;
   --color-text-link: #4F46E5;
   --color-text-link-hover: #4338CA;
@@ -198,6 +204,26 @@
   --avatar-size-sm: 1.75rem;
   --avatar-size-lg: 2.75rem;
   --avatar-size-xl: 3.5rem;
+
+  /* ============================================================
+     BOOTSTRAP TOKEN BRIDGE
+     Bootstrap hardcode abu-abunya (#6c757d) lewat token sendiri,
+     sehingga .form-text / .text-muted / .text-secondary tetap
+     gelap di atas surface gelap. Dibridge ke token tema supaya
+     ikut resolve ulang saat [data-theme="dark"] menimpa sumbernya.
+     ============================================================ */
+  --bs-secondary-color: var(--color-text-subtle);
+  --bs-secondary-text-emphasis: var(--color-text-secondary);
+  --bs-secondary-bg: var(--color-bg-subtle);
+  --bs-tertiary-color: var(--color-text-subtle);
+  --bs-tertiary-text-emphasis: var(--color-text-secondary);
+  --bs-tertiary-bg: var(--color-bg-subtle);
+  --bs-body-secondary-color: var(--color-text-subtle);
+
+  /* Varian RGB dipakai kelas .link-secondary / .link-danger. Tanpa ini
+     .link-secondary membeku di abu-abu terang dan ikut gelap di mode gelap. */
+  --bs-secondary-rgb: var(--color-text-subtle-rgb);
+  --bs-tertiary-rgb: var(--color-text-subtle-rgb);
 }
 
 /* ============================================================
@@ -249,10 +275,16 @@
   --color-border-strong: #475569;
   --color-divider: #334155;
 
+  /* Skeleton placeholder */
+  --color-skeleton: #1E293B;
+  --color-skeleton-shine: rgba(148, 163, 184, 0.22);
+
   /* Text Colors */
   --color-text: #F8FAFC;
   --color-text-secondary: #E2E8F0;
   --color-text-muted: #94A3B8;
+  --color-text-subtle: #94A3B8;
+  --color-text-subtle-rgb: 148, 163, 184;
   --color-text-inverse: #0F172A;
   --color-text-link: #A5B4FC;
   --color-text-link-hover: #C7D2FE;

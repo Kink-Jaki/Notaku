@@ -46,6 +46,15 @@ Route::get('/design-system', function () {
 
 Route::get('/pusat-bantuan', [HelpCenterController::class, 'index'])->name('pusat-bantuan');
 
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'app' => config('app.name'),
+        'env' => config('app.env'),
+        'timestamp' => now()->toISOString(),
+    ]);
+})->name('health');
+
 Route::get('/dashboard', function () {
     $user = Auth::user();
 
@@ -125,6 +134,11 @@ Route::get('/api/admin/dashboard', [AdminDashboardApiController::class, 'index']
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('user-role', AdminUserController::class)->except(['create', 'edit', 'show']);
+
+    // Tautan reset password dibuat manual oleh admin lalu dikirim ke user di luar
+    // aplikasi (mis. WhatsApp), karena alur /forgot-password tidak lagi tersedia.
+    Route::post('user-role/{user_role}/tautan-reset', [AdminUserController::class, 'resetLink'])
+        ->name('user-role.reset-link');
     Route::resource('promo', AdminPromoController::class)->except(['create', 'edit', 'show']);
     Route::resource('produk', AdminProdukController::class)->except(['create', 'edit', 'show']);
     Route::resource('kategori', AdminCategoryController::class)->except(['create', 'edit', 'show']);

@@ -8,7 +8,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-C19yfr9f.css",
+    "file": "assets/app-CawdESQ9.css",
     "name": "app",
     "names": [
       "app.css"
@@ -34,7 +34,7 @@
     ]
   },
   "resources/js/admin-dashboard-loader.js": {
-    "file": "assets/admin-dashboard-loader-CBk92nzk.js",
+    "file": "assets/admin-dashboard-loader-B_SkYgM0.js",
     "name": "admin-dashboard-loader",
     "src": "resources/js/admin-dashboard-loader.js",
     "isEntry": true,
@@ -44,7 +44,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CgjjH1sn.js",
+    "file": "assets/app-DuAjEShi.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -53,7 +53,7 @@
     ]
   },
   "resources/js/dashboard-chart.js": {
-    "file": "assets/dashboard-chart-CpZ534_Z.js",
+    "file": "assets/dashboard-chart-DqYHqzQs.js",
     "name": "dashboard-chart",
     "src": "resources/js/dashboard-chart.js",
     "isEntry": true

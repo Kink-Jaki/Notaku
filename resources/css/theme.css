@@ -199,6 +199,21 @@
 }
 
 /* ============================================================
+   Link action buttons (ikon edit / hapus di kolom Aksi)
+   Bootstrap meredupkan hover ke opacity 0.5. Di atas surface gelap
+   itu hampir hilang, jadi hover dibuat justru lebih terang.
+   ============================================================ */
+[data-theme="dark"] .link-secondary:hover,
+[data-theme="dark"] .link-secondary:focus {
+    color: var(--color-text) !important;
+}
+
+[data-theme="dark"] .link-danger:hover,
+[data-theme="dark"] .link-danger:focus {
+    color: var(--color-danger) !important;
+}
+
+/* ============================================================
    Print (receipts & reports) — always light
    ============================================================ */
 
